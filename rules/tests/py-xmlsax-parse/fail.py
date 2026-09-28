@@ -1,0 +1,1 @@
+xml.sax.parse(src)

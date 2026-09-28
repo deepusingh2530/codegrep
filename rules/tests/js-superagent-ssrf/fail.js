@@ -1,0 +1,1 @@
+superagent.get(userUrl);

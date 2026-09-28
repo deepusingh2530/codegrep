@@ -1,0 +1,1 @@
+err := fasthttp.Do(req)

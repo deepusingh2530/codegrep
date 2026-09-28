@@ -1,0 +1,3 @@
+services:
+  api:
+    user: "1000:1000"

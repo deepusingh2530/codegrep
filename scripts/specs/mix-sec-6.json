@@ -1,0 +1,230 @@
+[
+ {
+  "id": "java-ognl-eval",
+  "group": "jvx2",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "OGNL expression evaluated from input (expression injection)",
+  "fix": "Never evaluate untrusted expressions",
+  "pattern": "Ognl.getValue($EXPR)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-917",
+   "confidence": "HIGH"
+  },
+  "fail": "Object v = Ognl.getValue(userExpr, root)",
+  "pass": "Object v = lookupFixedExpression(root)"
+ },
+ {
+  "id": "java-spel-eval",
+  "group": "jvx2",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Spring SpEL expression parsed from input (expression injection)",
+  "fix": "Never parse untrusted expressions",
+  "pattern": "parseExpression($EXPR)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-917",
+   "confidence": "HIGH"
+  },
+  "fail": "Expression e = parser.parseExpression(userExpr)",
+  "pass": "Expression e = fixedExpression()"
+ },
+ {
+  "id": "java-object-input-stream",
+  "group": "jvx2",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "ObjectInputStream deserializes untrusted data",
+  "fix": "Use a type allowlist or a safe data format",
+  "pattern": "new ObjectInputStream($IS)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "ObjectInputStream ois = new ObjectInputStream(in)",
+  "pass": "BufferedReader br = new BufferedReader(new FileReader(f))"
+ },
+ {
+  "id": "java-cors-allow-all",
+  "group": "jvx2",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cross-Origin resource shared with any origin (CORS wildcard)",
+  "fix": "Restrict allowed origins to trusted domains",
+  "pattern": "origins = \"*\"",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-942",
+   "confidence": "MEDIUM"
+  },
+  "fail": "@CrossOrigin(origins = \"*\")",
+  "pass": "@CrossOrigin(origins = \"https://example.com\")"
+ },
+ {
+  "id": "java-spring-actuator-env",
+  "group": "jvx2",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Actuator environment endpoint may expose configuration secrets",
+  "fix": "Disable or secure actuator endpoints in production",
+  "pattern": "env.enabled = true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-200",
+   "confidence": "MEDIUM"
+  },
+  "fail": "management.endpoint.env.enabled = true",
+  "pass": "management.endpoint.env.enabled = false"
+ },
+ {
+  "id": "yaml-private-key-block",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Private key committed in YAML",
+  "fix": "Store keys in a secret manager, not in source",
+  "pattern": "PRIVATE KEY",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-321",
+   "confidence": "HIGH"
+  },
+  "fail": "key: |\n  -----BEGIN PRIVATE KEY-----\n",
+  "pass": "key: ${TLS_PRIVATE_KEY}\n"
+ },
+ {
+  "id": "yaml-api-key",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "API key committed in YAML",
+  "fix": "Reference the key from a secret manager",
+  "pattern": "api_key:",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "service:\n  api_key: sk-live-abc123\n",
+  "pass": "service:\n  endpoint: ${SERVICE_URL}\n"
+ },
+ {
+  "id": "yaml-gha-self-hosted",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Workflow job runs on a self-hosted runner (exposed to fork code)",
+  "fix": "Use GitHub-hosted runners for untrusted workflows",
+  "pattern": "self-hosted",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-829",
+   "confidence": "MEDIUM"
+  },
+  "fail": "runs-on: self-hosted\n",
+  "pass": "runs-on: ubuntu-latest\n"
+ },
+ {
+  "id": "yaml-ansible-host-key-checking",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "SSH host key checking disabled in Ansible",
+  "fix": "Enable host key checking or pin known hosts",
+  "pattern": "host_key_checking: False",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "MEDIUM"
+  },
+  "fail": "host_key_checking: False\n",
+  "pass": "host_key_checking: True\n"
+ },
+ {
+  "id": "yaml-compose-pid-host",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Compose service shares the host PID namespace",
+  "fix": "Avoid pid: host unless strictly required",
+  "pattern": "pid: host",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "services:\n  app:\n    pid: host\n",
+  "pass": "services:\n  app:\n    pid: private\n"
+ },
+ {
+  "id": "yaml-compose-network-host",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Compose service joins the host network",
+  "fix": "Use a dedicated bridge network",
+  "pattern": "network_mode: host",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "services:\n  app:\n    network_mode: host\n",
+  "pass": "services:\n  app:\n    network_mode: bridge\n"
+ },
+ {
+  "id": "yaml-compose-docker-socket",
+  "group": "ysec3",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Docker socket mounted into a container (container escape)",
+  "fix": "Do not mount /var/run/docker.sock",
+  "pattern": "docker.sock",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "volumes:\n  - /var/run/docker.sock:/var/run/docker.sock\n",
+  "pass": "volumes:\n  - ./data:/data\n"
+ }
+]

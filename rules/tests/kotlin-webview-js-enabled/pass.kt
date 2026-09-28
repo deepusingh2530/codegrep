@@ -1,0 +1,1 @@
+webView.settings.javaScriptEnabled = false

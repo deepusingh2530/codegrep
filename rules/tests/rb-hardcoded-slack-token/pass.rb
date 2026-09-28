@@ -1,0 +1,1 @@
+SLACK_TOKEN = ENV.fetch("SLACK_TOKEN")

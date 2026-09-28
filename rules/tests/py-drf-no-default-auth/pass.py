@@ -1,0 +1,1 @@
+DEFAULT_AUTHENTICATION_CLASSES = [SessionAuthentication]

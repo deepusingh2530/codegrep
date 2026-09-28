@@ -1,0 +1,350 @@
+[
+ {
+  "id": "yaml-k8s-hostport",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container binds a hostPort (bypasses network policy)",
+  "fix": "Use a Service instead of hostPort",
+  "pattern": "hostPort:",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-284",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "containers:\n  - name: web\n    ports:\n      - containerPort: 80\n        hostPort: 80\n",
+  "pass": "containers:\n  - name: web\n    ports:\n      - containerPort: 80\n"
+ },
+ {
+  "id": "yaml-k8s-writable-rootfs",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container root filesystem is writable",
+  "fix": "Set readOnlyRootFilesystem: true and mount writable volumes",
+  "pattern": "readOnlyRootFilesystem: false",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "securityContext:\n      readOnlyRootFilesystem: false\n",
+  "pass": "securityContext:\n      readOnlyRootFilesystem: true\n"
+ },
+ {
+  "id": "yaml-k8s-insecure-port",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "API server exposes the cleartext insecure-port",
+  "fix": "Remove --insecure-port; use only the TLS secure-port",
+  "pattern": "insecure-port",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-319",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "command:\n  - kube-apiserver\n  - --insecure-port=8080\n",
+  "pass": "command:\n  - kube-apiserver\n  - --secure-port=6443\n"
+ },
+ {
+  "id": "yaml-k8s-anonymous-auth",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "API server allows anonymous authentication",
+  "fix": "Set --anonymous-auth=false",
+  "pattern": "--anonymous-auth=true",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-287",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "command:\n  - kube-apiserver\n  - --anonymous-auth=true\n",
+  "pass": "command:\n  - kube-apiserver\n  - --anonymous-auth=false\n"
+ },
+ {
+  "id": "yaml-k8s-allow-privileged",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "API server allows privileged containers cluster-wide",
+  "fix": "Set --allow-privileged=false and grant capabilities explicitly",
+  "pattern": "--allow-privileged=true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-269",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "command:\n  - kube-apiserver\n  - --allow-privileged=true\n",
+  "pass": "command:\n  - kube-apiserver\n  - --allow-privileged=false\n"
+ },
+ {
+  "id": "yaml-k8s-dashboard-skip-login",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Dashboard configured to skip login (unauthenticated UI access)",
+  "fix": "Remove --enable-skip-login and require authentication",
+  "pattern": "--enable-skip-login",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-287",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "containers:\n  - name: dashboard\n    args:\n      - --enable-skip-login\n",
+  "pass": "containers:\n  - name: dashboard\n    args:\n      - --url-prefix=/\n"
+ },
+ {
+  "id": "yaml-gha-expression-in-run",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "Workflow interpolates a ${{ }} expression into a run step (script injection)",
+  "fix": "Pass the value via env: and quote it in the shell script",
+  "pattern": "run: ${{",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-94",
+   "confidence": "MEDIUM"
+  },
+  "group": "ygap3",
+  "fail": "steps:\n  - name: comment\n    run: ${{ github.event.issue.title }}\n",
+  "pass": "steps:\n  - name: build\n    run: make ci\n"
+ },
+ {
+  "id": "yaml-gha-pr-head-checkout",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Workflow checks out PR head code (untrusted code with workflow privileges)",
+  "fix": "Never combine pull_request_target with a head-ref checkout",
+  "pattern": "pull_request.head",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-94",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "steps:\n  - uses: actions/checkout@v4\n    with:\n      ref: ${{ github.event.pull_request.head.sha }}\n",
+  "pass": "steps:\n  - uses: actions/checkout@v4\n    with:\n      ref: ${{ github.sha }}\n"
+ },
+ {
+  "id": "yaml-env-password-plaintext",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Password assigned in plaintext in a YAML env/config block",
+  "fix": "Reference a secret store instead of inlining the password",
+  "pattern": "PASSWORD=",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "environment:\n  - DB_PASSWORD=hunter2\n  - NODE_ENV=production\n",
+  "pass": "environment:\n  - NODE_ENV=production\n"
+ },
+ {
+  "id": "yaml-ssh-permit-root",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "SSH permits direct root login",
+  "fix": "Set PermitRootLogin no and use a named admin account",
+  "pattern": "PermitRootLogin yes",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-287",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "sshd_config:\n  PermitRootLogin yes\n",
+  "pass": "sshd_config:\n  PermitRootLogin no\n"
+ },
+ {
+  "id": "yaml-ssh-password-auth",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "SSH allows password authentication (brute-force surface)",
+  "fix": "Use key-only authentication (PasswordAuthentication no)",
+  "pattern": "PasswordAuthentication yes",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-521",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "sshd_config:\n  PasswordAuthentication yes\n",
+  "pass": "sshd_config:\n  PasswordAuthentication no\n"
+ },
+ {
+  "id": "yaml-redis-protected-off",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Redis protected mode disabled (no-auth exposure risk)",
+  "fix": "Keep protected-mode yes and set a strong requirepass",
+  "pattern": "protected-mode: no",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-306",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "redis.conf:\n  protected-mode: no\n  port: 6379\n",
+  "pass": "redis.conf:\n  protected-mode: yes\n  port: 6379\n"
+ },
+ {
+  "id": "yaml-cookie-secure-off",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie/session config missing the Secure flag",
+  "fix": "Set secure: true so cookies only travel over TLS",
+  "pattern": "secure: false",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-614",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "session:\n  cookie:\n    secure: false\n",
+  "pass": "session:\n  cookie:\n    secure: true\n"
+ },
+ {
+  "id": "yaml-cookie-httponly-off",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie config missing HttpOnly (readable from JS / XSS theft)",
+  "fix": "Set httpOnly: true on session cookies",
+  "pattern": "httpOnly: false",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-1004",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "session:\n  cookie:\n    httpOnly: false\n",
+  "pass": "session:\n  cookie:\n    httpOnly: true\n"
+ },
+ {
+  "id": "yaml-mysql-bind-all",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "MySQL listens on all interfaces",
+  "fix": "Bind to localhost or the app subnet: bind-address: 127.0.0.1",
+  "pattern": "bind-address: 0.0.0.0",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "mysqld:\n  bind-address: 0.0.0.0\n",
+  "pass": "mysqld:\n  bind-address: 127.0.0.1\n"
+ },
+ {
+  "id": "yaml-rabbit-guest-user",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "RabbitMQ configured with the default guest user",
+  "fix": "Create a unique admin user and disable the guest account",
+  "pattern": "default_user: guest",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "rabbitmq:\n  default_user: guest\n  default_pass: guest\n",
+  "pass": "rabbitmq:\n  default_user: app\n  default_pass: ${RABBIT_PASS}\n"
+ },
+ {
+  "id": "yaml-grafana-admin-password",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Grafana admin password set to a trivial literal",
+  "fix": "Use env var interpolation or a secret mount for admin_password",
+  "pattern": "admin_password: $V",
+  "mvr": {
+   "V": "(?i)^(admin|password|changeme|secret)\\s*$"
+  },
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "admin_password: admin",
+  "pass": "admin_password: ${GRAFANA_ADMIN_PASSWORD}"
+ },
+ {
+  "id": "yaml-jdbc-embedded-password",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Database credentials embedded in the JDBC URL",
+  "fix": "Load the JDBC URL and credentials from a secret store",
+  "pattern": "jdbc:$URL",
+  "mvr": {
+   "URL": "^[^:]+://[^/]*:[^/]*@"
+  },
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "group": "ygap3",
+  "fail": "spring:\n  datasource:\n    url: jdbc:mysql://admin:secret@db-host:3306/app\n",
+  "pass": "spring:\n  datasource:\n    url: jdbc:mysql://db-host:3306/app\n"
+ }
+]

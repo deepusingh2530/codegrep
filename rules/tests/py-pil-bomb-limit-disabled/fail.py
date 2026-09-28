@@ -1,0 +1,1 @@
+Image.MAX_IMAGE_PIXELS = None

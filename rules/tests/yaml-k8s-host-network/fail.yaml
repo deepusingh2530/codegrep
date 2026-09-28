@@ -1,0 +1,4 @@
+spec:
+  hostNetwork: true
+  containers:
+    - name: app

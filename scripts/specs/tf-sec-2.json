@@ -1,0 +1,404 @@
+[
+ {
+  "id": "tf-s3-block-public-acls-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "S3 public ACLs not blocked",
+  "fix": "Set block_public_acls = true",
+  "pattern": "block_public_acls = false",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "public_access_block {\n  block_public_acls = false\n}",
+  "pass": "public_access_block {\n  block_public_acls = true\n}"
+ },
+ {
+  "id": "tf-s3-block-public-policy-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "S3 public bucket policies not blocked",
+  "fix": "Set block_public_policy = true",
+  "pattern": "block_public_policy = false",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "public_access_block {\n  block_public_policy = false\n}",
+  "pass": "public_access_block {\n  block_public_policy = true\n}"
+ },
+ {
+  "id": "tf-s3-ignore-public-acls-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "S3 public ACLs not ignored",
+  "fix": "Set ignore_public_acls = true",
+  "pattern": "ignore_public_acls = false",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "public_access_block {\n  ignore_public_acls = false\n}",
+  "pass": "public_access_block {\n  ignore_public_acls = true\n}"
+ },
+ {
+  "id": "tf-s3-restrict-public-buckets-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "S3 public bucket access not restricted",
+  "fix": "Set restrict_public_buckets = true",
+  "pattern": "restrict_public_buckets = false",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "public_access_block {\n  restrict_public_buckets = false\n}",
+  "pass": "public_access_block {\n  restrict_public_buckets = true\n}"
+ },
+ {
+  "id": "tf-s3-force-destroy",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Bucket allows force destroy (data loss risk)",
+  "fix": "Set force_destroy = false for critical buckets",
+  "pattern": "force_destroy = true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_s3_bucket\" \"b\" {\n  force_destroy = true\n}",
+  "pass": "resource \"aws_s3_bucket\" \"b\" {\n  force_destroy = false\n}"
+ },
+ {
+  "id": "tf-s3-versioning-disabled",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "S3 versioning disabled (no ransomware recovery)",
+  "fix": "Set enable_versioning = true",
+  "pattern": "enable_versioning = false",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-693",
+   "confidence": "MEDIUM"
+  },
+  "fail": "versioning {\n  enabled = false\n  enable_versioning = false\n}",
+  "pass": "versioning {\n  enable_versioning = true\n}"
+ },
+ {
+  "id": "tf-rds-deletion-protection-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "RDS deletion protection disabled",
+  "fix": "Set deletion_protection = true",
+  "pattern": "deletion_protection = false",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  deletion_protection = false\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  deletion_protection = true\n}"
+ },
+ {
+  "id": "tf-rds-backup-retention-zero",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "RDS backups disabled (retention = 0)",
+  "fix": "Set a nonzero backup_retention_period",
+  "pattern": "backup_retention_period = 0",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-693",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  backup_retention_period = 0\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  backup_retention_period = 7\n}"
+ },
+ {
+  "id": "tf-rds-monitoring-interval-zero",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "RDS enhanced monitoring disabled",
+  "fix": "Set a nonzero monitoring_interval",
+  "pattern": "monitoring_interval = 0",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-778",
+   "confidence": "LOW"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  monitoring_interval = 0\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  monitoring_interval = 60\n}"
+ },
+ {
+  "id": "tf-rds-iam-auth-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "RDS IAM database authentication disabled",
+  "fix": "Set iam_database_authentication_enabled = true",
+  "pattern": "iam_database_authentication_enabled = false",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-308",
+   "confidence": "LOW"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  iam_database_authentication_enabled = false\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  iam_database_authentication_enabled = true\n}"
+ },
+ {
+  "id": "tf-rds-skip-final-snapshot",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "RDS final snapshot skipped on destroy",
+  "fix": "Set skip_final_snapshot = false",
+  "pattern": "skip_final_snapshot = true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-693",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  skip_final_snapshot = true\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  skip_final_snapshot = false\n}"
+ },
+ {
+  "id": "tf-rds-min-tls-10",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "RDS allows TLS 1.0 (deprecated)",
+  "fix": "Require min_tls_version = \"1.2\"",
+  "pattern": "min_tls_version = \"1.0\"",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-326",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  min_tls_version = \"1.0\"\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  min_tls_version = \"1.2\"\n}"
+ },
+ {
+  "id": "tf-eks-endpoint-private-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "EKS public API endpoint enabled without private access",
+  "fix": "Enable endpoint_private_access",
+  "pattern": "endpoint_private_access = false",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "vpc_config {\n  endpoint_private_access = false\n}",
+  "pass": "vpc_config {\n  endpoint_private_access = true\n}"
+ },
+ {
+  "id": "tf-cloudwatch-retention-zero",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "CloudWatch log group keeps logs indefinitely",
+  "fix": "Set a finite retention_in_days",
+  "pattern": "retention_in_days = 0",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-778",
+   "confidence": "LOW"
+  },
+  "fail": "resource \"aws_cloudwatch_log_group\" \"l\" {\n  retention_in_days = 0\n}",
+  "pass": "resource \"aws_cloudwatch_log_group\" \"l\" {\n  retention_in_days = 30\n}"
+ },
+ {
+  "id": "tf-sg-open-all-ports",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Security group opens every port",
+  "fix": "Restrict ingress rules to known ports",
+  "inside": "resource \"aws_security_group\"",
+  "pattern": "to_port = 65535",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_security_group\" \"sg\" {\n  ingress {\n    to_port = 65535\n  }\n}",
+  "pass": "resource \"aws_security_group\" \"sg\" {\n  ingress {\n    to_port = 443\n  }\n}"
+ },
+ {
+  "id": "tf-sg-open-ssh",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Security group opens SSH (22) to the network",
+  "fix": "Restrict ingress rules to known networks",
+  "inside": "resource \"aws_security_group\"",
+  "pattern": "from_port = 22",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_security_group\" \"sg\" {\n  ingress {\n    from_port = 22\n    to_port   = 22\n  }\n}",
+  "pass": "resource \"aws_security_group\" \"sg\" {\n  ingress {\n    from_port = 443\n    to_port   = 443\n  }\n}"
+ },
+ {
+  "id": "tf-nacl-world-open",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Network ACL allows 0.0.0.0/0",
+  "fix": "Scope the ACL rule to known CIDRs",
+  "inside": "resource \"aws_network_acl_rule\"",
+  "pattern": "0.0.0.0/0",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_network_acl_rule\" \"n\" {\n  cidr_block = \"0.0.0.0/0\"\n}",
+  "pass": "resource \"aws_network_acl_rule\" \"n\" {\n  cidr_block = \"10.0.0.0/8\"\n}"
+ },
+ {
+  "id": "tf-azure-blob-public-access",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Azure storage account allows public blob access",
+  "fix": "Set allow_blob_public_access = false",
+  "pattern": "allow_blob_public_access = true",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "resource \"azurerm_storage_account\" \"s\" {\n  allow_blob_public_access = true\n}",
+  "pass": "resource \"azurerm_storage_account\" \"s\" {\n  allow_blob_public_access = false\n}"
+ },
+ {
+  "id": "tf-gcp-bucket-uniform-access-off",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "GCS uniform bucket-level access disabled",
+  "fix": "Set uniform_bucket_level_access = true",
+  "pattern": "uniform_bucket_level_access = false",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"google_storage_bucket\" \"b\" {\n  uniform_bucket_level_access = false\n}",
+  "pass": "resource \"google_storage_bucket\" \"b\" {\n  uniform_bucket_level_access = true\n}"
+ },
+ {
+  "id": "tf-gcp-iam-allauthenticated",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "GCP IAM grants access to all authenticated users",
+  "fix": "Grant to specific identities instead",
+  "pattern": "allAuthenticatedUsers",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "binding {\n  member = \"allAuthenticatedUsers\"\n}",
+  "pass": "binding {\n  member = \"serviceAccount:app@proj.iam.gserviceaccount.com\"\n}"
+ },
+ {
+  "id": "tf-iam-role-principal-wildcard",
+  "group": "tfsec4",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Trust policy allows any principal to assume the role",
+  "fix": "Restrict the trusting principals",
+  "pattern": "Principal = \"*\"",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-269",
+   "confidence": "HIGH"
+  },
+  "fail": "assume_role_policy = jsonencode({\n  Principal = \"*\"\n})",
+  "pass": "assume_role_policy = jsonencode({\n  Principal = { Service = \"ec2.amazonaws.com\" }\n})"
+ }
+]

@@ -1,0 +1,743 @@
+[
+ {
+  "id": "py-subprocess-check-output",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "subprocess.check_output runs a shell command built from input",
+  "fix": "Avoid shell=True; pass an argument vector instead",
+  "pattern": "subprocess.check_output($VAR, shell=True)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "out = subprocess.check_output(cmd, shell=True)",
+  "pass": "out = subprocess.check_output([\"ls\", \"-l\"])"
+ },
+ {
+  "id": "py-subprocess-getoutput",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "subprocess.getoutput passes a command string to the shell",
+  "fix": "Use subprocess.run with a fixed argument list",
+  "pattern": "subprocess.getoutput($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "out = subprocess.getoutput(user_input)",
+  "pass": "out = subprocess.run([\"ls\"], capture_output=True).stdout"
+ },
+ {
+  "id": "py-subprocess-getstatusoutput",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "subprocess.getstatusoutput passes a command string to the shell",
+  "fix": "Use subprocess.run with a fixed argument list",
+  "pattern": "subprocess.getstatusoutput($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "code, out = subprocess.getstatusoutput(cmd)",
+  "pass": "p = subprocess.run([\"ls\"], capture_output=True)"
+ },
+ {
+  "id": "py-os-execv",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "os.execv replaces the process with a user-influenced path",
+  "fix": "Use a fixed executable path",
+  "pattern": "os.execv($PATH, ...)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "os.execv(user_path, args)",
+  "pass": "subprocess.Popen([\"true\"])"
+ },
+ {
+  "id": "py-os-execl",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "os.execl runs a user-influenced executable",
+  "fix": "Use a fixed executable path",
+  "pattern": "os.execl($PATH, ...)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "os.execl(cmd, cmd)",
+  "pass": "subprocess.run([\"echo\", \"hi\"])"
+ },
+ {
+  "id": "py-asyncio-shell",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "asyncio.create_subprocess_shell runs a shell command",
+  "fix": "Use create_subprocess_exec with an argument vector",
+  "pattern": "asyncio.create_subprocess_shell($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "proc = await asyncio.create_subprocess_shell(cmd)",
+  "pass": "proc = await asyncio.create_subprocess_exec(\"ls\")"
+ },
+ {
+  "id": "py-pty-spawn",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "pty.spawn runs a program with a pseudo-terminal from input",
+  "fix": "Avoid pty.spawn on untrusted input",
+  "pattern": "pty.spawn($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "MEDIUM"
+  },
+  "fail": "pty.spawn(user_cmd)",
+  "pass": "subprocess.run([\"ls\"])"
+ },
+ {
+  "id": "py-os-startfile",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "os.startfile opens a user-controlled path with the default handler",
+  "fix": "Do not start arbitrary files from untrusted input",
+  "pattern": "os.startfile($PATH)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-73",
+   "confidence": "MEDIUM"
+  },
+  "fail": "os.startfile(user_path)",
+  "pass": "webbrowser.open(\"report.pdf\")"
+ },
+ {
+  "id": "py-pickle-load",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "pickle.load reads objects from an untrusted file",
+  "fix": "Use JSON or a safe format for untrusted data",
+  "pattern": "pickle.load($F)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "obj = pickle.load(f)",
+  "pass": "obj = json.load(f)"
+ },
+ {
+  "id": "py-pickle-unpickler",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "pickle.Unpickler can execute code while loading",
+  "fix": "Use JSON or a safe format for untrusted data",
+  "pattern": "pickle.Unpickler($F)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "u = pickle.Unpickler(f)",
+  "pass": "data = json.load(f)"
+ },
+ {
+  "id": "py-dill-loads",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "dill deserializes untrusted data (code execution risk)",
+  "fix": "Do not dill.loads untrusted bytes",
+  "pattern": "dill.loads($X)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "obj = dill.loads(payload)",
+  "pass": "obj = json.loads(payload)"
+ },
+ {
+  "id": "py-cloudpickle-loads",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "cloudpickle deserializes untrusted data (code execution risk)",
+  "fix": "Do not cloudpickle.loads untrusted bytes",
+  "pattern": "cloudpickle.loads($X)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "fn = cloudpickle.loads(blob)",
+  "pass": "obj = json.loads(blob)"
+ },
+ {
+  "id": "py-jsonpickle-decode",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "jsonpickle.decode can reconstruct arbitrary objects",
+  "fix": "Use plain JSON decoding",
+  "pattern": "jsonpickle.decode($X)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "obj = jsonpickle.decode(payload)",
+  "pass": "obj = json.loads(payload)"
+ },
+ {
+  "id": "py-joblib-load",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "joblib.load deserializes models that can execute code",
+  "fix": "Only load trusted model files; verify integrity",
+  "pattern": "joblib.load($PATH)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "m = joblib.load(path)",
+  "pass": "m = joblib.load_from_disk_safe(path)"
+ },
+ {
+  "id": "py-torch-load",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "torch.load can execute arbitrary code via pickled weights",
+  "fix": "Use weights_only=True when loading checkpoints",
+  "pattern": "torch.load($PATH)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "m = torch.load(path)",
+  "pass": "checkpoint = read_state_dict(path)"
+ },
+ {
+  "id": "py-numpy-allow-pickle",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "numpy.load with allow_pickle can execute code",
+  "fix": "Set allow_pickle=False for untrusted .npy files",
+  "pattern": "allow_pickle=True",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "arr = numpy.load(path, allow_pickle=True)",
+  "pass": "arr = numpy.load(path, allow_pickle=False)"
+ },
+ {
+  "id": "py-yaml-unsafe-load",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "yaml.unsafe_load constructs arbitrary Python objects",
+  "fix": "Use yaml.safe_load for untrusted input",
+  "pattern": "yaml.unsafe_load($X)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "data = yaml.unsafe_load(text)",
+  "pass": "data = yaml.safe_load(text)"
+ },
+ {
+  "id": "py-lxml-fromstring",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a5-injection",
+  "message": "lxml parses XML that may resolve external entities",
+  "fix": "Use defusedxml or disable entity resolution",
+  "pattern": "etree.fromstring($XML)",
+  "metadata": {
+   "owasp": "A05:2021-Security-Logging",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "root = etree.fromstring(user_xml)",
+  "pass": "root = parse(\"config.xml\")"
+ },
+ {
+  "id": "py-minidom-parsestring",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a5-injection",
+  "message": "minidom parses XML from a string that may be untrusted",
+  "fix": "Use defusedxml for untrusted XML",
+  "pattern": "minidom.parseString($XML)",
+  "metadata": {
+   "owasp": "A05:2021-Security-Logging",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "doc = minidom.parseString(user_xml)",
+  "pass": "doc = minidom.parse(\"data.xml\")"
+ },
+ {
+  "id": "py-jinja-from-string",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a3-injection",
+  "message": "Jinja compiles a user-controlled template string (SSTI)",
+  "fix": "Use get_template with static template files",
+  "pattern": ".from_string($TMPL)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "t = env.from_string(user_input)",
+  "pass": "t = env.get_template(\"index.html\")"
+ },
+ {
+  "id": "py-django-extra-where",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "Django .extra(where=...) interpolates raw SQL",
+  "fix": "Use ORM filters or parameterized raw queries",
+  "pattern": ".extra(where=$VAR)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "qs = Model.objects.extra(where=[raw])",
+  "pass": "qs = Model.objects.filter(id=1)"
+ },
+ {
+  "id": "py-sqlite-fstring-execute",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "SQL built with an f-string passed to execute()",
+  "fix": "Use placeholders: cur.execute('... WHERE id=?', (val,))",
+  "pattern": ".execute(f\"",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "cur.execute(f\"SELECT * FROM t WHERE id={x}\")",
+  "pass": "cur.execute(\"SELECT 1\")"
+ },
+ {
+  "id": "py-httpx-get",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "httpx.get fetches a user-controlled URL (SSRF)",
+  "fix": "Allowlist destinations and validate scheme/host",
+  "pattern": "httpx.get($URL)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "r = httpx.get(user_url)",
+  "pass": "r = urllib.request.urlopen(static_url)"
+ },
+ {
+  "id": "py-httpx-post",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "httpx.post sends data to a user-controlled URL (SSRF)",
+  "fix": "Allowlist destinations and validate scheme/host",
+  "pattern": "httpx.post($URL, ...)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "r = httpx.post(user_url, data=d)",
+  "pass": "r = urllib.request.urlopen(static_url)"
+ },
+ {
+  "id": "py-urllib-request",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "urllib.request opens a user-controlled URL (SSRF)",
+  "fix": "Allowlist destinations and validate scheme/host",
+  "pattern": "urllib.request.Request($URL)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "req = urllib.request.Request(user_url)",
+  "pass": "data = http_get(static_url)"
+ },
+ {
+  "id": "py-ftplib-ftp",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "ftplib connects to a user-controlled host (SSRF)",
+  "fix": "Allowlist FTP hosts",
+  "pattern": "ftplib.FTP($HOST)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "fp = ftplib.FTP(user_host)",
+  "pass": "fp = ftplib.FTP_TLS(\"files.example.com\")"
+ },
+ {
+  "id": "py-hashlib-new",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "Dynamic hash algorithm selected at runtime (may be weak)",
+  "fix": "Use a fixed strong hash such as sha256",
+  "pattern": "hashlib.new($ALG)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "h = hashlib.new(alg)",
+  "pass": "h = hashlib.sha256()"
+ },
+ {
+  "id": "py-arc4",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "RC4 stream cipher is cryptographically broken",
+  "fix": "Use AES-GCM instead of ARC4/RC4",
+  "pattern": "ARC4.new($KEY)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "HIGH"
+  },
+  "fail": "c = ARC4.new(key)",
+  "pass": "c = AES.new(key, AES.MODE_GCM)"
+ },
+ {
+  "id": "pyjwt-no-verify",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a2-crypto",
+  "message": "JWT decoded with signature verification disabled",
+  "fix": "Verify JWT signatures with a trusted key and algorithm",
+  "pattern": ".decode($TOKEN, verify=False)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-347",
+   "confidence": "HIGH"
+  },
+  "fail": "data = jwt.decode(tok, verify=False)",
+  "pass": "data = jwt.decode(tok, key=SECRET, algorithms=[\"HS256\"])"
+ },
+ {
+  "id": "py-shutil-rmtree",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Recursive delete of a user-influenced path",
+  "fix": "Validate/allowlist the path before deleting",
+  "pattern": "shutil.rmtree($PATH)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "shutil.rmtree(user_path)",
+  "pass": "shutil.copy(src, dst)"
+ },
+ {
+  "id": "py-os-remove",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Deletes a user-influenced file path",
+  "fix": "Validate/allowlist the path before deleting",
+  "pattern": "os.remove($PATH)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "os.remove(user_path)",
+  "pass": "os.mkdir(\"/tmp/scratch\")"
+ },
+ {
+  "id": "py-os-rename",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Moves/renames using user-influenced paths",
+  "fix": "Validate both paths before renaming",
+  "pattern": "os.rename($SRC, $DST)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "os.rename(user_src, user_dst)",
+  "pass": "shutil.move(\"a.txt\", \"b.txt\")"
+ },
+ {
+  "id": "py-verify-false",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS certificate verification disabled",
+  "fix": "Enable certificate verification in production",
+  "pattern": "verify=False",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "HIGH"
+  },
+  "fail": "requests.get(url, verify=False)",
+  "pass": "requests.get(url, verify=True)"
+ },
+ {
+  "id": "py-flask-cors-star",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "CORS configured to allow any origin",
+  "fix": "Restrict origins to trusted domains",
+  "pattern": "origins=\"*\"",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-942",
+   "confidence": "MEDIUM"
+  },
+  "fail": "CORS(app, origins=\"*\")",
+  "pass": "CORS(app, origins=\"https://example.com\")"
+ },
+ {
+  "id": "py-django-allowed-hosts",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Django ALLOWED_HOSTS permits any host (Host header attacks)",
+  "fix": "List explicit allowed hostnames",
+  "pattern": "ALLOWED_HOSTS = [\"*\"]",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-444",
+   "confidence": "MEDIUM"
+  },
+  "fail": "ALLOWED_HOSTS = [\"*\"]",
+  "pass": "ALLOWED_HOSTS = [\"example.com\"]"
+ },
+ {
+  "id": "py-check-hostname-false",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS hostname checking disabled",
+  "fix": "Do not disable check_hostname",
+  "pattern": "check_hostname = False",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-297",
+   "confidence": "HIGH"
+  },
+  "fail": "ctx.check_hostname = False",
+  "pass": "ctx.check_hostname = True"
+ },
+ {
+  "id": "py-hardcoded-password",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Hardcoded password in source",
+  "fix": "Load the password from an environment variable or secret store",
+  "pattern": "password = \"",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "password = \"hunter2\"",
+  "pass": "password = os.environ[\"DB_PASSWORD\"]"
+ },
+ {
+  "id": "py-hardcoded-asia-key",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Hardcoded temporary AWS access key (ASIA...)",
+  "fix": "Use an IAM role or temporary credentials",
+  "pattern": "$VAR = \"ASIA$REST\"",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "aws_key = \"ASIAJSOIDJHALKJEXAMPLE\"",
+  "pass": "aws_key = os.environ[\"AWS_KEY\"]"
+ },
+ {
+  "id": "py-hardcoded-private-key",
+  "group": "pyx1",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Private key embedded in source",
+  "fix": "Load keys from a secret manager, never commit them",
+  "pattern": "-----BEGIN PRIVATE KEY",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "private_key = \"-----BEGIN PRIVATE KEY-----\\nMIIE...\"",
+  "pass": "private_key = vault.read(\"signing/key\")"
+ }
+]

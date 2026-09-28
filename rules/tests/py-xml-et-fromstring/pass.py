@@ -1,0 +1,1 @@
+root = ET.fromstring("<root/>")

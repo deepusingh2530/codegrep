@@ -1,0 +1,234 @@
+[
+ {
+  "id": "rb-cookie-httponly-false",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie created without the HttpOnly flag",
+  "fix": "Set httponly: true for session cookies",
+  "pattern": "httponly: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-1004",
+   "confidence": "MEDIUM"
+  },
+  "fail": "cookies[:sid] = {httponly: false}",
+  "pass": "cookies[:sid] = {httponly: true}"
+ },
+ {
+  "id": "rb-cookie-secure-false",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie created without the Secure flag",
+  "fix": "Set secure: true for cookies",
+  "pattern": "secure: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-614",
+   "confidence": "MEDIUM"
+  },
+  "fail": "cookies[:sid] = {secure: false}",
+  "pass": "cookies[:sid] = {secure: true}"
+ },
+ {
+  "id": "rb-hardcoded-secret",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Hardcoded password in source",
+  "fix": "Load credentials from a secret manager",
+  "pattern": "password = \"",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "password = \"hunter2\"",
+  "pass": "password = ENV[\"DB_PASS\"]"
+ },
+ {
+  "id": "rb-weak-rand",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "Kernel#rand is not cryptographically secure",
+  "fix": "Use SecureRandom for tokens and nonces",
+  "pattern": "rand($N)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "MEDIUM"
+  },
+  "fail": "token = rand(1000)",
+  "pass": "token = SecureRandom.hex(16)"
+ },
+ {
+  "id": "rb-cipher-rc4",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "RC4 cipher selected (broken)",
+  "fix": "Use AES-256-GCM",
+  "pattern": "Cipher.new(\"rc4\")",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "HIGH"
+  },
+  "fail": "cipher = OpenSSL::Cipher.new(\"rc4\")",
+  "pass": "cipher = OpenSSL::Cipher.new(\"aes-256-gcm\")"
+ },
+ {
+  "id": "rb-load-user-path",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Kernel#load evaluates a file from a dynamic path",
+  "fix": "Require a fixed, allowlisted file",
+  "pattern": "load($FILE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-94",
+   "confidence": "HIGH"
+  },
+  "fail": "load(path)",
+  "pass": "require \"json\"",
+  "not": ".load("
+ },
+ {
+  "id": "rb-public-send-user",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "public_send invoked with a user-controlled method name",
+  "fix": "Map input to a fixed set of methods",
+  "pattern": "public_send($METH)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-470",
+   "confidence": "MEDIUM"
+  },
+  "fail": "obj.public_send(params[:method])",
+  "pass": "obj.public_send(:fixed_method)",
+  "mvr": {
+   "METH": "^[^:]"
+  }
+ },
+ {
+  "id": "rb-const-get-user",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "const_get invoked with a user-controlled constant name",
+  "fix": "Allowlist permitted constant names",
+  "pattern": "const_get($NAME)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-470",
+   "confidence": "MEDIUM"
+  },
+  "fail": "klass = Object.const_get(params[:type])",
+  "pass": "klass = TYPE_MAP.fetch(kind)"
+ },
+ {
+  "id": "rb-class-eval",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "class_eval executes a string as code",
+  "fix": "Avoid evaluating untrusted code",
+  "pattern": "class_eval($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "HIGH"
+  },
+  "fail": "String.class_eval(code)",
+  "pass": "String.define_method(:x) {}"
+ },
+ {
+  "id": "rb-open3-popen3",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Open3.popen3 runs a shell command",
+  "fix": "Use a fixed command with an argument array",
+  "pattern": "Open3.popen3($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "Open3.popen3(cmd)",
+  "pass": "Open3.capture2(\"ls\")"
+ },
+ {
+  "id": "rb-rails-debug-mode",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Rails debugging helpers exposed",
+  "fix": "Disable debug middleware in production",
+  "pattern": "Rails.env.development?",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-489",
+   "confidence": "LOW"
+  },
+  "fail": "if Rails.env.development?\nend",
+  "pass": "if Rails.env.production?\nend"
+ },
+ {
+  "id": "rb-yaml-safe-load-missing",
+  "group": "rbx2",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "YAML.load deserializes untrusted data",
+  "fix": "Use YAML.safe_load for untrusted input",
+  "pattern": "YAML.load_file($F)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "data = YAML.load_file(path)",
+  "pass": "data = YAML.safe_load_file(path)"
+ }
+]

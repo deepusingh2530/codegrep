@@ -1,0 +1,1 @@
+cfg = {"security": {"wantAssertionsSigned": False}}

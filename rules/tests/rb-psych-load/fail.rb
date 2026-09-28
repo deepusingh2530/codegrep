@@ -1,0 +1,1 @@
+data = Psych.load(input)

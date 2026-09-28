@@ -1,0 +1,351 @@
+[
+ {
+  "id": "js-lodash-template",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "lodash template compiled from untrusted input (SSTI)",
+  "fix": "Use fixed templates; never compile user data",
+  "pattern": "_.template($T)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "const t = _.template(userInput)",
+  "pass": "const t = renderFixed()"
+ },
+ {
+  "id": "js-ejs-render",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "ejs.render compiled from untrusted input (SSTI)",
+  "fix": "Use fixed templates; never render user templates",
+  "pattern": "ejs.render($T)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "ejs.render(userTemplate)",
+  "pass": "ejs.renderFile(fixedPath)"
+ },
+ {
+  "id": "js-pug-render",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "pug.render compiled from untrusted input (SSTI)",
+  "fix": "Use fixed templates; never render user templates",
+  "pattern": "pug.render($T)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "pug.render(userTemplate)",
+  "pass": "res.render(\"index\")"
+ },
+ {
+  "id": "js-nunjucks-renderstring",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "nunjucks.renderString compiles untrusted input (SSTI)",
+  "fix": "Use fixed templates; never render user templates",
+  "pattern": "renderString($T)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "nunjucks.renderString(userTemplate)",
+  "pass": "nunjucks.render(\"index\", ctx)"
+ },
+ {
+  "id": "js-cookie-httponly-false",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie created without the HttpOnly flag",
+  "fix": "Set httpOnly: true for session cookies",
+  "pattern": "httpOnly: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-1004",
+   "confidence": "MEDIUM"
+  },
+  "fail": "res.cookie(\"sid\", v, {httpOnly: false})",
+  "pass": "res.cookie(\"sid\", v, {httpOnly: true})"
+ },
+ {
+  "id": "js-express-static-dir",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "express.static serves a directory (may expose files)",
+  "fix": "Serve only intended assets with explicit routes",
+  "pattern": "express.static($DIR)",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-548",
+   "confidence": "LOW"
+  },
+  "fail": "app.use(express.static(dir))",
+  "pass": "app.use(\"/assets\", assetHandler)"
+ },
+ {
+  "id": "js-aes-ecb-iv",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "AES-ECB cipher requested (insecure mode)",
+  "fix": "Use AES-GCM or AES-CBC with a random IV",
+  "pattern": "\"aes-256-ecb\"",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "HIGH"
+  },
+  "fail": "createCipheriv(\"aes-256-ecb\", key, iv)",
+  "pass": "createCipheriv(\"aes-256-gcm\", key, iv)"
+ },
+ {
+  "id": "js-axios-ssrf",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "axios.get fetches a user-controlled URL (SSRF)",
+  "fix": "Allowlist destinations and validate scheme/host",
+  "pattern": "axios.get($URL)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "axios.get(userUrl)",
+  "pass": "await axios.post(staticUrl)"
+ },
+ {
+  "id": "js-create-write-stream",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:path-traversal",
+  "message": "createWriteStream to a possibly user-controlled path",
+  "fix": "Validate the path against a base directory",
+  "pattern": "createWriteStream($P)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "fs.createWriteStream(userPath)",
+  "pass": "fs.createWriteStream(\"out.log\")",
+  "mvr": {
+   "P": "^[^\"']"
+  }
+ },
+ {
+  "id": "js-settimeout-string",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "setTimeout invoked with a string (evaluated as code)",
+  "fix": "Pass a function reference instead of a string",
+  "pattern": "setTimeout($CODE)",
+  "mvr": {
+   "CODE": "^[^A-Za-z_]"
+  },
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "MEDIUM"
+  },
+  "fail": "setTimeout(\"doThing()\", 100)",
+  "pass": "setTimeout(fn, 100)"
+ },
+ {
+  "id": "js-insertadjacenthtml",
+  "group": "jsx2",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "insertAdjacentHTML with untrusted input (XSS)",
+  "fix": "Use textContent or sanitize the HTML first",
+  "pattern": "insertAdjacentHTML($POS)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "el.insertAdjacentHTML(\"beforeend\", userHtml)",
+  "pass": "el.textContent = userText"
+ },
+ {
+  "id": "tf-iam-action-wildcard",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "IAM policy grants Action = \"*\" (full permissions)",
+  "fix": "Scope Action to the required operations",
+  "pattern": "Action = \"*\"",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "policy = jsonencode({\n  Action = \"*\"\n})",
+  "pass": "policy = jsonencode({\n  Action = \"s3:GetObject\"\n})"
+ },
+ {
+  "id": "tf-ec2-imds-optional",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "IMDSv2 not required (http_tokens = optional)",
+  "fix": "Set http_tokens = \"required\"",
+  "pattern": "http_tokens = \"optional\"",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-200",
+   "confidence": "MEDIUM"
+  },
+  "fail": "metadata_options {\n  http_tokens = \"optional\"\n}",
+  "pass": "metadata_options {\n  http_tokens = \"required\"\n}"
+ },
+ {
+  "id": "tf-hardcoded-access-key",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Hardcoded access key in Terraform config",
+  "fix": "Reference the key from a secret store",
+  "pattern": "access_key = \"",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "provider \"aws\" {\n  access_key = \"AKIAEXAMPLE\"\n}",
+  "pass": "provider \"aws\" {\n  access_key = var.aws_access_key\n}"
+ },
+ {
+  "id": "tf-gcp-iam-allusers",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "GCP IAM grants access to allUsers (public)",
+  "fix": "Grant to specific identities instead",
+  "pattern": "allUsers",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "binding {\n  members = [\"allUsers\"]\n}",
+  "pass": "binding {\n  members = [\"serviceAccount:app@proj.iam.gserviceaccount.com\"]\n}"
+ },
+ {
+  "id": "tf-sg-open-mysql",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Security group opens MySQL (3306) to the network",
+  "fix": "Restrict ingress to known application hosts",
+  "inside": "resource \"aws_security_group\"",
+  "pattern": "from_port = 3306",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_security_group\" \"db\" {\n  ingress {\n    from_port = 3306\n    to_port   = 3306\n  }\n}",
+  "pass": "resource \"aws_security_group\" \"db\" {\n  ingress {\n    from_port = 5432\n    to_port   = 5432\n  }\n}"
+ },
+ {
+  "id": "tf-api-gateway-cors-wildcard",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "API Gateway allows a wildcard CORS origin",
+  "fix": "Restrict allow_origins to trusted domains",
+  "pattern": "allow_origins = [\"*\"]",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-942",
+   "confidence": "MEDIUM"
+  },
+  "fail": "cors_configuration {\n  allow_origins = [\"*\"]\n}",
+  "pass": "cors_configuration {\n  allow_origins = [\"https://example.com\"]\n}"
+ },
+ {
+  "id": "tf-cloudtrail-validation",
+  "group": "tfsec3",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "CloudTrail log file validation disabled",
+  "fix": "Enable log file validation for tamper detection",
+  "pattern": "enable_log_file_validation = false",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-1177",
+   "confidence": "LOW"
+  },
+  "fail": "resource \"aws_cloudtrail\" \"t\" {\n  enable_log_file_validation = false\n}",
+  "pass": "resource \"aws_cloudtrail\" \"t\" {\n  enable_log_file_validation = true\n}"
+ }
+]

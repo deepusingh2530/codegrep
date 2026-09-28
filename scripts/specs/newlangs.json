@@ -1,0 +1,653 @@
+[
+ {
+  "id": "tf-s3-public-acl",
+  "group": "security",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "S3 bucket ACL grants public read access",
+  "fix": "Set bucket ACL to private and use presigned URLs or a CDN for public assets",
+  "pattern": "acl = \"public-read\"",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_s3_bucket\" \"data\" {\n  bucket = \"company-data\"\n  acl    = \"public-read\"\n}",
+  "pass": "resource \"aws_s3_bucket\" \"data\" {\n  bucket = \"company-data\"\n  acl    = \"private\"\n}"
+ },
+ {
+  "id": "tf-s3-public-read-write",
+  "group": "security",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "S3 bucket ACL allows anyone to read and write objects",
+  "fix": "Set the bucket ACL to private",
+  "pattern": "acl = \"public-read-write\"",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "HIGH"
+  },
+  "fail": "resource \"aws_s3_bucket\" \"uploads\" {\n  bucket = \"uploads\"\n  acl    = \"public-read-write\"\n}",
+  "pass": "resource \"aws_s3_bucket\" \"uploads\" {\n  bucket = \"uploads\"\n  acl    = \"private\"\n}"
+ },
+ {
+  "id": "tf-ebs-unencrypted",
+  "group": "security",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "EBS volume encryption disabled",
+  "fix": "Set encrypted = true on block devices",
+  "pattern": "encrypted = false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-311",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_ebs_volume\" \"v\" {\n  availability_zone = \"us-east-1a\"\n  size              = 100\n  encrypted         = false\n}",
+  "pass": "resource \"aws_ebs_volume\" \"v\" {\n  availability_zone = \"us-east-1a\"\n  size              = 100\n  encrypted         = true\n}"
+ },
+ {
+  "id": "tf-sg-world-open",
+  "group": "security",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Security group allows ingress from the entire internet (0.0.0.0/0)",
+  "fix": "Restrict cidr_blocks to known networks",
+  "inside": "resource \"aws_security_group\"",
+  "pattern": "0.0.0.0/0",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_security_group\" \"web\" {\n  ingress {\n    from_port   = 22\n    to_port     = 22\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}",
+  "pass": "resource \"aws_security_group\" \"web\" {\n  ingress {\n    from_port   = 22\n    to_port     = 22\n    protocol    = \"tcp\"\n    cidr_blocks = [\"10.0.0.0/16\"]\n  }\n}"
+ },
+ {
+  "id": "tf-rds-publicly-accessible",
+  "group": "security",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "RDS instance is publicly accessible",
+  "fix": "Set publicly_accessible = false and use a private subnet",
+  "pattern": "publicly_accessible = true",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "HIGH"
+  },
+  "fail": "resource \"aws_db_instance\" \"db\" {\n  engine               = \"postgres\"\n  publicly_accessible  = true\n}",
+  "pass": "resource \"aws_db_instance\" \"db\" {\n  engine               = \"postgres\"\n  publicly_accessible  = false\n}"
+ },
+ {
+  "id": "yaml-k8s-privileged-container",
+  "group": "security",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Container runs in privileged mode, disabling isolation",
+  "fix": "Remove privileged: true; drop capabilities instead",
+  "pattern": "privileged: true",
+  "metadata": {
+   "owasp": "A05:2021-Security-Logging",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "containers:\n  - name: app\n    securityContext:\n      privileged: true\n",
+  "pass": "containers:\n  - name: app\n    securityContext:\n      privileged: false\n"
+ },
+ {
+  "id": "yaml-k8s-host-network",
+  "group": "security",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Pod uses the host network namespace",
+  "fix": "Set hostNetwork: false or remove it",
+  "pattern": "hostNetwork: true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "spec:\n  hostNetwork: true\n  containers:\n    - name: app\n",
+  "pass": "spec:\n  hostNetwork: false\n  containers:\n    - name: app\n"
+ },
+ {
+  "id": "yaml-debug-enabled",
+  "group": "security",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Debug mode enabled in configuration",
+  "fix": "Disable debug in production configuration",
+  "pattern": "debug: true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-489",
+   "confidence": "LOW"
+  },
+  "fail": "app:\n  debug: true\n  log_level: verbose\n",
+  "pass": "app:\n  debug: false\n  log_level: info\n"
+ },
+ {
+  "id": "yaml-plaintext-password",
+  "group": "security",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Plaintext password committed in configuration",
+  "fix": "Reference a secret manager or environment variable",
+  "pattern": "password:",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "MEDIUM"
+  },
+  "fail": "database:\n  username: app\n  password: hunter2\n",
+  "pass": "database:\n  username: app\n  password_env: DB_PASSWORD\n",
+  "not": "admin_password"
+ },
+ {
+  "id": "docker-user-root",
+  "group": "security",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container switches back to root user",
+  "fix": "Run as a non-root USER",
+  "pattern": "USER root",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "MEDIUM"
+  },
+  "fail": "FROM node:18-alpine\nWORKDIR /app\nUSER root\n",
+  "pass": "FROM node:18-alpine\nWORKDIR /app\nUSER node\n"
+ },
+ {
+  "id": "docker-curl-pipe-shell",
+  "group": "security",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "Pipes a remote script directly into a shell during build",
+  "fix": "Download, verify a checksum/signature, then execute",
+  "pattern": "| sh",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-494",
+   "confidence": "MEDIUM"
+  },
+  "fail": "FROM alpine:3.19\nRUN curl -fsSL https://example.sh | sh\n",
+  "pass": "FROM alpine:3.19\nRUN curl -fsSL https://pkg.example.tar.gz -o pkg.tgz\n"
+ },
+ {
+  "id": "docker-add-remote-url",
+  "group": "security",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "ADD fetches from a remote URL without checksum verification",
+  "fix": "Use curl with a checksum, or COPY local verified files",
+  "pattern": "ADD http",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-494",
+   "confidence": "LOW"
+  },
+  "fail": "FROM alpine\nADD http://example.com/app.tar.gz /app/\n",
+  "pass": "FROM alpine\nCOPY app.tar.gz /app/\n"
+ },
+ {
+  "id": "docker-passwordless-sudo",
+  "group": "security",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Configures passwordless sudo for a user",
+  "fix": "Remove NOPASSWD sudo rules from images",
+  "pattern": "NOPASSWD",
+  "metadata": {
+   "owasp": "A06:2021-Vulnerable-Components",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "FROM ubuntu:22.04\nRUN echo 'deploy ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/deploy\n",
+  "pass": "FROM ubuntu:22.04\nRUN useradd -m deploy\n"
+ },
+ {
+  "id": "bash-chmod-world-writable",
+  "group": "security",
+  "languages": [
+   "bash"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "World-writable permissions set with chmod 777",
+  "fix": "Grant only the permissions actually needed (e.g. 644/750)",
+  "pattern": "chmod 777",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "chmod 777 /var/www/html\n",
+  "pass": "chmod 644 /var/www/html/index.html\n"
+ },
+ {
+  "id": "bash-eval-variable",
+  "group": "security",
+  "languages": [
+   "bash"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "eval executes a variable as code",
+  "fix": "Avoid eval; use arrays or case statements for dispatch",
+  "pattern": "eval $",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "HIGH"
+  },
+  "fail": "cmd=\"$1\"\neval $cmd\n",
+  "pass": "cmd=\"$1\"\necho \"$cmd\"\n"
+ },
+ {
+  "id": "bash-curl-pipe-shell",
+  "group": "security",
+  "languages": [
+   "bash"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "Remote script piped directly into a shell",
+  "fix": "Download and inspect the script before executing",
+  "pattern": "| bash",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-494",
+   "confidence": "MEDIUM"
+  },
+  "fail": "curl -fsSL https://get.example.sh | bash\n",
+  "pass": "curl -fsSL https://get.example.sh -o installer.sh\n"
+ },
+ {
+  "id": "bash-rm-rf-root",
+  "group": "security",
+  "languages": [
+   "bash"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Recursive forced delete targeting the filesystem root",
+  "fix": "Remove destructive rm -rf on root paths; guard with checks",
+  "pattern": "rm -rf /",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-20",
+   "confidence": "MEDIUM"
+  },
+  "fail": "rm -rf /var/log/app\n",
+  "pass": "rm -rf build\n"
+ },
+ {
+  "id": "c-gets-buffer-overflow",
+  "group": "security",
+  "languages": [
+   "c"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "gets() cannot bound input length and overflows the buffer",
+  "fix": "Use fgets(buf, sizeof(buf), stdin)",
+  "pattern": "gets($BUF)",
+  "not": "fgets",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-120",
+   "confidence": "HIGH"
+  },
+  "fail": "char line[64];\ngets(line);\n",
+  "pass": "char line[64];\nif (fgets(line, sizeof(line), stdin) == NULL) return -1;\n"
+ },
+ {
+  "id": "c-strcpy-unbounded",
+  "group": "security",
+  "languages": [
+   "c"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "strcpy copies without bounds checking",
+  "fix": "Use strncpy or strlcpy with an explicit size",
+  "pattern": "strcpy($DST, $SRC)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-120",
+   "confidence": "HIGH"
+  },
+  "fail": "char dst[16];\nstrcpy(dst, src);\n",
+  "pass": "char dst[16];\nstrncpy(dst, src, sizeof(dst) - 1);\n"
+ },
+ {
+  "id": "c-sprintf-buffer-overflow",
+  "group": "security",
+  "languages": [
+   "c"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "sprintf may overflow its destination buffer",
+  "fix": "Use snprintf with an explicit size",
+  "pattern": "sprintf($BUF, ...)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-787",
+   "confidence": "MEDIUM"
+  },
+  "fail": "char buf[32];\nsprintf(buf, \"%s\", name);\n",
+  "pass": "char buf[32];\nsnprintf(buf, sizeof(buf), \"%s\", name);\n"
+ },
+ {
+  "id": "c-system-command-injection",
+  "group": "security",
+  "languages": [
+   "c"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "system() invokes a shell and enables command injection",
+  "fix": "Avoid the shell; use execve with a fixed argument vector",
+  "pattern": "system($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "char cmd[128];\nsystem(cmd);\n",
+  "pass": "pid_t p = fork();\nif (p == 0) execl(\"/bin/ls\", \"ls\", NULL);\n"
+ },
+ {
+  "id": "c-printf-user-format",
+  "group": "security",
+  "languages": [
+   "c"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "printf uses user data as the format string",
+  "fix": "Pass a constant format: printf(\"%s\", user_input)",
+  "pattern": "printf($FMT)",
+  "not": "printf(\"",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-134",
+   "confidence": "MEDIUM"
+  },
+  "fail": "char name[64];\nprintf(name);\n",
+  "pass": "char name[64];\nprintf(\"%s\", name);\n"
+ },
+ {
+  "id": "scala-runtime-exec",
+  "group": "security",
+  "languages": [
+   "scala"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "Runtime exec runs an OS command built from input",
+  "fix": "Avoid Runtime.exec on untrusted data; use fixed arguments",
+  "pattern": "Runtime.getRuntime().exec($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "val cmd = \"ls \" + input\nRuntime.getRuntime().exec(cmd)\n",
+  "pass": "val files = new java.io.File(path).listFiles()\n"
+ },
+ {
+  "id": "scala-weak-md5",
+  "group": "security",
+  "languages": [
+   "scala"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "Weak hash algorithm MD5 requested",
+  "fix": "Use SHA-256 or stronger; bcrypt for passwords",
+  "pattern": "\"MD5\"",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "val md = MessageDigest.getInstance(\"MD5\")\n",
+  "pass": "val md = MessageDigest.getInstance(\"SHA-256\")\n"
+ },
+ {
+  "id": "scala-sql-interpolated",
+  "group": "security",
+  "languages": [
+   "scala"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "SQL executed with string interpolation (possible injection)",
+  "fix": "Use parameterized queries / prepared statement placeholders",
+  "pattern": ".execute(s\"",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "val id = request.queryString(\"id\")\nstmt.execute(s\"SELECT * FROM users WHERE id=$id\")\n",
+  "pass": "val ps = conn.prepareStatement(\"SELECT * FROM users WHERE id = ?\")\nps.setString(1, id)\n"
+ },
+ {
+  "id": "kotlin-runtime-exec",
+  "group": "security",
+  "languages": [
+   "kotlin"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "Runtime.exec runs an OS command from input",
+  "fix": "Avoid Runtime.exec on untrusted data; use fixed arguments",
+  "pattern": "Runtime.getRuntime().exec($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "val cmd = \"ping \" + host\nRuntime.getRuntime().exec(cmd)\n",
+  "pass": "val files = File(path).listFiles()\n"
+ },
+ {
+  "id": "kotlin-weak-md5",
+  "group": "security",
+  "languages": [
+   "kotlin"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "Weak hash algorithm MD5 requested",
+  "fix": "Use SHA-256 or stronger; bcrypt for passwords",
+  "pattern": "\"MD5\"",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "val md = MessageDigest.getInstance(\"MD5\")\n",
+  "pass": "val md = MessageDigest.getInstance(\"SHA-256\")\n"
+ },
+ {
+  "id": "ocaml-sys-command",
+  "group": "security",
+  "languages": [
+   "ocaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a1-injection",
+  "message": "Sys.command invokes a shell with untrusted input",
+  "fix": "Avoid Sys.command; call fixed programs without a shell",
+  "pattern": "Sys.command",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "let () = Sys.command cmd\n",
+  "pass": "let () = print_string \"done\"\n"
+ },
+ {
+  "id": "ocaml-marshal-from-string",
+  "group": "security",
+  "languages": [
+   "ocaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "Marshal.from_string deserializes untrusted data",
+  "fix": "Do not unmarshal untrusted bytes; use a safe format",
+  "pattern": "Marshal.from_string",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "let v = Marshal.from_string s 0 in\n",
+  "pass": "let s = Marshal.to_string v Marshal.(Closures No_sharing) in\n"
+ },
+ {
+  "id": "json-debug-true",
+  "group": "security",
+  "languages": [
+   "json"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Debug mode enabled in JSON configuration",
+  "fix": "Set debug to false in production config",
+  "pattern": "\"debug\": true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-489",
+   "confidence": "LOW"
+  },
+  "fail": "{\n  \"app\": {\n    \"debug\": true\n  }\n}\n",
+  "pass": "{\n  \"app\": {\n    \"debug\": false\n  }\n}\n"
+ },
+ {
+  "id": "json-hardcoded-password",
+  "group": "security",
+  "languages": [
+   "json"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Hardcoded password in JSON config",
+  "fix": "Load the password from a secret store or environment",
+  "pattern": "\"password\": \"",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "{\n  \"username\": \"admin\",\n  \"password\": \"hunter2\"\n}\n",
+  "pass": "{\n  \"username\": \"admin\",\n  \"password_env\": \"ADMIN_PASSWORD\"\n}\n"
+ },
+ {
+  "id": "html-form-insecure-action",
+  "group": "security",
+  "languages": [
+   "html"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Form submits to an insecure http:// endpoint",
+  "fix": "Use https:// for form actions",
+  "pattern": "action=\"http://",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "MEDIUM"
+  },
+  "fail": "<form action=\"http://example.com/login\" method=\"post\">\n  <input name=\"user\">\n</form>\n",
+  "pass": "<form action=\"/login\" method=\"post\">\n  <input name=\"user\">\n</form>\n"
+ },
+ {
+  "id": "html-script-src-http",
+  "group": "security",
+  "languages": [
+   "html"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Script loaded over insecure http://",
+  "fix": "Load scripts over https with Subresource Integrity",
+  "pattern": "src=\"http://",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "MEDIUM"
+  },
+  "fail": "<script src=\"http://cdn.example.com/lib.js\"></script>\n",
+  "pass": "<script src=\"https://cdn.example.com/lib.js\"></script>\n"
+ },
+ {
+  "id": "html-target-blank-noopener",
+  "group": "security",
+  "languages": [
+   "html"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "target=_blank without rel=noopener allows reverse tabnabbing",
+  "fix": "Add rel=\"noopener noreferrer\"",
+  "pattern": "target=\"_blank\"",
+  "not": "rel=",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-1022",
+   "confidence": "LOW"
+  },
+  "fail": "<a target=\"_blank\" href=\"https://example.com\">x</a>\n",
+  "pass": "<a target=\"_blank\" rel=\"noopener\" href=\"https://example.com\">x</a>\n"
+ }
+]

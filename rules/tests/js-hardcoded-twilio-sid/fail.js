@@ -1,0 +1,1 @@
+const TWILIO_AUTH = "SKabcdef0123456789abcdef0123456789";

@@ -1,0 +1,1 @@
+cookies[:sid] = {secure: true}

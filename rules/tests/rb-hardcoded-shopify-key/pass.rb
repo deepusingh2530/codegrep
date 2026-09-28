@@ -1,0 +1,1 @@
+TOKEN = ENV.fetch("SHOPIFY_TOKEN")

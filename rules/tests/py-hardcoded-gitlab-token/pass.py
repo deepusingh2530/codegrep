@@ -1,0 +1,1 @@
+GITLAB_TOKEN = os.environ["GITLAB_TOKEN"]

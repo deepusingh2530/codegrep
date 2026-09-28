@@ -1,0 +1,1 @@
+totp = ROTP::TOTP.new("JBSWY3DPEHPK3PXP")

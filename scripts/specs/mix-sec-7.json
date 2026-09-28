@@ -1,0 +1,401 @@
+[
+ {
+  "id": "docker-run-privileged",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Container run with --privileged (full host access)",
+  "fix": "Drop --privileged; add only required capabilities",
+  "pattern": "--privileged",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "RUN docker run --privileged img",
+  "pass": "RUN docker run img"
+ },
+ {
+  "id": "docker-cap-add-all",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Container adds all capabilities",
+  "fix": "Drop --cap-add=ALL; grant only needed caps",
+  "pattern": "--cap-add=ALL",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "RUN docker run --cap-add=ALL img",
+  "pass": "RUN docker run --cap-add=NET_BIND_SERVICE img"
+ },
+ {
+  "id": "docker-net-host",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container joins the host network namespace",
+  "fix": "Use a bridge network",
+  "pattern": "--net=host",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN docker run --net=host img",
+  "pass": "RUN docker run --net=bridge img"
+ },
+ {
+  "id": "docker-pid-host",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container shares the host PID namespace",
+  "fix": "Avoid --pid=host unless required",
+  "pattern": "--pid=host",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN docker run --pid=host img",
+  "pass": "RUN docker run --pid=private img"
+ },
+ {
+  "id": "docker-ipc-host",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container shares the host IPC namespace",
+  "fix": "Avoid --ipc=host unless required",
+  "pattern": "--ipc=host",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN docker run --ipc=host img",
+  "pass": "RUN docker run --ipc=private img"
+ },
+ {
+  "id": "docker-uts-host",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container shares the host UTS namespace",
+  "fix": "Avoid --uts=host unless required",
+  "pattern": "--uts=host",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "LOW"
+  },
+  "fail": "RUN docker run --uts=host img",
+  "pass": "RUN docker run img"
+ },
+ {
+  "id": "docker-socket-volume",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Docker socket mounted (container escape)",
+  "fix": "Do not mount /var/run/docker.sock",
+  "pattern": "docker.sock",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "RUN docker run -v /var/run/docker.sock:/var/run/docker.sock img",
+  "pass": "RUN docker run -v ./data:/data img"
+ },
+ {
+  "id": "docker-image-latest-tag",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Image pinned to the mutable 'latest' tag",
+  "fix": "Pin images to a specific version or digest",
+  "pattern": ":latest",
+  "metadata": {
+   "owasp": "A06:2021-Vulnerable-Components",
+   "cwe": "CWE-829",
+   "confidence": "LOW"
+  },
+  "fail": "FROM node:latest",
+  "pass": "FROM node:18.17.0"
+ },
+ {
+  "id": "docker-curl-no-check-cert",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS certificate verification disabled in build",
+  "fix": "Remove --no-check-certificate",
+  "pattern": "--no-check-certificate",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN wget --no-check-certificate https://x",
+  "pass": "RUN wget https://x"
+ },
+ {
+  "id": "docker-curl-insecure",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "curl run with --insecure (verification disabled)",
+  "fix": "Remove --insecure",
+  "pattern": "--insecure",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN curl --insecure https://x",
+  "pass": "RUN curl https://x"
+ },
+ {
+  "id": "docker-chmod-777",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:file-permissions",
+  "message": "World-writable permissions (777) set",
+  "fix": "Grant only the minimum required mode",
+  "pattern": "chmod 777",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN chmod 777 /app",
+  "pass": "RUN chmod 755 /app"
+ },
+ {
+  "id": "docker-expose-ssh",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "SSH port exposed in image",
+  "fix": "Do not expose SSH from application images",
+  "pattern": "EXPOSE 22",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "EXPOSE 22",
+  "pass": "EXPOSE 8080"
+ },
+ {
+  "id": "docker-apparmor-unconfined",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "AppArmor profile disabled for the container",
+  "fix": "Keep the default AppArmor profile",
+  "pattern": "apparmor=unconfined",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN docker run --security-opt apparmor=unconfined img",
+  "pass": "RUN docker run --security-opt apparmor=docker-default img"
+ },
+ {
+  "id": "docker-seccomp-unconfined",
+  "group": "dockx1",
+  "languages": [
+   "dockerfile"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "seccomp profile disabled for the container",
+  "fix": "Keep the default seccomp profile",
+  "pattern": "seccomp=unconfined",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "RUN docker run --security-opt seccomp=unconfined img",
+  "pass": "RUN docker run --security-opt seccomp=default img"
+ },
+ {
+  "id": "java-mvel-eval",
+  "group": "jvx3",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "MVEL expression evaluated from input",
+  "fix": "Never evaluate untrusted expressions",
+  "pattern": "MVEL.eval($EXPR)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-917",
+   "confidence": "HIGH"
+  },
+  "fail": "Object v = MVEL.eval(userExpr)",
+  "pass": "Object v = fixedExpression()"
+ },
+ {
+  "id": "java-velocity-eval",
+  "group": "jvx3",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "Velocity evaluates a template built from input (SSTI)",
+  "fix": "Use fixed templates",
+  "pattern": "Velocity.evaluate($CTX)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "Velocity.evaluate(ctx, w, log, userTemplate)",
+  "pass": "velocity.mergeTemplate(fixedPath, ctx)"
+ },
+ {
+  "id": "java-xxe-transformer-factory",
+  "group": "jvx3",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "TransformerFactory default config may allow XXE",
+  "fix": "Set ACCESS_EXTERNAL_DTD/STYLESHEET to empty",
+  "pattern": "TransformerFactory.newInstance()",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "TransformerFactory tf = TransformerFactory.newInstance()",
+  "pass": "SchemaFactory sf = SchemaFactory.newInstance()"
+ },
+ {
+  "id": "java-xxe-schema-factory",
+  "group": "jvx3",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "SchemaFactory default config may allow XXE",
+  "fix": "Disable external schema resolution",
+  "pattern": "SchemaFactory.newInstance()",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "SchemaFactory sf = SchemaFactory.newInstance()",
+  "pass": "TransformerFactory tf = TransformerFactory.newInstance()"
+ },
+ {
+  "id": "java-sql-callable-statement",
+  "group": "jvx3",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "CallableStatement built from a concatenated string (SQL injection)",
+  "fix": "Use parameter markers in prepareCall",
+  "pattern": "prepareCall($SQL)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "CallableStatement cs = conn.prepareCall(sql)",
+  "pass": "CallableStatement cs = getFixedCall();"
+ },
+ {
+  "id": "go-tls-min-version-10",
+  "group": "gox2",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS minimum version set to 1.0 (deprecated)",
+  "fix": "Require tls.VersionTLS12 or higher",
+  "pattern": "VersionTLS10",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-326",
+   "confidence": "MEDIUM"
+  },
+  "fail": "cfg := &tls.Config{MinVersion: tls.VersionTLS10}",
+  "pass": "cfg := &tls.Config{MinVersion: tls.VersionTLS12}"
+ },
+ {
+  "id": "go-grpc-insecure",
+  "group": "gox2",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "gRPC client connects without TLS",
+  "fix": "Use transport credentials with TLS",
+  "pattern": "grpc.WithInsecure()",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "MEDIUM"
+  },
+  "fail": "conn, _ := grpc.Dial(addr, grpc.WithInsecure())",
+  "pass": "conn, _ := grpc.Dial(addr, grpc.WithTransportCredentials(creds))"
+ }
+]

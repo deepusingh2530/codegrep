@@ -1,0 +1,1 @@
+var key = "AKIAEXAMPLEKEY123456";

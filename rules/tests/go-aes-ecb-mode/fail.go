@@ -1,0 +1,1 @@
+enc := cipher.NewECBEncrypter(block)

@@ -1,0 +1,1 @@
+char *pw = getpass("Password: ");

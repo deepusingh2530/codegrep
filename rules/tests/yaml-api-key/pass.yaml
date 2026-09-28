@@ -1,0 +1,2 @@
+service:
+  endpoint: ${SERVICE_URL}

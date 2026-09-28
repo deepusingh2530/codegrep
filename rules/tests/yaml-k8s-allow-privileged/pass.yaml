@@ -1,0 +1,3 @@
+command:
+  - kube-apiserver
+  - --allow-privileged=false

@@ -1,0 +1,4 @@
+{
+  "service": "maps",
+  "apiKey": { "$ref": "#/secrets/maps" }
+}

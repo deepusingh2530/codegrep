@@ -1,0 +1,1 @@
+setattr(obj, name, value)

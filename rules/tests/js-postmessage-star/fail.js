@@ -1,0 +1,1 @@
+w.postMessage(data, "*");

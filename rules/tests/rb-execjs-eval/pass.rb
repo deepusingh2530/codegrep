@@ -1,0 +1,1 @@
+value = JSON.parse(data)

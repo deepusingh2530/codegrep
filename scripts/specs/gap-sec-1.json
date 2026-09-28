@@ -1,0 +1,600 @@
+[
+  {
+    "id": "c-malloc-size-overflow",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Allocation size is a product of two variables (integer overflow can under-allocate)",
+    "fix": "Check multiplication for overflow or use a checked-alloc helper",
+    "either": [
+      "malloc($N * $S)",
+      "realloc($PTR, $N * $S)"
+    ],
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-190",
+      "confidence": "MEDIUM"
+    },
+    "fail": "p = malloc(count * size);",
+    "pass": "p = malloc(count);"
+  },
+  {
+    "id": "c-atoi-no-range-check",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "atoi/atol convert without overflow detection (silent wraparound)",
+    "fix": "Use strtol with errno/endptr validation",
+    "either": [
+      "atoi($S)",
+      "atol($S)",
+      "atoll($S)"
+    ],
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-190",
+      "confidence": "MEDIUM"
+    },
+    "fail": "int n = atoi(argv[1]);",
+    "pass": "long n = strtol(argv[1], &end, 10);"
+  },
+  {
+    "id": "c-alloca-unbounded",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "alloca with a dynamic size can overflow the stack",
+    "fix": "Use a fixed-size buffer or heap allocation with a bound",
+    "pattern": "alloca($N)",
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-676",
+      "confidence": "MEDIUM"
+    },
+    "fail": "char *buf = alloca(len);",
+    "pass": "char buf[256];"
+  },
+  {
+    "id": "c-getpass-password",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "getpass is obsolete: static buffer, no reliable clearing",
+    "fix": "Read from /dev/tty or use tcgetattr-based prompt with explicit wipe",
+    "pattern": "getpass($PROMPT)",
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-676",
+      "confidence": "MEDIUM"
+    },
+    "fail": "char *pw = getpass(\"Password: \");",
+    "pass": "read_password(buf, sizeof(buf));"
+  },
+  {
+    "id": "c-wcscpy-unbounded",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "wcscpy copies without bounds checking",
+    "fix": "Use wcsncpy or wcsncpy_s with the destination capacity",
+    "pattern": "wcscpy($D, $S)",
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-676",
+      "confidence": "MEDIUM"
+    },
+    "fail": "wcscpy(dst, src);",
+    "pass": "wcsncpy(dst, src, n);"
+  },
+  {
+    "id": "c-strcat-unbounded",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "strcat appends without checking the destination capacity",
+    "fix": "Use strncat with remaining-capacity arithmetic",
+    "pattern": "strcat($D, $S)",
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-120",
+      "confidence": "HIGH"
+    },
+    "fail": "strcat(buf, input);",
+    "pass": "strncat(buf, input, remaining);"
+  },
+  {
+    "id": "c-scanf-unbounded",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a1-injection",
+    "message": "scanf %s with no field width writes an unbounded string",
+    "fix": "Give %s a width, e.g. \"%127s\"",
+    "either": [
+      "scanf(\"%s\", $B)",
+      "fscanf($F, \"%s\", $B)",
+      "sscanf($S, \"%s\", $B)"
+    ],
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-120",
+      "confidence": "HIGH"
+    },
+    "fail": "scanf(\"%s\", name);",
+    "pass": "scanf(\"%127s\", name);"
+  },
+  {
+    "id": "c-off-by-one-loop",
+    "group": "gap1",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Loop uses <= while indexing an array (classic off-by-one out-of-bounds)",
+    "fix": "Use < with the length, or ensure capacity is length + 1",
+    "pattern": "for (... <= $N; ...) ... $ARR[...]",
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-787",
+      "confidence": "MEDIUM"
+    },
+    "fail": "for (i = 0; i <= len; i++) { out[i] = buf[i]; }",
+    "pass": "for (i = 0; i < len; i++) { out[i] = buf[i]; }"
+  },
+  {
+    "id": "php-require-user-input",
+    "group": "gap1",
+    "languages": [
+      "php"
+    ],
+    "severity": "ERROR",
+    "category": "security:path-traversal",
+    "message": "require() includes a path taken from request input (LFI/RFI)",
+    "fix": "Map request input to an allowlist of local files",
+    "pattern": "require($F)",
+    "mvr": {
+      "F": "\\$_(GET|POST|REQUEST|COOKIE)"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-98",
+      "confidence": "HIGH"
+    },
+    "fail": "require($_GET[\"page\"]);",
+    "pass": "require($configPath);"
+  },
+  {
+    "id": "php-ldap-search-user-filter",
+    "group": "gap1",
+    "languages": [
+      "php"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "LDAP search filter is built from request input (LDAP injection)",
+    "fix": "Escape filter values with ldap_escape",
+    "pattern": "ldap_search($CONN, $BASE, $FILTER)",
+    "mvr": {
+      "FILTER": "\\$_(GET|POST|REQUEST)"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-90",
+      "confidence": "HIGH"
+    },
+    "fail": "ldap_search($conn, $base, \"(cn=\" . $_GET[\"q\"] . \")\");",
+    "pass": "ldap_search($conn, $base, \"(cn=admin)\");"
+  },
+  {
+    "id": "php-crlf-setcookie-injection",
+    "group": "gap1",
+    "languages": [
+      "php"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Cookie value comes from request input (CRLF/header injection)",
+    "fix": "Encode or allowlist the cookie value",
+    "either": [
+      "setcookie($NAME, $VALUE)",
+      "setrawcookie($NAME, $VALUE)"
+    ],
+    "mvr": {
+      "VALUE": "\\$_(GET|POST|REQUEST)"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-93",
+      "confidence": "MEDIUM"
+    },
+    "fail": "setcookie(\"session\", $_GET[\"t\"]);",
+    "pass": "setcookie(\"session\", $token);"
+  },
+  {
+    "id": "php-upload-client-filename",
+    "group": "gap1",
+    "languages": [
+      "php"
+    ],
+    "severity": "ERROR",
+    "category": "security:code-execution",
+    "message": "Uploaded file stored under its client-supplied name (dangerous type / overwrite)",
+    "fix": "Rename the upload to a server-generated name and validate the type",
+    "pattern": "move_uploaded_file($TMP, $DIR . $NAME)",
+    "mvr": {
+      "NAME": "FILES.*name"
+    },
+    "metadata": {
+      "owasp": "A08:2021-Integrity-Failure",
+      "cwe": "CWE-434",
+      "confidence": "HIGH"
+    },
+    "fail": "move_uploaded_file($_FILES[\"f\"][\"tmp_name\"], $dir . $_FILES[\"f\"][\"name\"]);",
+    "pass": "move_uploaded_file($_FILES[\"f\"][\"tmp_name\"], $dir . uniqid() . \".jpg\");"
+  },
+  {
+    "id": "py-log-request-input",
+    "group": "gap1",
+    "languages": [
+      "python"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Untrusted request data written straight to logs (log injection)",
+    "fix": "Sanitize or structure-log the value instead of interpolating raw input",
+    "either": [
+      "logging.info($MSG)",
+      "logging.warning($MSG)",
+      "logging.error($MSG)"
+    ],
+    "mvr": {
+      "MSG": "request\\.(args|form|GET|POST|json|data)"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-117",
+      "confidence": "MEDIUM"
+    },
+    "fail": "logging.info(request.args.get(\"q\"))",
+    "pass": "logging.info(\"login succeeded\")"
+  },
+  {
+    "id": "py-upload-client-filename",
+    "group": "gap1",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:code-execution",
+    "message": "Upload saved under the client-supplied filename (dangerous type / overwrite)",
+    "fix": "Generate a server-side name and validate the content type",
+    "pattern": "os.path.join($DIR, $NAME)",
+    "mvr": {
+      "NAME": "\\.filename"
+    },
+    "metadata": {
+      "owasp": "A08:2021-Integrity-Failure",
+      "cwe": "CWE-434",
+      "confidence": "HIGH"
+    },
+    "fail": "dest = os.path.join(upload_dir, f.filename)",
+    "pass": "dest = os.path.join(upload_dir, secure_name)"
+  },
+  {
+    "id": "py-jwt-verify-disabled",
+    "group": "gap1",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a2-crypto",
+    "message": "JWT signature verification disabled on decode",
+    "fix": "Decode with the key and keep signature verification enabled",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-287",
+      "confidence": "HIGH"
+    },
+    "fail": "payload = jwt.decode(token, key, options={\"verify_signature\": False})",
+    "pass": "payload = jwt.decode(token, key, algorithms=[\"HS256\"])",
+    "pattern": "jwt.decode($TOKEN, $KEY, options = {\"verify_signature\": False})"
+  },
+  {
+    "id": "py-password-base64",
+    "group": "gap1",
+    "languages": [
+      "python"
+    ],
+    "severity": "WARNING",
+    "category": "security:weak-crypto",
+    "message": "Password material protected only with base64 (reversible encoding)",
+    "fix": "Hash passwords with bcrypt/scrypt/argon2; never store them recoverable",
+    "pattern": "base64.b64encode($PW)",
+    "mvr": {
+      "PW": "pass|pwd|secret"
+    },
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-522",
+      "confidence": "MEDIUM"
+    },
+    "fail": "blob = base64.b64encode(user_password.encode())",
+    "pass": "blob = base64.b64encode(image_bytes)"
+  },
+  {
+    "id": "js-log-request-input",
+    "group": "gap1",
+    "languages": [
+      "javascript"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Untrusted request data written straight to logs (log injection)",
+    "fix": "Sanitize the value or log structured fields",
+    "either": [
+      "console.log($MSG)",
+      "logger.info($MSG)"
+    ],
+    "mvr": {
+      "MSG": "req\\.(query|body|params|headers)"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-117",
+      "confidence": "MEDIUM"
+    },
+    "fail": "console.log(req.query.q);",
+    "pass": "console.log(\"server started\");"
+  },
+  {
+    "id": "js-upload-client-filename",
+    "group": "gap1",
+    "languages": [
+      "javascript"
+    ],
+    "severity": "ERROR",
+    "category": "security:code-execution",
+    "message": "Upload stored under the client-supplied originalname (dangerous type / overwrite)",
+    "fix": "Generate a server-side name and validate the content type",
+    "pattern": "path.join($DIR, $NAME)",
+    "mvr": {
+      "NAME": "originalname"
+    },
+    "metadata": {
+      "owasp": "A08:2021-Integrity-Failure",
+      "cwe": "CWE-434",
+      "confidence": "HIGH"
+    },
+    "fail": "dest = path.join(uploadsDir, file.originalname);",
+    "pass": "dest = path.join(uploadsDir, safeName);"
+  },
+  {
+    "id": "js-jwt-alg-none",
+    "group": "gap1",
+    "languages": [
+      "javascript"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a2-crypto",
+    "message": "JWT verify allows the 'none' algorithm (signature bypass)",
+    "fix": "Pin the allowed algorithms to the expected HMAC/RSA ones",
+    "pattern": "jwt.verify($T, $K, $OPTS)",
+    "mvr": {
+      "OPTS": "algorithms.*none"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-287",
+      "confidence": "HIGH"
+    },
+    "fail": "jwt.verify(token, key, {algorithms: [\"none\"]});",
+    "pass": "jwt.verify(token, key, {algorithms: [\"HS256\"]});"
+  },
+  {
+    "id": "js-crlf-header-injection",
+    "group": "gap1",
+    "languages": [
+      "javascript"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Response header value comes from request input (CRLF header injection)",
+    "fix": "Allowlist or strip CR/LF from header values",
+    "pattern": "res.setHeader($NAME, $VALUE)",
+    "mvr": {
+      "VALUE": "req\\.(query|body|params)"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-93",
+      "confidence": "MEDIUM"
+    },
+    "fail": "res.setHeader(\"X-User\", req.query.user);",
+    "pass": "res.setHeader(\"Content-Type\", \"application/json\");"
+  },
+  {
+    "id": "java-log-request-input",
+    "group": "gap1",
+    "languages": [
+      "java"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "Untrusted request parameter written straight to logs (log injection)",
+    "fix": "Sanitize or structure-log the parameter",
+    "pattern": "log.info($MSG)",
+    "mvr": {
+      "MSG": "getParameter|getQueryString|request\\."
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-117",
+      "confidence": "MEDIUM"
+    },
+    "fail": "log.info(\"q=\" + request.getParameter(\"q\"));",
+    "pass": "log.info(\"user {} logged in\", user);"
+  },
+  {
+    "id": "java-upload-client-filename",
+    "group": "gap1",
+    "languages": [
+      "java"
+    ],
+    "severity": "ERROR",
+    "category": "security:code-execution",
+    "message": "Upload stored under the client-supplied original filename",
+    "fix": "Generate a server-side name and validate the content type",
+    "pattern": "new File($DIR, $NAME)",
+    "mvr": {
+      "NAME": "getOriginalFilename"
+    },
+    "metadata": {
+      "owasp": "A08:2021-Integrity-Failure",
+      "cwe": "CWE-434",
+      "confidence": "HIGH"
+    },
+    "fail": "File dest = new File(uploadDir, file.getOriginalFilename());",
+    "pass": "File dest = new File(uploadDir, safeName);"
+  },
+  {
+    "id": "java-ldap-search-user-filter",
+    "group": "gap1",
+    "languages": [
+      "java"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a1-injection",
+    "message": "LDAP search filter is built from request input (LDAP injection)",
+    "fix": "Escape filter values (DirContext.escapeFilterValue / spring-ldap)",
+    "pattern": "search($BASE, $FILTER)",
+    "mvr": {
+      "FILTER": "getParameter|getQueryString|request\\."
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-90",
+      "confidence": "HIGH"
+    },
+    "fail": "Enumeration e = ctx.search(base, \"(cn=\" + request.getParameter(\"q\") + \")\");",
+    "pass": "Enumeration e = ctx.search(base, \"(cn=admin)\");"
+  },
+  {
+    "id": "java-password-base64",
+    "group": "gap1",
+    "languages": [
+      "java"
+    ],
+    "severity": "WARNING",
+    "category": "security:weak-crypto",
+    "message": "Password material protected only with base64 (reversible encoding)",
+    "fix": "Hash with bcrypt/scrypt/argon2; never store recoverable credentials",
+    "pattern": "Base64.getEncoder().encode($PW)",
+    "mvr": {
+      "PW": "pass|pwd|secret"
+    },
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-522",
+      "confidence": "MEDIUM"
+    },
+    "fail": "String s = Base64.getEncoder().encode(password.getBytes());",
+    "pass": "String s = Base64.getEncoder().encode(imageBytes);"
+  },
+  {
+    "id": "yaml-mongo-auth-disabled",
+    "group": "gap1",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "MongoDB runs with authorization disabled",
+    "fix": "Set security.authorization: enabled and provision users",
+    "pattern": "authorization: disabled",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-306",
+      "confidence": "HIGH"
+    },
+    "fail": "security:\n  authorization: disabled",
+    "pass": "security:\n  authorization: enabled"
+  },
+  {
+    "id": "yaml-elastic-security-disabled",
+    "group": "gap1",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "Elasticsearch security (auth/TLS) is disabled",
+    "fix": "Set xpack.security.enabled: true and configure credentials/TLS",
+    "pattern": "xpack.security.enabled: false",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-306",
+      "confidence": "HIGH"
+    },
+    "fail": "xpack.security.enabled: false",
+    "pass": "xpack.security.enabled: true"
+  },
+  {
+    "id": "docker-redis-protected-mode-off",
+    "group": "gap1",
+    "languages": [
+      "dockerfile"
+    ],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "Redis started with protected-mode off",
+    "fix": "Keep protected-mode on and set requirepass / use ACLs",
+    "pattern": "--protected-mode no",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-306",
+      "confidence": "HIGH"
+    },
+    "fail": "CMD redis-server --protected-mode no",
+    "pass": "CMD [\"redis-server\", \"--protected-mode\", \"yes\"]"
+  },
+  {
+    "id": "bash-mysql-skip-grant-tables",
+    "group": "gap1",
+    "languages": [
+      "bash"
+    ],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "MySQL started with --skip-grant-tables (authentication bypass)",
+    "fix": "Start normally and reset credentials via a maintenance session",
+    "pattern": "skip-grant-tables",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-306",
+      "confidence": "HIGH"
+    },
+    "fail": "mysqld --skip-grant-tables &",
+    "pass": "mysqld --skip-networking &"
+  }
+]

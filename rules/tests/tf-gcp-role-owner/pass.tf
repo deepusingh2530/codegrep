@@ -1,0 +1,1 @@
+role = "roles/viewer"

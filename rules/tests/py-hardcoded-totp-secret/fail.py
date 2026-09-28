@@ -1,0 +1,1 @@
+totp = pyotp.TOTP("JBSWY3DPEHPK3PXP")

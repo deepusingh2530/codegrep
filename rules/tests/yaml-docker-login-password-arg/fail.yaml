@@ -1,0 +1,1 @@
+RUN docker login -p hunter2 registry.example.com

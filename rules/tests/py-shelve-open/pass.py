@@ -1,0 +1,1 @@
+text = open(path).read()

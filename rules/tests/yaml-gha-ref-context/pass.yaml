@@ -1,0 +1,1 @@
+    - run: echo "deploying $GITHUB_REF"

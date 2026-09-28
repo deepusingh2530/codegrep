@@ -1,0 +1,1 @@
+Entry.objects.raw(q)

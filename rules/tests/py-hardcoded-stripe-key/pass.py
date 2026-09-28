@@ -1,0 +1,1 @@
+STRIPE_KEY = os.environ["STRIPE_SECRET_KEY"]

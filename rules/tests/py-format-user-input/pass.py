@@ -1,0 +1,1 @@
+msg = "hello {}".format(name)

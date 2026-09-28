@@ -1,0 +1,2 @@
+@IgnoreCSRF
+@GetMapping("/x")

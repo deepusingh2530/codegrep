@@ -1,0 +1,1 @@
+accessKey := "AKIAEXAMPLEKEY12345"

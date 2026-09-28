@@ -1,0 +1,1 @@
+rows = User.includes(:posts)

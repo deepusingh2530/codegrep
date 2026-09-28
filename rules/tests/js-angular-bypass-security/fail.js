@@ -1,0 +1,1 @@
+sanitizer.bypassSecurityTrustHtml(userHtml)

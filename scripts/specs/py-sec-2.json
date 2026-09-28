@@ -1,0 +1,230 @@
+[
+ {
+  "id": "py-shelve-open",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "shelve.open deserializes Python objects (arbitrary code execution)",
+  "fix": "Do not open untrusted shelve databases",
+  "pattern": "shelve.open($F)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "db = shelve.open(path)",
+  "pass": "text = open(path).read()"
+ },
+ {
+  "id": "py-xmlsax-parse",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:xxe",
+  "message": "xml.sax.parse may process external entities (XXE)",
+  "fix": "Disable external entities or use defusedxml",
+  "pattern": "xml.sax.parse($SRC)",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "xml.sax.parse(src)",
+  "pass": "data = json.load(f)"
+ },
+ {
+  "id": "py-mako-template",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "Mako template constructed from untrusted input (SSTI)",
+  "fix": "Use fixed templates; never build templates from user data",
+  "pattern": "mako.template.Template($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "t = mako.template.Template(user_code)",
+  "pass": "t = render_fixed_view()"
+ },
+ {
+  "id": "py-tornado-template",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:ssti",
+  "message": "Tornado template constructed from untrusted input (SSTI)",
+  "fix": "Use fixed templates; never build templates from user data",
+  "pattern": "tornado.template.Template($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1336",
+   "confidence": "HIGH"
+  },
+  "fail": "t = tornado.template.Template(user_code)",
+  "pass": "t = render_fixed_view()"
+ },
+ {
+  "id": "py-sqlalchemy-create-engine",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:sqli",
+  "message": "create_engine with a user-controlled URL",
+  "fix": "Use a fixed, configured database URL",
+  "pattern": "create_engine($URL)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "MEDIUM"
+  },
+  "fail": "engine = create_engine(user_url)",
+  "pass": "engine = connect(config_url)"
+ },
+ {
+  "id": "py-aiohttp-request",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "aiohttp.request fetches a user-controlled URL (SSRF)",
+  "fix": "Allowlist destinations and validate scheme/host",
+  "pattern": "aiohttp.request($METHOD)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resp = aiohttp.request(\"GET\", url)",
+  "pass": "resp = await fetch(static_url)"
+ },
+ {
+  "id": "py-interpreter-runsource",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "InteractiveInterpreter.runsource evaluates a string as code",
+  "fix": "Do not evaluate untrusted source",
+  "pattern": "runsource($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "HIGH"
+  },
+  "fail": "interp.runsource(user_code)",
+  "pass": "interp.push(\"x = 1\")"
+ },
+ {
+  "id": "py-simplehttp-server",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "SimpleHTTPRequestHandler serves a directory listing (info disclosure)",
+  "fix": "Serve files with an explicit handler, not a directory listing",
+  "pattern": "SimpleHTTPRequestHandler",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-548",
+   "confidence": "LOW"
+  },
+  "fail": "server = http.server.SimpleHTTPRequestHandler(...)",
+  "pass": "server = http.server.HTTPServer(addr, handler)"
+ },
+ {
+  "id": "py-yaml-full-load",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "yaml.full_load can construct arbitrary objects",
+  "fix": "Use yaml.safe_load for untrusted input",
+  "pattern": "yaml.full_load($X)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "data = yaml.full_load(text)",
+  "pass": "data = yaml.safe_load(text)"
+ },
+ {
+  "id": "py-pandas-read-pickle",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "pandas.read_pickle deserializes Python objects",
+  "fix": "Use a safe format such as CSV or Parquet",
+  "pattern": "read_pickle($F)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "df = read_pickle(path)",
+  "pass": "df = read_csv(path)"
+ },
+ {
+  "id": "py-smtplib-no-tls",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "SMTP connection without TLS (credentials in clear text)",
+  "fix": "Use SMTP_SSL or call starttls before auth",
+  "pattern": "smtplib.SMTP($HOST)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "MEDIUM"
+  },
+  "fail": "s = smtplib.SMTP(host)",
+  "pass": "s = smtplib.SMTP_SSL(host)"
+ },
+ {
+  "id": "py-subprocess-input-shell",
+  "group": "pyx2",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "subprocess invoked with shell=True (shell injection)",
+  "fix": "Pass an argument list and omit shell=True",
+  "pattern": "shell = True",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "subprocess.call(cmd, shell = True)",
+  "pass": "subprocess.call([\"ls\", \"-l\"])"
+ }
+]

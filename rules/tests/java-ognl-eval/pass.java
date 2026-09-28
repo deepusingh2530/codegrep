@@ -1,0 +1,1 @@
+Object v = lookupFixedExpression(root)

@@ -1,0 +1,1 @@
+admin_password: ${GRAFANA_ADMIN_PASSWORD}

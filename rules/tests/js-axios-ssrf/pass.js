@@ -1,0 +1,1 @@
+await axios.post(staticUrl)

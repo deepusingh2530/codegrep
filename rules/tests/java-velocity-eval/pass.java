@@ -1,0 +1,1 @@
+velocity.mergeTemplate(fixedPath, ctx)

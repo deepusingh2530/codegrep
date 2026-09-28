@@ -1,0 +1,1 @@
+WEBHOOK = os.environ["DISCORD_WEBHOOK"]

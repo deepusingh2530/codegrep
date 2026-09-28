@@ -1,0 +1,1 @@
+obj = pickle.load(f)

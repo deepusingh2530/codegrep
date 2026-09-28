@@ -1,0 +1,1 @@
+obj = marshal.load(f)

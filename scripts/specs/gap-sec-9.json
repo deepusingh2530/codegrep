@@ -1,0 +1,138 @@
+[
+  {
+    "id": "tf-elasticache-at-rest-off",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:weak-crypto",
+    "message": "ElastiCache at-rest encryption disabled",
+    "fix": "Set at_rest_encryption_enabled = true",
+    "pattern": "at_rest_encryption_enabled = false",
+    "metadata": {"owasp": "A02:2021-Crypto-Failures", "cwe": "CWE-311", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"aws_elasticache_cluster\" \"cache\" {\n  cluster_id                 = \"demo\"\n  at_rest_encryption_enabled = false\n}\n",
+    "pass": "resource \"aws_elasticache_cluster\" \"cache\" {\n  cluster_id                 = \"demo\"\n  at_rest_encryption_enabled = true\n}\n"
+  },
+  {
+    "id": "tf-azurerm-sql-old-tls",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:owasp-a2-crypto",
+    "message": "Azure SQL allows obsolete TLS versions",
+    "fix": "Set minimal_tls_version = \"1.2\"",
+    "either": ["minimal_tls_version = \"1.0\"", "minimal_tls_version = \"1.1\""],
+    "metadata": {"owasp": "A02:2021-Crypto-Failures", "cwe": "CWE-327", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"azurerm_mssql_server\" \"sql\" {\n  name                         = \"demo\"\n  minimal_tls_version          = \"1.0\"\n}\n",
+    "pass": "resource \"azurerm_mssql_server\" \"sql\" {\n  name                         = \"demo\"\n  minimal_tls_version          = \"1.2\"\n}\n"
+  },
+  {
+    "id": "tf-nsg-open-any",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "Network security group rule opens every port",
+    "fix": "Restrict destination_port_range to the required ports",
+    "pattern": "destination_port_range = \"*\"",
+    "metadata": {"owasp": "A01:2021-Broken-Access-Control", "cwe": "CWE-284", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"azurerm_network_security_rule\" \"all\" {\n  destination_port_range = \"*\"\n}\n",
+    "pass": "resource \"azurerm_network_security_rule\" \"web\" {\n  destination_port_range = \"443\"\n}\n"
+  },
+  {
+    "id": "tf-azure-role-owner",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "Owner/Contributor role assigned",
+    "fix": "Grant a least-privilege role scoped to the needed resources",
+    "either": [
+      "role_definition_name = \"Owner\"",
+      "role_definition_name = \"Contributor\""
+    ],
+    "metadata": {"owasp": "A01:2021-Broken-Access-Control", "cwe": "CWE-269", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"azurerm_role_assignment\" \"r\" {\n  scope                = \"/subscriptions/0000\"\n  role_definition_name = \"Owner\"\n}\n",
+    "pass": "resource \"azurerm_role_assignment\" \"r\" {\n  scope                = \"/subscriptions/0000\"\n  role_definition_name = \"Reader\"\n}\n"
+  },
+  {
+    "id": "tf-gke-legacy-abac",
+    "languages": ["terraform"],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "GKE legacy ABAC authorization enabled",
+    "fix": "Set enable_legacy_abac = false and use RBAC",
+    "pattern": "enable_legacy_abac = true",
+    "metadata": {"owasp": "A01:2021-Broken-Access-Control", "cwe": "CWE-284", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"google_container_cluster\" \"c\" {\n  name               = \"demo\"\n  enable_legacy_abac = true\n}\n",
+    "pass": "resource \"google_container_cluster\" \"c\" {\n  name               = \"demo\"\n  enable_legacy_abac = false\n}\n"
+  },
+  {
+    "id": "tf-hardcoded-api-key",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "API key hard-coded in Terraform source",
+    "fix": "Reference a variable sourced from a secrets manager",
+    "pattern": "api_key = \"",
+    "metadata": {"owasp": "A07:2021-Identification-Auth", "cwe": "CWE-798", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"example_api_key\" \"k\" {\n  api_key = \"AIzaSyA-EXAMPLEKEY1234567890\"\n}\n",
+    "pass": "resource \"example_api_key\" \"k\" {\n  api_key = var.api_key\n}\n"
+  },
+  {
+    "id": "tf-sg-open-db-ports",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:misconfig",
+    "message": "Security group opens a database port",
+    "fix": "Restrict the source CIDR to known application subnets",
+    "either": ["from_port = 5432", "from_port = 1433"],
+    "metadata": {"owasp": "A01:2021-Broken-Access-Control", "cwe": "CWE-284", "confidence": "MEDIUM"},
+    "group": "tfgap2",
+    "fail": "resource \"aws_security_group\" \"db\" {\n  ingress {\n    from_port = 5432\n    to_port   = 5432\n  }\n}\n",
+    "pass": "resource \"aws_security_group\" \"web\" {\n  ingress {\n    from_port = 443\n    to_port   = 443\n  }\n}\n"
+  },
+  {
+    "id": "tf-msk-plaintext",
+    "languages": ["terraform"],
+    "severity": "ERROR",
+    "category": "security:weak-crypto",
+    "message": "MSK broker communication set to PLAINTEXT",
+    "fix": "Set client_broker = \"TLS\"",
+    "pattern": "client_broker = \"PLAINTEXT\"",
+    "metadata": {"owasp": "A02:2021-Crypto-Failures", "cwe": "CWE-319", "confidence": "HIGH"},
+    "group": "tfgap2",
+    "fail": "resource \"aws_msk_cluster\" \"k\" {\n  broker_node_group_info {\n    encryption_info {\n      encryption_in_transit {\n        client_broker = \"PLAINTEXT\"\n      }\n    }\n  }\n}\n",
+    "pass": "resource \"aws_msk_cluster\" \"k\" {\n  broker_node_group_info {\n    encryption_info {\n      encryption_in_transit {\n        client_broker = \"TLS\"\n      }\n    }\n  }\n}\n"
+  },
+  {
+    "id": "tf-s3-versioning-status-off",
+    "languages": ["terraform"],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "Bucket versioning disabled (data-loss / ransomware risk)",
+    "fix": "Set versioning status to Enabled",
+    "either": [
+      "versioning_configuration ... status = \"Disabled\"",
+      "versioning ... enabled = false"
+    ],
+    "metadata": {"owasp": "A05:2021-Misconfiguration", "cwe": "CWE-693", "confidence": "MEDIUM"},
+    "group": "tfgap2",
+    "fail": "resource \"aws_s3_bucket\" \"b\" {\n  bucket = \"demo\"\n\n  versioning_configuration {\n    status = \"Disabled\"\n  }\n}\n",
+    "pass": "resource \"aws_s3_bucket\" \"b\" {\n  bucket = \"demo\"\n\n  versioning_configuration {\n    status = \"Enabled\"\n  }\n}\n"
+  },
+  {
+    "id": "tf-cloudtrail-multi-region-off",
+    "languages": ["terraform"],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "CloudTrail limited to a single region",
+    "fix": "Set is_multi_region_trail = true for organization-wide coverage",
+    "pattern": "is_multi_region_trail = false",
+    "metadata": {"owasp": "A05:2021-Misconfiguration", "cwe": "CWE-1177", "confidence": "MEDIUM"},
+    "group": "tfgap2",
+    "fail": "resource \"aws_cloudtrail\" \"t\" {\n  name                  = \"main\"\n  is_multi_region_trail = false\n}\n",
+    "pass": "resource \"aws_cloudtrail\" \"t\" {\n  name                  = \"main\"\n  is_multi_region_trail = true\n}\n"
+  }
+]

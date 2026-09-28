@@ -1,0 +1,3 @@
+<?php
+$smarty->fetch($tpl);
+?>

@@ -1,0 +1,3 @@
+function home() {
+  navigate("/home");
+}

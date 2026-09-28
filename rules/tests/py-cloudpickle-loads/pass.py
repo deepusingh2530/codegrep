@@ -1,0 +1,1 @@
+obj = json.loads(blob)

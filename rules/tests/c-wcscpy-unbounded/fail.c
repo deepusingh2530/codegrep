@@ -1,0 +1,1 @@
+wcscpy(dst, src);

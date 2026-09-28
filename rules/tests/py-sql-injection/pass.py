@@ -1,0 +1,2 @@
+cursor.fetchall()
+print("clean")

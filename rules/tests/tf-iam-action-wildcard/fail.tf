@@ -1,0 +1,1 @@
+statement { Action = "*" Resource = "*" }

@@ -1,0 +1,386 @@
+[
+ {
+  "id": "rb-file-chmod-0777",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:file-permissions",
+  "message": "World-writable file permissions (0777)",
+  "fix": "Grant only the minimum required mode",
+  "pattern": "File.chmod(0777",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-732",
+   "confidence": "MEDIUM"
+  },
+  "fail": "File.chmod(0777, path)",
+  "pass": "File.chmod(0644, path)"
+ },
+ {
+  "id": "rb-io-popen",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "IO.popen runs a shell command",
+  "fix": "Use a fixed command with an argument array",
+  "pattern": "IO.popen($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "IO.popen(cmd)",
+  "pass": "IO.read(path)"
+ },
+ {
+  "id": "rb-open3-capture2",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Open3.capture2 runs a shell command",
+  "fix": "Use a fixed command with an argument array",
+  "pattern": "Open3.capture2($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "Open3.capture2(cmd)",
+  "pass": "Open3.popen2(\"ls\")"
+ },
+ {
+  "id": "rb-spawn-cmd",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "spawn runs a shell command",
+  "fix": "Use a fixed command with an argument array",
+  "pattern": "spawn($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "spawn(cmd)",
+  "pass": "Thread.new {}"
+ },
+ {
+  "id": "rb-cipher-weak-des",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "Weak DES cipher selected",
+  "fix": "Use AES-256-GCM",
+  "pattern": "Cipher.new(\"des\")",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "HIGH"
+  },
+  "fail": "cipher = OpenSSL::Cipher.new(\"des\")",
+  "pass": "cipher = OpenSSL::Cipher.new(\"aes-256-gcm\")"
+ },
+ {
+  "id": "rb-digest-sha1",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "SHA-1 digest used",
+  "fix": "Use SHA-256 or stronger",
+  "pattern": "Digest::SHA1",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "Digest::SHA1.hexdigest(data)",
+  "pass": "Digest::SHA256.hexdigest(data)"
+ },
+ {
+  "id": "rb-send-file-user",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "WARNING",
+  "category": "security:path-traversal",
+  "message": "send_file with a possibly user-controlled path",
+  "fix": "Validate the path against a base directory",
+  "pattern": "send_file($PATH)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "send_file(params[:file])",
+  "pass": "render plain: \"ok\""
+ },
+ {
+  "id": "rb-update-all-sqli",
+  "group": "rbx1",
+  "languages": [
+   "ruby"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "update_all with a raw string (SQL injection)",
+  "fix": "Use parameterized conditions",
+  "pattern": "update_all($SQL)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "User.update_all(\"active = #{id}\")",
+  "pass": "user.update(name: n)"
+ },
+ {
+  "id": "php-passthru",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "passthru runs a shell command",
+  "fix": "Avoid the shell; use fixed commands",
+  "pattern": "passthru($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "passthru($input)",
+  "pass": "print \"done\";"
+ },
+ {
+  "id": "php-proc-open",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "proc_open runs a shell command",
+  "fix": "Avoid the shell; use a fixed program",
+  "pattern": "proc_open($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "proc_open($input, $d, $p)",
+  "pass": "echo \"ok\";"
+ },
+ {
+  "id": "php-include-variable",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "ERROR",
+  "category": "security:path-traversal",
+  "message": "Dynamic file include (LFI/RFI)",
+  "fix": "Allowlist included files; never include request input",
+  "pattern": "include $FILE",
+  "mvr": {
+   "FILE": "^\\$"
+  },
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-98",
+   "confidence": "HIGH"
+  },
+  "fail": "include $page;",
+  "pass": "include \"header.php\";"
+ },
+ {
+  "id": "php-md5-weak",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "MD5 used for hashing",
+  "fix": "Use SHA-256 or bcrypt for passwords",
+  "pattern": "md5($STR)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "hash = md5($password)",
+  "pass": "hash = hash(\"sha256\", $password)"
+ },
+ {
+  "id": "php-mt-rand-weak",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "mt_rand is not cryptographically secure",
+  "fix": "Use random_int for tokens and nonces",
+  "pattern": "mt_rand($S)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "MEDIUM"
+  },
+  "fail": "$token = mt_rand(0, 999999);",
+  "pass": "$token = random_int(0, PHP_INT_MAX)"
+ },
+ {
+  "id": "php-simplexml-xxe",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "ERROR",
+  "category": "security:xxe",
+  "message": "simplexml_load_string may process external entities (XXE)",
+  "fix": "Disable external entity loading",
+  "pattern": "simplexml_load_string($XML)",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "$x = simplexml_load_string($input)",
+  "pass": "$x = json_decode($input)"
+ },
+ {
+  "id": "php-dom-loadxml",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "ERROR",
+  "category": "security:xxe",
+  "message": "DOMDocument loadXML may process external entities (XXE)",
+  "fix": "Disable external entity loading",
+  "pattern": "loadXML($XML)",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "$doc->loadXML($input)",
+  "pass": "$doc->loadHTML($input)"
+ },
+ {
+  "id": "php-file-put-contents",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "WARNING",
+  "category": "security:path-traversal",
+  "message": "file_put_contents writes to a possibly user-controlled path",
+  "fix": "Validate and allowlist the destination path",
+  "pattern": "file_put_contents($P)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "file_put_contents($path, $data)",
+  "pass": "fwrite($fh, $data)"
+ },
+ {
+  "id": "php-mail-header-injection",
+  "group": "phpx1",
+  "languages": [
+   "php"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "mail() with user-controlled headers (CRLF injection)",
+  "fix": "Sanitize newlines from header values",
+  "pattern": "mail($TO)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-93",
+   "confidence": "MEDIUM"
+  },
+  "fail": "mail($to, $subj, $body)",
+  "pass": "notify($to, $body)"
+ },
+ {
+  "id": "csharp-weak-random",
+  "group": "csx1",
+  "languages": [
+   "csharp"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "System.Random is predictable for security values",
+  "fix": "Use RandomNumberGenerator",
+  "pattern": "new Random($SEED)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "MEDIUM"
+  },
+  "fail": "var r = new Random(seed)",
+  "pass": "var r = RandomNumberGenerator.Create()"
+ },
+ {
+  "id": "csharp-json-deserialize-typed",
+  "group": "csx1",
+  "languages": [
+   "csharp"
+  ],
+  "severity": "WARNING",
+  "category": "security:deserialization",
+  "message": "JsonConvert.DeserializeObject may honor type metadata",
+  "fix": "Avoid TypeNameHandling.All / use explicit types",
+  "pattern": "JsonConvert.DeserializeObject($JSON)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "MEDIUM"
+  },
+  "fail": "var o = JsonConvert.DeserializeObject(input)",
+  "pass": "var s = JsonConvert.SerializeObject(obj)"
+ },
+ {
+  "id": "csharp-xml-document-load",
+  "group": "csx1",
+  "languages": [
+   "csharp"
+  ],
+  "severity": "WARNING",
+  "category": "security:xxe",
+  "message": "XmlDocument.Load may resolve external entities (XXE)",
+  "fix": "Set XmlResolver = null and disable DTDs",
+  "pattern": ".Load($SRC)",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-611",
+   "confidence": "MEDIUM"
+  },
+  "fail": "XmlDocument doc = new XmlDocument(); doc.Load(userInput);",
+  "pass": "XmlDocument doc = new XmlDocument(); doc.Save(path);",
+  "inside": "XmlDocument"
+ }
+]

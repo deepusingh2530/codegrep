@@ -1,0 +1,315 @@
+[
+ {
+  "id": "py-setattr-dynamic",
+  "group": "pyx3",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "setattr with a user-controlled attribute name",
+  "fix": "Map input to a fixed set of attributes",
+  "pattern": "setattr($O)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-915",
+   "confidence": "MEDIUM"
+  },
+  "fail": "setattr(obj, name, value)",
+  "pass": "obj.name = value"
+ },
+ {
+  "id": "py-django-order-by-injection",
+  "group": "pyx3",
+  "languages": [
+   "python"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "order_by with a user-controlled expression (SQL injection)",
+  "fix": "Allowlist permitted ordering fields",
+  "pattern": "order_by($VAR)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "rows = Model.objects.order_by(field)",
+  "pass": "rows = Model.objects.filter(status=1)"
+ },
+ {
+  "id": "py-werkzeug-debugger",
+  "group": "pyx3",
+  "languages": [
+   "python"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Werkzeug interactive debugger enabled (RCE)",
+  "fix": "Disable the debugger in production",
+  "pattern": "use_debugger=True",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-489",
+   "confidence": "HIGH"
+  },
+  "fail": "app.run(use_debugger=True)",
+  "pass": "app.run(use_debugger=False)"
+ },
+ {
+  "id": "js-lodash-merge-proto",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:prototype-pollution",
+  "message": "lodash merge with user input (prototype pollution)",
+  "fix": "Use _.merge with a sanitized source or a safe merge utility",
+  "pattern": "_.merge($O, ...)",
+  "fail": "_.merge(target, userInput)",
+  "pass": "Object.assign(target, trusted)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-1321",
+   "confidence": "MEDIUM"
+  }
+ },
+ {
+  "id": "js-jquery-html",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "jQuery .html() with untrusted input (XSS)",
+  "fix": "Use .text() or sanitize before inserting",
+  "pattern": ".html($X)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "$(sel).html(userHtml)",
+  "pass": "$(sel).text(userText)"
+ },
+ {
+  "id": "js-vue-v-html",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "Vue v-html renders untrusted HTML (XSS)",
+  "fix": "Use {{ }} interpolation or sanitize",
+  "pattern": "v-html",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "<div v-html=\"userInput\"></div>",
+  "pass": "<div>{{ userInput }}</div>"
+ },
+ {
+  "id": "js-angular-bypass-security",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a3-xss",
+  "message": "Angular sanitizer bypassed for HTML (XSS)",
+  "fix": "Avoid bypassSecurityTrust* for untrusted input",
+  "pattern": "bypassSecurityTrustHtml($X)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "HIGH"
+  },
+  "fail": "sanitizer.bypassSecurityTrustHtml(userHtml)",
+  "pass": "sanitizer.sanitize(SecurityContext.HTML, userHtml)"
+ },
+ {
+  "id": "js-sequelize-query",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "sequelize.query with a concatenated string (SQL injection)",
+  "fix": "Use replacements/bind parameters",
+  "pattern": "sequelize.query($SQL)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "sequelize.query(\"SELECT * FROM u WHERE id=\" + id)",
+  "pass": "sequelize.findAll({where: {id}})"
+ },
+ {
+  "id": "js-knex-raw",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:sqli",
+  "message": "knex.raw with interpolated input (SQL injection)",
+  "fix": "Use ? placeholders in raw queries",
+  "pattern": "knex.raw($SQL)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-89",
+   "confidence": "HIGH"
+  },
+  "fail": "knex.raw(\"SELECT * FROM u WHERE id=\" + id)",
+  "pass": "knex.select().from(\"users\")"
+ },
+ {
+  "id": "js-outerhtml-assign",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "outerHTML assigned untrusted input (XSS)",
+  "fix": "Use textContent or sanitize before inserting",
+  "pattern": "outerHTML = $X",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "el.outerHTML = userInput",
+  "pass": "el.textContent = userText"
+ },
+ {
+  "id": "js-document-writeln",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "document.writeln with untrusted input (XSS)",
+  "fix": "Use textContent or sanitize before inserting",
+  "pattern": "document.writeln($HTML)",
+  "mvr": {
+   "HTML": "^[A-Za-z_][A-Za-z0-9_]*$"
+  },
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "document.writeln(userHtml)",
+  "pass": "element.textContent = \"ok\""
+ },
+ {
+  "id": "js-setinterval-string",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "setInterval invoked with a string (evaluated as code)",
+  "fix": "Pass a function reference instead of a string",
+  "pattern": "setInterval($CODE)",
+  "mvr": {
+   "CODE": "^[^A-Za-z_]"
+  },
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "MEDIUM"
+  },
+  "fail": "setInterval(\"tick()\", 1000)",
+  "pass": "setInterval(fn, 1000)"
+ },
+ {
+  "id": "js-iframe-srcdoc",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "iframe srcdoc set to untrusted input (XSS)",
+  "fix": "Avoid srcdoc with user data; use sandboxing",
+  "pattern": "srcdoc = $X",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "frame.srcdoc = userInput",
+  "pass": "frame.src = \"/same-origin.html\""
+ },
+ {
+  "id": "js-create-read-stream",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:path-traversal",
+  "message": "createReadStream from a possibly user-controlled path",
+  "fix": "Validate the path against a base directory",
+  "pattern": "createReadStream($P)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "fs.createReadStream(userPath)",
+  "pass": "fs.createReadStream(\"in.log\")",
+  "mvr": {
+   "P": "^[^\"']"
+  }
+ },
+ {
+  "id": "js-fs-append-file",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:path-traversal",
+  "message": "appendFile writes to a possibly user-controlled path",
+  "fix": "Validate the destination path",
+  "pattern": "appendFile($P)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-22",
+   "confidence": "MEDIUM"
+  },
+  "fail": "fs.appendFile(userPath, data)",
+  "pass": "fs.writeFile(outPath, data)"
+ },
+ {
+  "id": "js-create-cipher-no-iv",
+  "group": "jsx3",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "createCipher used without an IV (insecure)",
+  "fix": "Use createCipheriv with a random IV",
+  "pattern": "createCipher($ALG, ...)",
+  "fail": "const c = crypto.createCipher(alg, key)",
+  "pass": "const c = crypto.createCipheriv(alg, key, iv)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-329",
+   "confidence": "HIGH"
+  }
+ }
+]

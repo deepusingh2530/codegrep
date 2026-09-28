@@ -1,0 +1,4 @@
+{
+  "username": "admin",
+  "password_env": "ADMIN_PASSWORD"
+}

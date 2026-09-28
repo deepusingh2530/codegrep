@@ -1,0 +1,4 @@
+volumes:
+  - name: host
+    hostPath:
+      path: /etc

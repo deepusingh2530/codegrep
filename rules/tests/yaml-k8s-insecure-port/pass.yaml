@@ -1,0 +1,3 @@
+command:
+  - kube-apiserver
+  - --secure-port=6443

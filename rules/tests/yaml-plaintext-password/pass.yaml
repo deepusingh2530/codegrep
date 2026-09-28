@@ -1,0 +1,3 @@
+database:
+  username: app
+  password_env: DB_PASSWORD

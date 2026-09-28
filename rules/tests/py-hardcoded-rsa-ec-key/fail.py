@@ -1,0 +1,1 @@
+KEY = "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAK...\n"

@@ -1,0 +1,1 @@
+h = hashlib.sha256()

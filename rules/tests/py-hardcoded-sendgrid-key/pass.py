@@ -1,0 +1,1 @@
+SENDGRID_KEY = os.environ["SENDGRID_API_KEY"]

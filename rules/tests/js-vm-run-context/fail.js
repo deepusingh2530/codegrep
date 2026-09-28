@@ -1,0 +1,1 @@
+vm.runInNewContext(userCode)

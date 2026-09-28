@@ -1,0 +1,1 @@
+d := xml.NewDecoder(r)

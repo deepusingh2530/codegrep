@@ -1,0 +1,1 @@
+CERT = "-----BEGIN CERTIFICATE-----\nMIIDdzCCAl8...\n"

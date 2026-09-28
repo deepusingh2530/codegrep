@@ -1,0 +1,1 @@
+strncat(buf, input, remaining);

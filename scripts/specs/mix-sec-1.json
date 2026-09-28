@@ -1,0 +1,634 @@
+[
+ {
+  "id": "js-exec-file",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "execFile runs a program whose path may be user-controlled",
+  "fix": "Use a fixed executable and argument array",
+  "pattern": "execFile($FILE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "child_process.execFile(userPath)",
+  "pass": "child_process.spawn(\"ls\", [])"
+ },
+ {
+  "id": "js-exec-sync",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "execSync runs a shell command string",
+  "fix": "Use execFileSync with a fixed program",
+  "pattern": "execSync($CMD)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "child_process.execSync(cmd)",
+  "pass": "child_process.execFileSync(\"ls\", [])"
+ },
+ {
+  "id": "js-exec-file-sync",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "execFileSync runs a program whose path may be user-controlled",
+  "fix": "Use a fixed executable path",
+  "pattern": "execFileSync($FILE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "HIGH"
+  },
+  "fail": "child_process.execFileSync(userPath)",
+  "pass": "child_process.execSync(\"ls\")"
+ },
+ {
+  "id": "js-shell-option-true",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "child_process invoked with shell:true (shell injection risk)",
+  "fix": "Avoid shell:true; pass args as an array",
+  "pattern": "shell: true",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-78",
+   "confidence": "MEDIUM"
+  },
+  "fail": "exec(cmd, {shell: true})",
+  "pass": "execFile(cmd, args)"
+ },
+ {
+  "id": "js-vm-run-context",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "vm.runInNewContext executes untrusted code",
+  "fix": "Do not evaluate untrusted code in the VM",
+  "pattern": "vm.runInNewContext($CODE)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-94",
+   "confidence": "HIGH"
+  },
+  "fail": "vm.runInNewContext(userCode)",
+  "pass": "const result = JSON.parse(text)"
+ },
+ {
+  "id": "js-document-write",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a3-xss",
+  "message": "document.write with untrusted input (XSS)",
+  "fix": "Use textContent or sanitize before inserting",
+  "pattern": "document.write($HTML)",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-79",
+   "confidence": "MEDIUM"
+  },
+  "fail": "document.write(userHtml)",
+  "pass": "element.textContent = \"ok\"",
+  "mvr": {
+   "HTML": "^[A-Za-z_][A-Za-z0-9_]*$"
+  }
+ },
+ {
+  "id": "js-location-assign",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:open-redirect",
+  "message": "location.assign redirects to a user-controlled URL",
+  "fix": "Allowlist redirect targets",
+  "pattern": "location.assign($URL)",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-601",
+   "confidence": "MEDIUM"
+  },
+  "fail": "location.assign(userUrl)",
+  "pass": "history.back()"
+ },
+ {
+  "id": "js-math-random-token",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "Math.random() is predictable and unsafe for tokens",
+  "fix": "Use crypto.randomUUID() or crypto.randomBytes",
+  "pattern": "Math.random()",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "MEDIUM"
+  },
+  "fail": "const token = Math.random()",
+  "pass": "const token = crypto.randomUUID()"
+ },
+ {
+  "id": "js-sha1-hash",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "SHA-1 hash requested",
+  "fix": "Use SHA-256 or stronger",
+  "pattern": "createHash(\"sha1\")",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-327",
+   "confidence": "MEDIUM"
+  },
+  "fail": "crypto.createHash(\"sha1\")",
+  "pass": "crypto.createHash(\"sha256\")"
+ },
+ {
+  "id": "js-cookie-secure-false",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Cookie created without the Secure flag",
+  "fix": "Set secure: true for cookies",
+  "pattern": "secure: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-614",
+   "confidence": "MEDIUM"
+  },
+  "fail": "res.cookie(\"sid\", v, {secure: false})",
+  "pass": "res.cookie(\"sid\", v, {secure: true})"
+ },
+ {
+  "id": "js-pseudo-random",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:weak-crypto",
+  "message": "pseudoRandomBytes is not cryptographically secure",
+  "fix": "Use crypto.randomBytes",
+  "pattern": "pseudoRandomBytes($N)",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-338",
+   "confidence": "HIGH"
+  },
+  "fail": "const b = crypto.pseudoRandomBytes(16)",
+  "pass": "const b = crypto.randomBytes(16)"
+ },
+ {
+  "id": "js-function-ctor",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:code-execution",
+  "message": "Function constructor evaluates a string as code",
+  "fix": "Avoid constructing functions from strings",
+  "pattern": "Function($CODE)",
+  "not": "compileFunction",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-95",
+   "confidence": "HIGH"
+  },
+  "fail": "const f = Function(userCode)",
+  "pass": "const f = () => 1"
+ },
+ {
+  "id": "js-http-get-url",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a10-ssrf",
+  "message": "http.get fetches a user-controlled URL (SSRF)",
+  "fix": "Allowlist destinations and validate scheme/host",
+  "pattern": "http.get($URL)",
+  "metadata": {
+   "owasp": "A10:2021-SSRF",
+   "cwe": "CWE-918",
+   "confidence": "MEDIUM"
+  },
+  "fail": "http.get(userUrl)",
+  "pass": "https.get(staticUrl)"
+ },
+ {
+  "id": "js-reject-unauthorized-false",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS certificate verification disabled",
+  "fix": "Keep rejectUnauthorized enabled",
+  "pattern": "rejectUnauthorized: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "HIGH"
+  },
+  "fail": "const o = {rejectUnauthorized: false}",
+  "pass": "const o = {rejectUnauthorized: true}"
+ },
+ {
+  "id": "js-yaml-unsafe-load",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:deserialization",
+  "message": "yaml.load can construct arbitrary objects",
+  "fix": "Use yaml.safeLoad for untrusted input",
+  "pattern": "yaml.load($X)",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-502",
+   "confidence": "HIGH"
+  },
+  "fail": "const d = yaml.load(text)",
+  "pass": "const d = JSON.parse(text)"
+ },
+ {
+  "id": "js-jwt-none-alg",
+  "group": "jsx1",
+  "languages": [
+   "javascript"
+  ],
+  "severity": "ERROR",
+  "category": "security:owasp-a2-crypto",
+  "message": "JWT accepted with the insecure 'none' algorithm",
+  "fix": "Verify JWTs with an explicit strong algorithm",
+  "pattern": "algorithms: [\"none\"]",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-347",
+   "confidence": "HIGH"
+  },
+  "fail": "jwt.verify(t, k, {algorithms: [\"none\"]})",
+  "pass": "jwt.verify(t, k, {algorithms: [\"HS256\"]})"
+ },
+ {
+  "id": "tf-sg-open-rdp",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Security group opens RDP (3389) to the network",
+  "fix": "Restrict ingress rules to known networks",
+  "inside": "resource \"aws_security_group\"",
+  "pattern": "from_port = 3389",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_security_group\" \"db\" {\n  ingress {\n    from_port = 3389\n    to_port   = 3389\n  }\n}",
+  "pass": "resource \"aws_security_group\" \"db\" {\n  ingress {\n    from_port = 443\n    to_port   = 443\n  }\n}"
+ },
+ {
+  "id": "tf-iam-policy-wildcard-resource",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "IAM policy grants access to all resources (*)",
+  "fix": "Scope Resource to specific ARNs",
+  "pattern": "Resource = \"*\"",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "policy = jsonencode({\n  Resource = \"*\"\n})",
+  "pass": "policy = jsonencode({\n  Resource = \"arn:aws:s3:::bucket/*\"\n})"
+ },
+ {
+  "id": "tf-kms-key-rotation-off",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "KMS key rotation disabled",
+  "fix": "Set enable_key_rotation = true",
+  "pattern": "enable_key_rotation = false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-334",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_kms_key\" \"k\" {\n  enable_key_rotation = false\n}",
+  "pass": "resource \"aws_kms_key\" \"k\" {\n  enable_key_rotation = true\n}"
+ },
+ {
+  "id": "tf-rds-storage-unencrypted",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:weak-crypto",
+  "message": "RDS storage encryption disabled",
+  "fix": "Set storage_encrypted = true",
+  "pattern": "storage_encrypted = false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-311",
+   "confidence": "HIGH"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  storage_encrypted = false\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  storage_encrypted = true\n}"
+ },
+ {
+  "id": "tf-ec2-public-ip",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "EC2 instance gets a public IP address",
+  "fix": "Disable public IPs or place behind a load balancer",
+  "pattern": "associate_public_ip_address = true",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-150",
+   "confidence": "MEDIUM"
+  },
+  "fail": "resource \"aws_instance\" \"i\" {\n  associate_public_ip_address = true\n}",
+  "pass": "resource \"aws_instance\" \"i\" {\n  associate_public_ip_address = false\n}"
+ },
+ {
+  "id": "tf-elb-http-listener",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Load balancer listener uses unencrypted HTTP",
+  "fix": "Use HTTPS on the listener",
+  "pattern": "protocol = \"HTTP\"",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "MEDIUM"
+  },
+  "fail": "listener {\n  protocol = \"HTTP\"\n}",
+  "pass": "listener {\n  protocol = \"HTTPS\"\n}"
+ },
+ {
+  "id": "tf-hardcoded-password",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Hardcoded password in Terraform config",
+  "fix": "Use a variable backed by a secret store",
+  "pattern": "password = \"",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "resource \"aws_db_instance\" \"d\" {\n  password = \"hunter2\"\n}",
+  "pass": "resource \"aws_db_instance\" \"d\" {\n  password = var.db_password\n}"
+ },
+ {
+  "id": "tf-ecs-privileged",
+  "group": "tfsec2",
+  "languages": [
+   "terraform"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Container runs in privileged mode",
+  "fix": "Remove privileged = true; drop capabilities instead",
+  "pattern": "privileged = true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "container_definitions = [{\n  privileged = true\n}]",
+  "pass": "container_definitions = [{\n  privileged = false\n}]"
+ },
+ {
+  "id": "yaml-k8s-run-as-root",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container configured to run as root (UID 0)",
+  "fix": "Set runAsUser to a non-zero UID",
+  "pattern": "runAsUser: 0",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "MEDIUM"
+  },
+  "fail": "securityContext:\n  runAsUser: 0\n",
+  "pass": "securityContext:\n  runAsUser: 1000\n"
+ },
+ {
+  "id": "yaml-k8s-privilege-escalation",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container allowed to escalate privileges",
+  "fix": "Set allowPrivilegeEscalation: false",
+  "pattern": "allowPrivilegeEscalation: true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "securityContext:\n  allowPrivilegeEscalation: true\n",
+  "pass": "securityContext:\n  allowPrivilegeEscalation: false\n"
+ },
+ {
+  "id": "yaml-k8s-image-latest-tag",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Container image pinned to the mutable 'latest' tag",
+  "fix": "Pin images to a specific digest or version",
+  "pattern": ": latest",
+  "metadata": {
+   "owasp": "A06:2021-Vulnerable-Components",
+   "cwe": "CWE-829",
+   "confidence": "LOW"
+  },
+  "fail": "image: nginx:latest\n",
+  "pass": "image: nginx:1.25.3\n"
+ },
+ {
+  "id": "yaml-k8s-hostpath-mount",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Host path mounted into the container",
+  "fix": "Use volumes instead of hostPath",
+  "pattern": "hostPath:",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-552",
+   "confidence": "MEDIUM"
+  },
+  "fail": "volumes:\n  - name: host\n    hostPath:\n      path: /etc\n",
+  "pass": "volumes:\n  - name: data\n    emptyDir: {}\n"
+ },
+ {
+  "id": "yaml-k8s-sys-admin-cap",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:misconfig",
+  "message": "Container adds the SYS_ADMIN capability",
+  "fix": "Remove SYS_ADMIN from added capabilities",
+  "pattern": "- SYS_ADMIN",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-250",
+   "confidence": "HIGH"
+  },
+  "fail": "capabilities:\n  add:\n    - SYS_ADMIN\n",
+  "pass": "capabilities:\n  add:\n    - NET_BIND_SERVICE\n"
+ },
+ {
+  "id": "yaml-ci-github-event-context",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a1-injection",
+  "message": "Workflow interpolates untrusted github.event input into a run step",
+  "fix": "Avoid interpolating attacker-controlled contexts into shell",
+  "pattern": "github.event",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-77",
+   "confidence": "MEDIUM"
+  },
+  "fail": "steps:\n  - run: echo ${{ github.event.inputs.name }}\n",
+  "pass": "steps:\n  - run: echo \"build complete\"\n"
+ },
+ {
+  "id": "yaml-ci-pull-request-target",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "pull_request_target runs with write access on fork code",
+  "fix": "Use pull_request or isolate untrusted checkouts",
+  "pattern": "pull_request_target",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-829",
+   "confidence": "MEDIUM"
+  },
+  "fail": "on:\n  pull_request_target:\n",
+  "pass": "on:\n  pull_request:\n"
+ },
+ {
+  "id": "yaml-aws-secret-key",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "AWS secret access key committed in YAML",
+  "fix": "Reference the key from a secret manager",
+  "pattern": "aws_secret_access_key:",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "credentials:\n  aws_secret_access_key: wJalrXUtnFEMI\n",
+  "pass": "credentials:\n  aws_access_key_id: ${AWS_KEY_ID}\n"
+ },
+ {
+  "id": "yaml-k8s-automount-token",
+  "group": "ysec2",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Service account token auto-mounted into the pod",
+  "fix": "Set automountServiceAccountToken: false when unused",
+  "pattern": "automountServiceAccountToken: true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-200",
+   "confidence": "LOW"
+  },
+  "fail": "automountServiceAccountToken: true\n",
+  "pass": "automountServiceAccountToken: false\n"
+ }
+]

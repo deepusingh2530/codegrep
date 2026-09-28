@@ -1,0 +1,1 @@
+BOT_TOKEN = "xoxb-1234567890-abcdefgHIJK"

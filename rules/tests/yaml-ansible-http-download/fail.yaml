@@ -1,0 +1,3 @@
+    - name: fetch
+      get_url:
+        url: http://example.com/pkg.tar.gz

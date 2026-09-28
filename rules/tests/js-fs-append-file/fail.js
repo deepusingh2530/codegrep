@@ -1,0 +1,1 @@
+fs.appendFile(userPath, data)

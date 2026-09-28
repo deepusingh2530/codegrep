@@ -1,0 +1,783 @@
+[
+  {
+    "id": "docker-ssh-private-key",
+    "languages": [
+      "dockerfile"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Private SSH key material copied into the image",
+    "fix": "Mount keys at runtime or use BuildKit secret mounts",
+    "pattern": "id_rsa",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "MEDIUM"
+    },
+    "group": "dockx2",
+    "fail": "COPY id_rsa /root/.ssh/id_rsa",
+    "pass": "RUN ssh-keygen -t ed25519 -f /run/secrets/deploy_key"
+  },
+  {
+    "id": "docker-setuid-binary",
+    "languages": [
+      "dockerfile"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "Binary marked setuid (chmod +s) inside the image",
+    "fix": "Drop the setuid bit and grant privileges at the runtime",
+    "either": [
+      "chmod +s",
+      "chmod u+s"
+    ],
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-732",
+      "confidence": "MEDIUM"
+    },
+    "group": "dockx2",
+    "fail": "RUN chmod +s /bin/bash",
+    "pass": "RUN chmod 755 /usr/local/bin/app"
+  },
+  {
+    "id": "docker-env-hardcoded-key",
+    "languages": [
+      "dockerfile"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Access key material baked into an ENV instruction",
+    "fix": "Pass the key at runtime or with BuildKit secret mounts",
+    "either": [
+      "ENV PRIVATE_KEY=$VAL",
+      "ENV SSH_KEY=$VAL",
+      "ENV AWS_ACCESS_KEY_ID=$VAL"
+    ],
+    "mvr": {
+      "VAL": "^[A-Za-z0-9+/=_-]{10,}"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "dockx2",
+    "fail": "ENV AWS_ACCESS_KEY_ID=AKIAEXAMPLEKEY123456",
+    "pass": "ENV AWS_ACCESS_KEY_ID=$DEPLOY_KEY_ID"
+  },
+  {
+    "id": "docker-apt-cleartext-source",
+    "languages": [
+      "dockerfile"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "APT package source fetched over cleartext http://",
+    "fix": "Use https:// package mirrors",
+    "either": [
+      "deb http://",
+      "deb-src http://"
+    ],
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-494",
+      "confidence": "HIGH"
+    },
+    "group": "dockx2",
+    "fail": "RUN echo \"deb http://apt.internal/stable main\" > /etc/apt/sources.list",
+    "pass": "RUN echo \"deb https://deb.debian.org/debian stable main\" > /etc/apt/sources.list"
+  },
+  {
+    "id": "docker-pip-cleartext-index",
+    "languages": [
+      "dockerfile"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "pip index configured over cleartext http://",
+    "fix": "Use an https:// package index",
+    "either": [
+      "--index-url http://",
+      "--index-url=http://"
+    ],
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-494",
+      "confidence": "HIGH"
+    },
+    "group": "dockx2",
+    "fail": "RUN pip install --index-url http://pypi.internal/simple pkg",
+    "pass": "RUN pip install --index-url https://pypi.org/simple pkg"
+  },
+  {
+    "id": "js-hardcoded-openai-key",
+    "languages": [
+      "javascript"
+    ],
+    "severity": "WARNING",
+    "category": "security:secrets",
+    "message": "Hardcoded OpenAI API key",
+    "fix": "Read the key from the environment",
+    "either": [
+      "\"sk-$REST\"",
+      "`sk-$REST`"
+    ],
+    "mvr": {
+      "REST": "^[A-Za-z0-9_-]{16,}$"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "jsx8",
+    "fail": "const k = \"sk-proj-Abc123def456Ghi789Jkl\";",
+    "pass": "const k = process.env.OPENAI_API_KEY;"
+  },
+  {
+    "id": "c-insecure-temp-file",
+    "languages": [
+      "c"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "Insecure temporary file API (racy/predictable name)",
+    "fix": "Use mkstemp() or mkdtemp() with O_EXCL",
+    "either": [
+      "tmpnam(",
+      "mktemp(",
+      "tempnam("
+    ],
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-377",
+      "confidence": "HIGH"
+    },
+    "group": "cx2",
+    "fail": "char *t = tmpnam(NULL);",
+    "pass": "char t[] = \"/tmp/appXXXXXX\"; int fd = mkstemp(t);"
+  },
+  {
+    "id": "kotlin-webview-js-enabled",
+    "languages": [
+      "kotlin"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "WebView enables JavaScript (XSS surface)",
+    "fix": "Enable JavaScript only for trusted content with a strict CSP",
+    "pattern": "javaScriptEnabled = true",
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-693",
+      "confidence": "MEDIUM"
+    },
+    "group": "ktx2",
+    "fail": "webView.settings.javaScriptEnabled = true",
+    "pass": "webView.settings.javaScriptEnabled = false"
+  },
+  {
+    "id": "html-insecure-object-embed",
+    "languages": [
+      "html"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "object/embed element loads a resource over cleartext http://",
+    "fix": "Serve embedded content over https",
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-319",
+      "confidence": "MEDIUM"
+    },
+    "group": "hx2",
+    "fail": "<object data=\"http://evil.example/x.swf\">",
+    "pass": "<object data=\"https://cdn.example/x.swf\">",
+    "pattern": "<object data=\"http://"
+  },
+  {
+    "id": "py-tls-min-version-weak",
+    "languages": [
+      "python"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a2-crypto",
+    "message": "TLS minimum version pinned to TLS 1.0/1.1",
+    "fix": "Set minimum_version = TLSVersion.TLSv1_2 or later",
+    "either": [
+      "TLSVersion.$V)",
+      "TLSVersion.$V,",
+      "TLSVersion.$V "
+    ],
+    "mvr": {
+      "V": "^TLSv1(\\.1)?$"
+    },
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-327",
+      "confidence": "MEDIUM"
+    },
+    "group": "pyx10",
+    "fail": "ctx = ssl.SSLContext(minimum_version=TLSVersion.TLSv1)",
+    "pass": "ctx = ssl.SSLContext(minimum_version=TLSVersion.TLSv1_2)"
+  },
+  {
+    "id": "py-pil-bomb-limit-disabled",
+    "languages": [
+      "python"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "PIL decompression-bomb guard disabled (MAX_IMAGE_PIXELS = None)",
+    "fix": "Keep MAX_IMAGE_PIXELS at a sane bound such as 89478485",
+    "either": [
+      "MAX_IMAGE_PIXELS = None",
+      "MAX_IMAGE_PIXELS=None"
+    ],
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-409",
+      "confidence": "HIGH"
+    },
+    "group": "pyx10",
+    "fail": "Image.MAX_IMAGE_PIXELS = None",
+    "pass": "Image.MAX_IMAGE_PIXELS = 89478485"
+  },
+  {
+    "id": "py-login-literal-secret",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Client login with a literal password",
+    "fix": "Load the password from the environment or a secret store",
+    "either": [
+      "login($U, \"",
+      "login($U, '"
+    ],
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "pyx10",
+    "fail": "smtp.login(username, \"hunter2\")",
+    "pass": "smtp.login(username, password)"
+  },
+  {
+    "id": "py-nosql-operator-injection",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a1-injection",
+    "message": "NoSQL operator built from a request-controlled key",
+    "fix": "Allowlist operators instead of interpolating client keys",
+    "pattern": "\"$OP\"",
+    "mvr": {
+      "OP": "^\\$(regex|ne|nin|gt|gte|lt|lte|exists|function)$"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-943",
+      "confidence": "HIGH"
+    },
+    "group": "pyx10",
+    "fail": "User.find({\"age\": {\"$ne\": 18}})",
+    "pass": "User.find({\"name\": user.name})"
+  },
+  {
+    "id": "py-ssl-legacy-protocol",
+    "languages": [
+      "python"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a2-crypto",
+    "message": "Legacy SSL/TLS protocol version selected (SSLv2/v3, TLS 1.0/1.1)",
+    "fix": "Use ssl.PROTOCOL_TLS_CLIENT with a modern minimum_version",
+    "either": [
+      "PROTOCOL_TLS$V)",
+      "PROTOCOL_TLS$V,",
+      "PROTOCOL_SSL$V)"
+    ],
+    "mvr": {
+      "V": "^(v1|v1_1|v3|v23)$"
+    },
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-327",
+      "confidence": "MEDIUM"
+    },
+    "group": "pyx10",
+    "fail": "ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)",
+    "pass": "ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)"
+  },
+  {
+    "id": "py-ldap-bind-literal",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "LDAP bind with a literal password",
+    "fix": "Load the bind password from the environment",
+    "pattern": "bind_s($D, \"",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "pyx10",
+    "fail": "conn.bind_s(user_dn, \"hunter2\")",
+    "pass": "conn.bind_s(user_dn, bind_password)"
+  },
+  {
+    "id": "py-hardcoded-password-md5",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Password stored as a static MD5 hash literal",
+    "fix": "Store a salted modern hash (argon2id/bcrypt/scrypt) per user, never a literal",
+    "pattern": "PASSWORD_MD5 = \"",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "MEDIUM"
+    },
+    "group": "pyx10",
+    "fail": "PASSWORD_MD5 = \"5f4dcc3b5aa765d61d8327deb882cf99\"",
+    "pass": "PASSWORD_MD5 = hash_password(password)"
+  },
+  {
+    "id": "yaml-ansible-ssh-pass-literal",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Inline password in Ansible inventory/playbook",
+    "fix": "Reference an ansible-vault or an environment lookup",
+    "either": [
+      "ansible_ssh_pass:",
+      "ansible_become_pass:"
+    ],
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "MEDIUM"
+    },
+    "group": "ygap6",
+    "fail": "ansible_ssh_pass: hunter2",
+    "pass": "- hosts: all # become with --ask-become-pass"
+  },
+  {
+    "id": "yaml-db-root-password-inline",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Database root password committed in plaintext",
+    "fix": "Mount the secret (e.g. *_FILE) or reference a secret manager",
+    "either": [
+      "MYSQL_ROOT_PASSWORD:",
+      "POSTGRES_PASSWORD:",
+      "MONGO_INITDB_ROOT_PASSWORD:"
+    ],
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "MEDIUM"
+    },
+    "group": "ygap6",
+    "fail": "MYSQL_ROOT_PASSWORD: hunter2",
+    "pass": "MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password"
+  },
+  {
+    "id": "yaml-gha-persist-credentials",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "Checkout persists the git token in the workspace",
+    "fix": "Set persist-credentials: false and pass the token only where needed",
+    "pattern": "persist-credentials: true",
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-312",
+      "confidence": "MEDIUM"
+    },
+    "group": "ygap6",
+    "fail": "persist-credentials: true",
+    "pass": "persist-credentials: false"
+  },
+  {
+    "id": "yaml-k8s-runas-nonroot-false",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "Container explicitly allowed to run as root",
+    "fix": "Set runAsNonRoot: true and a non-zero runAsUser",
+    "pattern": "runAsNonRoot: false",
+    "metadata": {
+      "owasp": "A05:2021-Security-Misconfiguration",
+      "cwe": "CWE-250",
+      "confidence": "MEDIUM"
+    },
+    "group": "ygap6",
+    "fail": "runAsNonRoot: false",
+    "pass": "runAsNonRoot: true"
+  },
+  {
+    "id": "yaml-docker-login-password-arg",
+    "languages": [
+      "yaml"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "docker login password passed as a command-line argument",
+    "fix": "Use --password-stdin so the secret is not visible in argv",
+    "either": [
+      "docker login -p",
+      "docker login --password="
+    ],
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "ygap6",
+    "fail": "RUN docker login -p hunter2 registry.example.com",
+    "pass": "RUN docker login -u ci --password-stdin < /run/secrets/pw"
+  },
+  {
+    "id": "tf-azure-client-secret",
+    "languages": [
+      "terraform"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Azure client_secret assigned as a literal",
+    "fix": "Reference the secret from Key Vault or an environment variable",
+    "either": [
+      "client_secret = \"",
+      "client_secret=\""
+    ],
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "tfgap4",
+    "fail": "client_secret = \"s3cr3t-value-here\"",
+    "pass": "client_secret = var.azure_client_secret"
+  },
+  {
+    "id": "tf-tls-private-key-literal",
+    "languages": [
+      "terraform"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "TLS private key assigned as a literal (lands in state)",
+    "fix": "Load the key from a file() reference or a secret manager",
+    "pattern": "private_key = \"",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "tfgap4",
+    "fail": "tls_private_key \"k\" { private_key = \"MIIEvQIBADANBgkqhkiGw==\" }",
+    "pass": "tls_private_key \"k\" { private_key = file(\"${path.module}/key.pem\") }"
+  },
+  {
+    "id": "tf-redis-auth-token",
+    "languages": [
+      "terraform"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Redis auth token assigned as a literal",
+    "fix": "Reference the token from a variable backed by a secret store",
+    "pattern": "auth_token = \"",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "tfgap4",
+    "fail": "auth_token = \"supersecrettoken123\"",
+    "pass": "auth_token = var.redis_auth_token"
+  },
+  {
+    "id": "tf-ecr-tag-mutability",
+    "languages": [
+      "terraform"
+    ],
+    "severity": "WARNING",
+    "category": "security:misconfig",
+    "message": "ECR repository allows mutable image tags (supply-chain tampering)",
+    "fix": "Set image_tag_mutability = \"IMMUTABLE\"",
+    "pattern": "image_tag_mutability = \"MUTABLE\"",
+    "metadata": {
+      "owasp": "A08:2021-Integrity-Failure",
+      "cwe": "CWE-345",
+      "confidence": "MEDIUM"
+    },
+    "group": "tfgap4",
+    "fail": "resource \"aws_ecr_repository\" \"r\" { image_tag_mutability = \"MUTABLE\" }",
+    "pass": "resource \"aws_ecr_repository\" \"r\" { image_tag_mutability = \"IMMUTABLE\" }"
+  },
+  {
+    "id": "php-hardcoded-ghp-token",
+    "languages": [
+      "php"
+    ],
+    "severity": "WARNING",
+    "category": "security:secrets",
+    "message": "Hardcoded GitHub personal access token",
+    "fix": "Read the token from the environment",
+    "either": [
+      "$VAR = \"ghp_$REST\"",
+      "$VAR = 'ghp_$REST'",
+      "$VAR => \"ghp_$REST\"",
+      "$VAR => 'ghp_$REST'"
+    ],
+    "mvr": {
+      "REST": "^[A-Za-z0-9]{16,}$"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "phpx4",
+    "fail": "$t = \"ghp_abc123def456ghi789jkl0123456789\";",
+    "pass": "$t = getenv(\"GITHUB_TOKEN\");"
+  },
+  {
+    "id": "php-ldap-bind-literal",
+    "languages": [
+      "php"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "LDAP bind with a literal password",
+    "fix": "Read the bind password from the environment",
+    "pattern": "ldap_bind($L, $D, \"",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "phpx4",
+    "fail": "ldap_bind($conn, $dn, \"hunter2\");",
+    "pass": "ldap_bind($conn, $dn, $ldap_password);"
+  },
+  {
+    "id": "php-sql-into-outfile",
+    "languages": [
+      "php"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a1-injection",
+    "message": "SELECT ... INTO OUTFILE/DUMPFILE enables SQLi file writes",
+    "fix": "Remove INTO OUTFILE from user-influenced queries",
+    "either": [
+      "INTO OUTFILE",
+      "INTO DUMPFILE"
+    ],
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-89",
+      "confidence": "MEDIUM"
+    },
+    "group": "phpx4",
+    "fail": "SELECT * FROM users INTO OUTFILE '/tmp/dump.txt'",
+    "pass": "SELECT id FROM users WHERE email = ?"
+  },
+  {
+    "id": "java-keystore-literal-password",
+    "languages": [
+      "java"
+    ],
+    "severity": "ERROR",
+    "category": "security:secrets",
+    "message": "Keystore opened with a literal password",
+    "fix": "Load the keystore password from the environment",
+    "pattern": ".load($F, \"",
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "jvx6",
+    "fail": "ks.load(fis, \"changeit\".toCharArray());",
+    "pass": "ks.load(fis, keystorePassword());"
+  },
+  {
+    "id": "java-weak-rsa-signature-sha1",
+    "languages": [
+      "java"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a2-crypto",
+    "message": "RSA signature uses the broken SHA-1 digest",
+    "fix": "Use SHA256withRSA or stronger",
+    "pattern": "SHA1withRSA",
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-327",
+      "confidence": "MEDIUM"
+    },
+    "group": "jvx6",
+    "fail": "Signature s = Signature.getInstance(\"SHA1withRSA\");",
+    "pass": "Signature s = Signature.getInstance(\"SHA256withRSA\");"
+  },
+  {
+    "id": "go-hardcoded-openai-key",
+    "languages": [
+      "go"
+    ],
+    "severity": "WARNING",
+    "category": "security:secrets",
+    "message": "Hardcoded OpenAI API key",
+    "fix": "Read the key from the environment",
+    "either": [
+      "\"sk-$REST\"",
+      "`sk-$REST`"
+    ],
+    "mvr": {
+      "REST": "^[A-Za-z0-9_-]{16,}$"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "gox5",
+    "fail": "apiKey := \"sk-proj-Abc123def456Ghi789Jkl\"",
+    "pass": "apiKey := os.Getenv(\"OPENAI_API_KEY\")"
+  },
+  {
+    "id": "go-hardcoded-pypi-token",
+    "languages": [
+      "go"
+    ],
+    "severity": "WARNING",
+    "category": "security:secrets",
+    "message": "Hardcoded PyPI upload token",
+    "fix": "Read the token from the environment",
+    "either": [
+      "\"pypi-$REST\"",
+      "`pypi-$REST`"
+    ],
+    "mvr": {
+      "REST": "^[A-Za-z0-9_+=.-]{20,}$"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "gox5",
+    "fail": "tok := \"pypi-AgEIcHlwaS5vcmcCJF0vaXN0ay00\"",
+    "pass": "tok := os.Getenv(\"PYPI_TOKEN\")"
+  },
+  {
+    "id": "csharp-hardcoded-aws-key",
+    "languages": [
+      "csharp"
+    ],
+    "severity": "WARNING",
+    "category": "security:secrets",
+    "message": "Hardcoded AWS access key ID",
+    "fix": "Read credentials from the environment/STS",
+    "either": [
+      "\"AKIA$REST\"",
+      "'AKIA$REST'"
+    ],
+    "mvr": {
+      "REST": "^[A-Za-z0-9]{16,}$"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "csx2",
+    "fail": "var key = \"AKIAEXAMPLEKEY123456\";",
+    "pass": "var key = Environment.GetEnvironmentVariable(\"AWS_ACCESS_KEY_ID\");"
+  },
+  {
+    "id": "csharp-rsa-key-1024",
+    "languages": [
+      "csharp"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a2-crypto",
+    "message": "RSA key generated at 1024 bits",
+    "fix": "Generate RSA keys with at least 2048 bits",
+    "pattern": "RSACryptoServiceProvider(1024",
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-327",
+      "confidence": "MEDIUM"
+    },
+    "group": "csx2",
+    "fail": "var rsa = new RSACryptoServiceProvider(1024);",
+    "pass": "var rsa = new RSACryptoServiceProvider(2048);"
+  },
+  {
+    "id": "scala-hardcoded-aws-key",
+    "languages": [
+      "scala"
+    ],
+    "severity": "WARNING",
+    "category": "security:secrets",
+    "message": "Hardcoded AWS access key ID",
+    "fix": "Read credentials from the environment/STS",
+    "either": [
+      "\"AKIA$REST\"",
+      "'AKIA$REST'"
+    ],
+    "mvr": {
+      "REST": "^[A-Za-z0-9]{16,}$"
+    },
+    "metadata": {
+      "owasp": "A07:2021-Identification-Auth",
+      "cwe": "CWE-798",
+      "confidence": "HIGH"
+    },
+    "group": "scx2",
+    "fail": "val key = \"AKIAEXAMPLEKEY123456\"",
+    "pass": "val key = sys.env(\"AWS_ACCESS_KEY_ID\")"
+  },
+  {
+    "id": "ocaml-tls-verify-off",
+    "languages": [
+      "ocaml"
+    ],
+    "severity": "WARNING",
+    "category": "security:owasp-a2-crypto",
+    "message": "TLS certificate verification disabled (Ssl.CERT_NONE)",
+    "fix": "Use Ssl.CERT_VERIFY_PEER and verify the peer chain",
+    "pattern": "CERT_NONE",
+    "metadata": {
+      "owasp": "A02:2021-Crypto-Failures",
+      "cwe": "CWE-295",
+      "confidence": "MEDIUM"
+    },
+    "group": "ox2",
+    "fail": "Ssl.set_verify conn Ssl.CERT_NONE;",
+    "pass": "Ssl.set_verify conn Ssl.CERT_VERIFY_PEER;"
+  }
+]

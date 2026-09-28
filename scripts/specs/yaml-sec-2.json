@@ -1,0 +1,231 @@
+[
+ {
+  "id": "yaml-k8s-hostpid",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container shares the host PID namespace",
+  "fix": "Avoid hostPID unless strictly required",
+  "pattern": "hostPID: true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "spec:\n  hostPID: true\n",
+  "pass": "spec:\n  hostPID: false\n"
+ },
+ {
+  "id": "yaml-k8s-hostipc",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Container shares the host IPC namespace",
+  "fix": "Avoid hostIPC unless strictly required",
+  "pattern": "hostIPC: true",
+  "metadata": {
+   "owasp": "A05:2021-Misconfiguration",
+   "cwe": "CWE-668",
+   "confidence": "MEDIUM"
+  },
+  "fail": "spec:\n  hostIPC: true\n",
+  "pass": "spec:\n  hostIPC: false\n"
+ },
+ {
+  "id": "yaml-k8s-service-nodeport",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Service exposed via NodePort",
+  "fix": "Use ClusterIP behind an ingress",
+  "pattern": "NodePort",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "LOW"
+  },
+  "fail": "spec:\n  type: NodePort\n",
+  "pass": "spec:\n  type: ClusterIP\n"
+ },
+ {
+  "id": "yaml-k8s-service-loadbalancer",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "INFO",
+  "category": "security:misconfig",
+  "message": "Service exposed via public LoadBalancer",
+  "fix": "Prefer an internal load balancer or ingress",
+  "pattern": "LoadBalancer",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-284",
+   "confidence": "LOW"
+  },
+  "fail": "spec:\n  type: LoadBalancer\n",
+  "pass": "spec:\n  type: ClusterIP\n"
+ },
+ {
+  "id": "yaml-gha-unpinned-ref",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "GitHub Action pinned to a mutable branch ref",
+  "fix": "Pin actions to a full commit SHA",
+  "pattern": "@master",
+  "metadata": {
+   "owasp": "A08:2021-Integrity-Failure",
+   "cwe": "CWE-494",
+   "confidence": "MEDIUM"
+  },
+  "fail": "- uses: actions/checkout@master\n",
+  "pass": "- uses: actions/checkout@v4\n"
+ },
+ {
+  "id": "yaml-gha-write-all-permissions",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:misconfig",
+  "message": "Workflow grants write-all token permissions",
+  "fix": "Grant only the scopes the job needs",
+  "pattern": "write-all",
+  "metadata": {
+   "owasp": "A01:2021-Broken-Access-Control",
+   "cwe": "CWE-269",
+   "confidence": "MEDIUM"
+  },
+  "fail": "permissions: write-all\n",
+  "pass": "permissions:\n  contents: read\n"
+ },
+ {
+  "id": "yaml-gha-curl-pipe-sh",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:code-execution",
+  "message": "Remote script piped to a shell in CI",
+  "fix": "Download, verify, then run a pinned script",
+  "pattern": "| sh",
+  "metadata": {
+   "owasp": "A03:2021-Injection",
+   "cwe": "CWE-494",
+   "confidence": "MEDIUM"
+  },
+  "fail": "run: curl -sSL http://example.com/install.sh | sh\n",
+  "pass": "run: ./scripts/install.sh\n"
+ },
+ {
+  "id": "yaml-insecure-skip-verify",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "TLS certificate verification disabled",
+  "fix": "Keep certificate verification enabled",
+  "pattern": "insecure_skip_verify: true",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "HIGH"
+  },
+  "fail": "client:\n  insecure_skip_verify: true\n",
+  "pass": "client:\n  insecure_skip_verify: false\n"
+ },
+ {
+  "id": "yaml-verify-ssl-false",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "SSL verification disabled",
+  "fix": "Enable SSL certificate verification",
+  "pattern": "verify_ssl: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "HIGH"
+  },
+  "fail": "http:\n  verify_ssl: false\n",
+  "pass": "http:\n  verify_ssl: true\n"
+ },
+ {
+  "id": "yaml-verify-false",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "Request verification disabled",
+  "fix": "Enable certificate verification",
+  "pattern": "verify: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-295",
+   "confidence": "HIGH"
+  },
+  "fail": "request:\n  verify: false\n",
+  "pass": "request:\n  verify: true\n"
+ },
+ {
+  "id": "yaml-ssl-disabled",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "WARNING",
+  "category": "security:owasp-a2-crypto",
+  "message": "SSL disabled for a service",
+  "fix": "Enable SSL/TLS",
+  "pattern": "ssl: false",
+  "metadata": {
+   "owasp": "A02:2021-Crypto-Failures",
+   "cwe": "CWE-319",
+   "confidence": "MEDIUM"
+  },
+  "fail": "server:\n  ssl: false\n",
+  "pass": "server:\n  ssl: true\n",
+  "not": "verify_ssl"
+ },
+ {
+  "id": "yaml-token-plaintext",
+  "group": "ysec4",
+  "languages": [
+   "yaml"
+  ],
+  "severity": "ERROR",
+  "category": "security:secrets",
+  "message": "Plaintext token committed in YAML",
+  "fix": "Reference the token from a secret manager",
+  "pattern": "token:",
+  "metadata": {
+   "owasp": "A07:2021-Identification-Auth",
+   "cwe": "CWE-798",
+   "confidence": "HIGH"
+  },
+  "fail": "auth:\n  token: ghp_abc123\n",
+  "pass": "auth:\n  ${AUTH_HEADER}\n"
+ }
+]

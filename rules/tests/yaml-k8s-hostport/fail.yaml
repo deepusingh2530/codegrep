@@ -1,0 +1,5 @@
+containers:
+  - name: web
+    ports:
+      - containerPort: 80
+        hostPort: 80

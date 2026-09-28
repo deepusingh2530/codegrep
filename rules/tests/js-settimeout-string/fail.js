@@ -1,0 +1,1 @@
+setTimeout("doThing()", 100)

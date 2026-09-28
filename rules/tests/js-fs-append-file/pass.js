@@ -1,0 +1,1 @@
+fs.writeFile(outPath, data)

@@ -1,0 +1,1 @@
+AWS_SESSION_TOKEN = os.environ["AWS_SESSION_TOKEN"]

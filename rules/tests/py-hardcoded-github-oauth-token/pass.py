@@ -1,0 +1,1 @@
+OAUTH_TOKEN = os.environ["GITHUB_OAUTH_TOKEN"]

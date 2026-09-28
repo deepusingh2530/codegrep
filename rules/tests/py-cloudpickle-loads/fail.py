@@ -1,0 +1,1 @@
+fn = cloudpickle.loads(blob)

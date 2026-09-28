@@ -1,0 +1,1 @@
+db = shelve.open(path)

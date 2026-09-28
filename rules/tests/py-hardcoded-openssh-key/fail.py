@@ -1,0 +1,5 @@
+DEPLOY_KEY = """
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXkta2V5LXZlcnNpb24tMDAw
+-----END OPENSSH PRIVATE KEY-----
+"""

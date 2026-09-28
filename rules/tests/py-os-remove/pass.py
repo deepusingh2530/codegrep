@@ -1,0 +1,1 @@
+os.mkdir("/tmp/scratch")

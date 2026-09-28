@@ -1,0 +1,1 @@
+doc = Nokogiri::XML(xml)

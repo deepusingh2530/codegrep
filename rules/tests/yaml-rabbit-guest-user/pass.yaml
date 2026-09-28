@@ -1,0 +1,3 @@
+rabbitmq:
+  default_user: app
+  default_pass: ${RABBIT_PASS}

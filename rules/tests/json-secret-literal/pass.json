@@ -1,0 +1,5 @@
+{
+  "oauth": {
+    "secret": { "$ref": "#/secrets/oauth" }
+  }
+}

@@ -1,0 +1,3 @@
+app:
+  debug: true
+  log_level: verbose

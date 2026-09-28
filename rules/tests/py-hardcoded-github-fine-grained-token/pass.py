@@ -1,0 +1,1 @@
+DEPLOY_TOKEN = os.environ["GITHUB_TOKEN"]

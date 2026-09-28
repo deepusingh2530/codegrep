@@ -1,0 +1,1 @@
+user.update(name: n)

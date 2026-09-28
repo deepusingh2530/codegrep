@@ -1,0 +1,1 @@
+req.SetBasicAuth(user, pass)

@@ -1,0 +1,1 @@
+SHOPIFY_TOKEN = os.environ["SHOPIFY_ADMIN_TOKEN"]

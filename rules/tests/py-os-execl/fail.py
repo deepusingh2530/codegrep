@@ -1,0 +1,1 @@
+os.execl(cmd, cmd)

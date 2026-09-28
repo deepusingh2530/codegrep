@@ -1,0 +1,3 @@
+command:
+  - kube-apiserver
+  - --anonymous-auth=false

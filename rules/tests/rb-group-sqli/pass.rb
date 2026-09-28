@@ -1,0 +1,1 @@
+projection = User.select(:status)

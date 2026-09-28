@@ -1,0 +1,1 @@
+cipher = algorithms.Camellia(key)

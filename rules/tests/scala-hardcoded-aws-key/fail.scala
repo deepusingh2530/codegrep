@@ -1,0 +1,1 @@
+val key = "AKIAEXAMPLEKEY123456"
