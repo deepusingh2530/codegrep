@@ -1,0 +1,13 @@
+id: py-xxe-parse
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible XXE via XML parsing of untrusted input
+fix: Disable external entities or use defusedxml
+pattern-either:
+  - pattern: ET.parse($VAR)
+  - pattern: sax.parse($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-611
+  confidence: MEDIUM

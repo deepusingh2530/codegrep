@@ -1,0 +1,144 @@
+- id: "java-okhttp-ssrf"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "Outbound HTTP client URL comes from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern-either:
+    - pattern: "Request.Builder().url($URL)"
+    - pattern: "URI.create($U)"
+  metavariable-regex:
+    "URL": "request\\."
+    "U": "request\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "java-paths-get-traversal"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "Paths.get builds a file path from request input (path traversal)"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern-either:
+    - pattern: "Paths.get($P)"
+    - pattern: "Path.of($P)"
+  metavariable-regex:
+    "P": "request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "java-mybatis-dollar-sqli"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "MyBatis ${} interpolation in SQL (injection)"
+  fix: "Use #{} parameter binding instead of ${}"
+  pattern-either:
+    - pattern: "@Select ... ${"
+    - pattern: "@Update ... ${"
+    - pattern: "@Insert ... ${"
+    - pattern: "@Delete ... ${"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "java-freemarker-user-template"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "FreeMarker template name comes from request input"
+  fix: "Load a fixed template name; pass user data only as model values"
+  pattern: "getTemplate($T)"
+  metavariable-regex:
+    "T": "request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "MEDIUM"
+- id: "java-jexl-eval"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Commons JEXL expression evaluated (code injection)"
+  fix: "Do not evaluate dynamic expressions; use fixed logic"
+  pattern: "createExpression($EXPR) . evaluate($CTX)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "java-jwt-hardcoded-key"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "JWT signed or verified with a hard-coded literal key"
+  fix: "Load the signing key from the environment or a KMS"
+  pattern: "setSigningKey(\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-iv"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Cipher IV is a hard-coded string literal"
+  fix: "Generate a random IV per encryption (SecureRandom)"
+  pattern: "new IvParameterSpec(\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-329"
+    "confidence": "HIGH"
+- id: "java-log-injection-logger"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize or structure-log the value instead of interpolating raw input"
+  pattern-either:
+    - pattern: "LOGGER.info($MSG)"
+    - pattern: "logger.info($MSG)"
+  metavariable-regex:
+    "MSG": "request\\.|req\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "java-cors-add-allowed-origin"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "CORS configuration allows every origin"
+  fix: "Add only the exact origins that may call this API"
+  pattern-either:
+    - pattern: "addAllowedOrigin(\"*\")"
+    - pattern: "addAllowedOriginPattern(\"*\")"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "HIGH"
+- id: "java-weak-tls-sslcontext"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Obsolete SSL/TLS protocol requested"
+  fix: "Use TLSv1.2 or newer (SSLContext.getInstance(\"TLSv1.2\"))"
+  pattern: "SSLContext.getInstance($P)"
+  metavariable-regex:
+    "P": "(?i)^\"?(SSLv3|TLSv1|TLSv1_1)\"?$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "java-kryo-deser"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Kryo readObject deserializes untrusted bytes"
+  fix: "Register concrete classes and avoid Kryo for untrusted input"
+  pattern: "kryo.readObject($IS, $T)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "MEDIUM"

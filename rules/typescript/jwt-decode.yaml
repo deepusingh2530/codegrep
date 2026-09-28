@@ -1,0 +1,11 @@
+id: ts-jwt-decode
+languages: [typescript]
+severity: WARNING
+category: security:owasp-a2-crypto
+message: JWT decoded without signature verification
+fix: Use jwt.verify() with the expected secret or key
+pattern: jwt.decode($VAR)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-347
+  confidence: MEDIUM

@@ -1,0 +1,13 @@
+id: py-ssti
+languages: [python]
+severity: ERROR
+category: security:owasp-a3-injection
+message: Possible SSTI via render_template_string with user input
+fix: Use static templates; never render user-controlled template strings
+pattern-either:
+  - pattern: render_template_string($VAR)
+  - pattern: render_template_string($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

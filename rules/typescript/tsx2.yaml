@@ -1,0 +1,77 @@
+- id: "ts-hardcoded-aws-key"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS access key ID"
+  fix: "Read credentials from the environment/STS"
+  pattern-either:
+    - pattern: "$VAR = \"AKIA$REST\""
+    - pattern: "$VAR: \"AKIA$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "ts-hardcoded-github-token"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitHub token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"ghp_$REST\""
+    - pattern: "$VAR: \"ghp_$REST\""
+    - pattern: "$VAR = \"github_pat_$REST\""
+    - pattern: "$VAR: \"github_pat_$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "ts-jwt-ignore-expiration"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "JWT verification ignores expiration"
+  fix: "Remove ignoreExpiration so expired tokens are rejected"
+  pattern: "ignoreExpiration: true"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-613"
+    "confidence": "MEDIUM"
+- id: "ts-cookie-samesite-none"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie set with SameSite=None (CSRF exposure unless Secure)"
+  fix: "Use SameSite=Lax or SameSite=Strict with Secure"
+  pattern-either:
+    - pattern: "sameSite: \"none\""
+    - pattern: "sameSite: 'none'"
+    - pattern: "SameSite=None"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "ts-sql-concat"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built by string concatenation"
+  fix: "Use parameterized queries with ? placeholders"
+  pattern: "\"SELECT * FROM $TABLE WHERE $COL=\" + $ID"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "ts-hardcoded-basic-auth"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Basic auth credentials"
+  fix: "Read credentials from the environment"
+  pattern: "Basic $B64\""
+  metavariable-regex:
+    "B64": "^[A-Za-z0-9+/=]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

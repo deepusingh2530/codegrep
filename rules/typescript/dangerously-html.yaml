@@ -1,0 +1,11 @@
+id: ts-dangerously-html
+languages: [typescript]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via dangerouslySetInnerHTML with untrusted HTML
+fix: Render text or sanitize HTML before injecting
+pattern: dangerouslySetInnerHTML
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

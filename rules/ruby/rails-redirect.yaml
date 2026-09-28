@@ -1,0 +1,11 @@
+id: rails-open-redirect
+languages: [ruby]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via redirect_to to user input
+fix: Allowlist redirect targets
+pattern: redirect_to $VAR
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

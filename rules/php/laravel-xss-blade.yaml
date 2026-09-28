@@ -1,0 +1,11 @@
+id: laravel-xss-blade
+languages: [php]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via unescaped Blade echo {!! !!}
+fix: Use escaped {{ }} output unless HTML is sanitized
+pattern: '{!! $VAR !!}'
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

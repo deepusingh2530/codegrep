@@ -1,0 +1,62 @@
+- id: "yaml-ansible-ssh-pass-literal"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Inline password in Ansible inventory/playbook"
+  fix: "Reference an ansible-vault or an environment lookup"
+  pattern-either:
+    - pattern: "ansible_ssh_pass:"
+    - pattern: "ansible_become_pass:"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "yaml-db-root-password-inline"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Database root password committed in plaintext"
+  fix: "Mount the secret (e.g. *_FILE) or reference a secret manager"
+  pattern-either:
+    - pattern: "MYSQL_ROOT_PASSWORD:"
+    - pattern: "POSTGRES_PASSWORD:"
+    - pattern: "MONGO_INITDB_ROOT_PASSWORD:"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "yaml-gha-persist-credentials"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Checkout persists the git token in the workspace"
+  fix: "Set persist-credentials: false and pass the token only where needed"
+  pattern: "persist-credentials: true"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-312"
+    "confidence": "MEDIUM"
+- id: "yaml-k8s-runas-nonroot-false"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Container explicitly allowed to run as root"
+  fix: "Set runAsNonRoot: true and a non-zero runAsUser"
+  pattern: "runAsNonRoot: false"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "MEDIUM"
+- id: "yaml-docker-login-password-arg"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "docker login password passed as a command-line argument"
+  fix: "Use --password-stdin so the secret is not visible in argv"
+  pattern-either:
+    - pattern: "docker login -p"
+    - pattern: "docker login --password="
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

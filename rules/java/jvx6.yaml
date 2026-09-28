@@ -1,0 +1,22 @@
+- id: "java-keystore-literal-password"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Keystore opened with a literal password"
+  fix: "Load the keystore password from the environment"
+  pattern: ".load($F, \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-weak-rsa-signature-sha1"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "RSA signature uses the broken SHA-1 digest"
+  fix: "Use SHA256withRSA or stronger"
+  pattern: "SHA1withRSA"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"

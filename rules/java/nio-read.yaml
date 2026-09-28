@@ -1,0 +1,11 @@
+id: java-nio-read
+languages: [java]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via Files.readAllBytes() on user input
+fix: Normalize and enforce a base directory
+pattern: Files.readAllBytes($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

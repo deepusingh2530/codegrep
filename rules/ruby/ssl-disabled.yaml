@@ -1,0 +1,11 @@
+id: rails-ssl-disabled
+languages: [ruby]
+severity: WARNING
+category: security:misconfig
+message: Rails SSL enforcement disabled
+fix: Enable force_ssl in production configuration
+pattern: force_ssl = false
+metadata:
+  owasp: "A02:2021-Crypto-Failures"
+  cwe: CWE-319
+  confidence: MEDIUM

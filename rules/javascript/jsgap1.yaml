@@ -1,0 +1,127 @@
+- id: "js-require-user-input"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "require() loads a module path from request input"
+  fix: "Map input to a fixed set of module names"
+  pattern: "require($MOD)"
+  metavariable-regex:
+    "MOD": "^(req\\.|request\\.|[A-Za-z_$][A-Za-z0-9_$]*\\s*\\+)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "js-dynamic-import-user"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Dynamic import() resolves a module path from request input"
+  fix: "Map input to a fixed set of module names"
+  pattern: "import($SRC)"
+  metavariable-regex:
+    "SRC": "^(req\\.|request\\.|[A-Za-z_$][A-Za-z0-9_$]*\\s*\\+)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "js-mysql-query"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:sqli"
+  message: "SQL driver query() called with a dynamically built statement"
+  fix: "Use placeholder parameters instead of string building"
+  pattern-either:
+    - pattern: "connection.query($Q)"
+    - pattern: "client.query($Q)"
+    - pattern: "pool.query($Q)"
+  metavariable-regex:
+    "Q": "^`|^[A-Za-z_][\\w.]*$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "js-writefile-dynamic-path"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "fs write path built from concatenated or request-derived data"
+  fix: "Resolve the path and confine it under an allowlisted base directory"
+  pattern-either:
+    - pattern: "fs.writeFile($P, $D)"
+    - pattern: "fs.writeFileSync($P, $D)"
+  metavariable-regex:
+    "P": "\\+|req\\.|request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-jquery-extend-deep"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:prototype-pollution"
+  message: "jQuery deep extend merges objects (prototype pollution if source is untrusted)"
+  fix: "Validate keys or use a safe merge that skips __proto__/constructor"
+  pattern: "$.extend(true, $T, $S)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-1321"
+    "confidence": "MEDIUM"
+- id: "js-lodash-defaultsdeep"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:prototype-pollution"
+  message: "defaultsDeep recursively merges objects (prototype pollution risk)"
+  fix: "Validate input keys or use a merge that blocks __proto__"
+  pattern: "defaultsDeep($A, $B)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-1321"
+    "confidence": "HIGH"
+- id: "js-lodash-set-path"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:prototype-pollution"
+  message: "_.set() path taken from request input (__proto__ pollution)"
+  fix: "Allowlist path segments or reject __proto__/constructor keys"
+  pattern: "_.set($O, $PATH, $V)"
+  metavariable-regex:
+    "PATH": "^(req\\.|request\\.|\\$\\{)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-1321"
+    "confidence": "HIGH"
+- id: "js-node-tls-off"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "TLS certificate verification disabled via NODE_TLS_REJECT_UNAUTHORIZED=0"
+  fix: "Remove the override; configure a proper CA bundle instead"
+  pattern: "NODE_TLS_REJECT_UNAUTHORIZED = \"0\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "js-v8-deserialize"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:deserialization"
+  message: "v8.deserialize reconstructs objects from raw bytes (unsafe if untrusted)"
+  fix: "Use JSON.parse for untrusted payloads"
+  pattern: "v8.deserialize($X)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "MEDIUM"
+- id: "js-express-res-render-user"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "res.render template name taken from request input"
+  fix: "Map the parameter to an allowlist of view names"
+  pattern: "res.render($X)"
+  metavariable-regex:
+    "X": "^(req\\.|request\\.)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"

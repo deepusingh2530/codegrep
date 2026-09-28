@@ -1,0 +1,11 @@
+id: py-path-traversal
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via open() on user input
+fix: Normalize with os.path.realpath and enforce a base directory
+pattern: open($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

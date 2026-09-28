@@ -1,0 +1,26 @@
+[package]
+name = "codegrep"
+version = "0.6.0"
+edition = "2021"
+authors = ["Deepu Singh <dksingh1130@gmail.com>"]
+license = "MIT"
+description = "Fast offline multi-language SAST scanner with 1183 MIT-original rules"
+repository = "https://github.com/deepusingh2530/codegrep"
+
+[[bin]]
+name = "codegrep"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+rayon = { workspace = true }
+ignore = { workspace = true }
+aho-corasick = { workspace = true }
+cg-parser = { path = "../cg-parser" }
+cg-ir = { path = "../cg-ir" }
+cg-matcher = { path = "../cg-matcher" }
+cg-taint = { path = "../cg-taint" }
+cg-rules = { path = "../cg-rules" }

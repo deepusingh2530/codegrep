@@ -1,0 +1,88 @@
+- id: "rb-file-chmod-0777"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:file-permissions"
+  message: "World-writable file permissions (0777)"
+  fix: "Grant only the minimum required mode"
+  pattern: "File.chmod(0777"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "rb-io-popen"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "IO.popen runs a shell command"
+  fix: "Use a fixed command with an argument array"
+  pattern: "IO.popen($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "rb-open3-capture2"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Open3.capture2 runs a shell command"
+  fix: "Use a fixed command with an argument array"
+  pattern: "Open3.capture2($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "rb-spawn-cmd"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "spawn runs a shell command"
+  fix: "Use a fixed command with an argument array"
+  pattern: "spawn($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "rb-cipher-weak-des"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "Weak DES cipher selected"
+  fix: "Use AES-256-GCM"
+  pattern: "Cipher.new(\"des\")"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "rb-digest-sha1"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "SHA-1 digest used"
+  fix: "Use SHA-256 or stronger"
+  pattern: "Digest::SHA1"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "rb-send-file-user"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "send_file with a possibly user-controlled path"
+  fix: "Validate the path against a base directory"
+  pattern: "send_file($PATH)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "rb-update-all-sqli"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:sqli"
+  message: "update_all with a raw string (SQL injection)"
+  fix: "Use parameterized conditions"
+  pattern: "update_all($SQL)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"

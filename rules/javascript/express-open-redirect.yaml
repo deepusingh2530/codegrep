@@ -1,0 +1,11 @@
+id: express-open-redirect
+languages: [javascript]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via res.redirect() to user input
+fix: Allowlist redirect targets
+pattern: res.redirect($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

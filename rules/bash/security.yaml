@@ -1,0 +1,44 @@
+- id: "bash-chmod-world-writable"
+  languages: ["bash"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "World-writable permissions set with chmod 777"
+  fix: "Grant only the permissions actually needed (e.g. 644/750)"
+  pattern: "chmod 777"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "bash-eval-variable"
+  languages: ["bash"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "eval executes a variable as code"
+  fix: "Avoid eval; use arrays or case statements for dispatch"
+  pattern: "eval $"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "bash-curl-pipe-shell"
+  languages: ["bash"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "Remote script piped directly into a shell"
+  fix: "Download and inspect the script before executing"
+  pattern: "| bash"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-494"
+    "confidence": "MEDIUM"
+- id: "bash-rm-rf-root"
+  languages: ["bash"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Recursive forced delete targeting the filesystem root"
+  fix: "Remove destructive rm -rf on root paths; guard with checks"
+  pattern: "rm -rf /"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-20"
+    "confidence": "MEDIUM"

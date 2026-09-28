@@ -1,0 +1,13 @@
+id: go-ssti-template
+languages: [go]
+severity: WARNING
+category: security:owasp-a3-injection
+message: Possible SSTI via template built from user-controlled name or text
+fix: Use static template definitions; never build templates from user input
+pattern-either:
+  - pattern: template.New($VAR)
+  - pattern: template.Must($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

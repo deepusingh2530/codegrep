@@ -1,0 +1,105 @@
+- id: "java-weak-random"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "java.util.Random used where a CSPRNG is required (predictable tokens)"
+  fix: "Use SecureRandom for tokens, nonces, and keys"
+  pattern: "new Random("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-338"
+    "confidence": "MEDIUM"
+- id: "java-deser-xstream"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "XStream fromXML deserializes untrusted XML"
+  fix: "Allowlist types or use a safe data format"
+  pattern: "fromXML($XML)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-deser-fastjson"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Fastjson parse deserializes untrusted JSON (autoType RCE)"
+  fix: "Upgrade fastjson and disable autoType; prefer a safe parser"
+  pattern-either:
+    - pattern: "JSON.parse("
+    - pattern: "JSON.parseObject("
+    - pattern: "JSON.parseArray("
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-log4j-jndi"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Log4Shell-style JNDI lookup in log message (RCE)"
+  fix: "Upgrade log4j-core to 2.17+ and remove JNDI lookups in log data"
+  pattern-either:
+    - pattern: "jndi:ldap://"
+    - pattern: "jndi:rmi://"
+    - pattern: "jndi:dns://"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-917"
+    "confidence": "HIGH"
+- id: "java-jdbc-autocommit-sqli"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built by string concatenation"
+  fix: "Use PreparedStatement with ? placeholders"
+  pattern: "\"SELECT * FROM $TABLE WHERE $COL=\" + $ID"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "java-csrf-ignored-annotation"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:csrf"
+  message: "Endpoint annotation disables CSRF protection"
+  fix: "Remove the CSRF-bypass annotation and add compensating checks"
+  pattern: "@IgnoreCSRF"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "java-xxe-document-builder"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "DocumentBuilderFactory used without disabling DTDs (XXE)"
+  fix: "Set FEATURE_SECURE_PROCESSING and disallow doctype decls"
+  pattern: "DocumentBuilderFactory.newInstance("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "java-xxe-sax-factory"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SAXParserFactory created without disabling external entities (XXE)"
+  fix: "Set FEATURE_SECURE_PROCESSING and disallow doctype decls"
+  pattern: "SAXParserFactory.newInstance("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "java-xxe-xml-input-factory"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "XMLInputFactory created without disabling external entities (XXE)"
+  fix: "Disable DTDs and external entities (IS_SUPPORTING_EXTERNAL_ENTITIES=false)"
+  pattern: "XMLInputFactory.newInstance("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"

@@ -1,0 +1,93 @@
+- id: "py-tls-min-version-weak"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS minimum version pinned to TLS 1.0/1.1"
+  fix: "Set minimum_version = TLSVersion.TLSv1_2 or later"
+  pattern-either:
+    - pattern: "TLSVersion.$V)"
+    - pattern: "TLSVersion.$V,"
+    - pattern: "TLSVersion.$V "
+  metavariable-regex:
+    "V": "^TLSv1(\\.1)?$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-pil-bomb-limit-disabled"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "PIL decompression-bomb guard disabled (MAX_IMAGE_PIXELS = None)"
+  fix: "Keep MAX_IMAGE_PIXELS at a sane bound such as 89478485"
+  pattern-either:
+    - pattern: "MAX_IMAGE_PIXELS = None"
+    - pattern: "MAX_IMAGE_PIXELS=None"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-409"
+    "confidence": "HIGH"
+- id: "py-login-literal-secret"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Client login with a literal password"
+  fix: "Load the password from the environment or a secret store"
+  pattern-either:
+    - pattern: "login($U, \""
+    - pattern: "login($U, '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-nosql-operator-injection"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "NoSQL operator built from a request-controlled key"
+  fix: "Allowlist operators instead of interpolating client keys"
+  pattern: "\"$OP\""
+  metavariable-regex:
+    "OP": "^\\$(regex|ne|nin|gt|gte|lt|lte|exists|function)$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-943"
+    "confidence": "HIGH"
+- id: "py-ssl-legacy-protocol"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Legacy SSL/TLS protocol version selected (SSLv2/v3, TLS 1.0/1.1)"
+  fix: "Use ssl.PROTOCOL_TLS_CLIENT with a modern minimum_version"
+  pattern-either:
+    - pattern: "PROTOCOL_TLS$V)"
+    - pattern: "PROTOCOL_TLS$V,"
+    - pattern: "PROTOCOL_SSL$V)"
+  metavariable-regex:
+    "V": "^(v1|v1_1|v3|v23)$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-ldap-bind-literal"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "LDAP bind with a literal password"
+  fix: "Load the bind password from the environment"
+  pattern: "bind_s($D, \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-password-md5"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Password stored as a static MD5 hash literal"
+  fix: "Store a salted modern hash (argon2id/bcrypt/scrypt) per user, never a literal"
+  pattern: "PASSWORD_MD5 = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"

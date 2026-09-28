@@ -1,0 +1,14 @@
+id: py-sql-injection
+languages: [python]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via string-formatted query
+fix: Use parameterized queries (cursor.execute("SELECT ... WHERE x = %s", (val,)))
+pattern-either:
+  - pattern: cursor.execute($VAR)
+  - pattern: cursor.execute($VAR, ...)
+  - pattern: cursor.executemany($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

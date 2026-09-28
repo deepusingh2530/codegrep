@@ -1,0 +1,13 @@
+id: ruby-command-injection
+languages: [ruby]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via system/exec/backticks on user input
+fix: Avoid shell with user input; use allowlisted args
+pattern-either:
+  - pattern: system($VAR)
+  - pattern: exec($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

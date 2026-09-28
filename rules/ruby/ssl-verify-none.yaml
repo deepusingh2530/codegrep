@@ -1,0 +1,11 @@
+id: ruby-ssl-verify-none
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a2-crypto
+message: TLS verification disabled via VERIFY_NONE
+fix: Verify peer certificates in production
+pattern: VERIFY_NONE
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-295
+  confidence: HIGH

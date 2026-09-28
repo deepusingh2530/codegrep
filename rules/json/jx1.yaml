@@ -1,0 +1,26 @@
+- id: "json-api-key"
+  languages: ["json"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "API key literal in JSON config"
+  fix: "Reference an environment variable or secret store"
+  pattern-either:
+    - pattern: "\"api_key\": \""
+    - pattern: "\"apiKey\": \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "json-secret-literal"
+  languages: ["json"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Secret literal in JSON config"
+  fix: "Reference an environment variable or secret store"
+  pattern-either:
+    - pattern: "\"secret\": \""
+    - pattern: "\"client_secret\": \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

@@ -1,0 +1,53 @@
+- id: "php-rand-weak"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "rand() is not cryptographically secure"
+  fix: "Use random_int for tokens and nonces"
+  pattern: "rand($A, $B)"
+  pattern-not: "mt_"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-338"
+    "confidence": "MEDIUM"
+- id: "php-allow-url-include"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "allow_url_include enables remote file inclusion (RFI)"
+  fix: "Keep allow_url_include=0 and include only local allowlisted files"
+  pattern: "allow_url_include"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-98"
+    "confidence": "HIGH"
+- id: "php-preg-replace-eval"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "preg_replace with the /e modifier evaluates the replacement (code execution)"
+  fix: "Use preg_replace_callback instead of the removed /e modifier"
+  pattern: "preg_replace ... /e"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "php-remote-include"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File included over cleartext http (remote code inclusion)"
+  fix: "Bundle the file locally; never include code fetched at runtime"
+  pattern-either:
+    - pattern: "include \"http://"
+    - pattern: "include 'http://"
+    - pattern: "require \"http://"
+    - pattern: "require 'http://"
+    - pattern: "include_once \"http://"
+    - pattern: "include_once 'http://"
+    - pattern: "require_once \"http://"
+    - pattern: "require_once 'http://"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-98"
+    "confidence": "HIGH"

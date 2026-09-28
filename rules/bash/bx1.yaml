@@ -1,0 +1,13 @@
+id: "bash-export-secret"
+languages: ["bash"]
+severity: "ERROR"
+category: "security:secrets"
+message: "Secret exported as a shell variable in a script"
+fix: "Read secrets at runtime from a secret manager, not the script"
+pattern: "export $VAL"
+metavariable-regex:
+  "VAL": "(?m)^[A-Z0-9_]*(SECRET|PASSWORD|TOKEN|API_KEY)[A-Z0-9_]*="
+metadata:
+  "owasp": "A07:2021-Identification-Auth"
+  "cwe": "CWE-798"
+  "confidence": "HIGH"

@@ -1,0 +1,13 @@
+id: ruby-send-user
+languages: [ruby]
+severity: WARNING
+category: security:code-execution
+message: Possible code execution via send() with user-controlled method name
+fix: Allowlist method names instead of passing user input to send()
+pattern-either:
+  - pattern: send($VAR)
+  - pattern: send($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

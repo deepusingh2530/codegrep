@@ -1,0 +1,44 @@
+# Rule coverage policy
+
+Every language codegrep supports carries at least one rule in each of these
+categories, verified by `rules/tests/<id>/{fail,pass}` fixtures via
+`codegrep rule test`:
+
+- code-execution, deserialization, misconfig, open-redirect
+- owasp-a1-injection (SQL/LDAP/NoSQL/XPath/command), owasp-a10-ssrf,
+  owasp-a2-crypto, owasp-a3-injection (SSTI/template), owasp-a3-xss,
+  weak-crypto
+
+Three deliberate exceptions (documented here so they read as decisions, not gaps):
+
+1. **CSRF** — covered only where a sink-shaped finding exists
+   (`django-csrf-exempt`, `spring-csrf-disabled`). CSRF elsewhere is the
+   *absence* of protection (missing middleware, missing tokens), which a
+   sink-pattern engine cannot assert without whole-app config analysis.
+   Rails/Django defaults are protective; flagging every form would be noise.
+2. **Secrets** — covered once, globally, by `rules/secrets/` with
+   `languages: [generic]` (AWS/GitHub/Slack tokens, private keys, password
+   assignments). Secret shapes are language-independent; duplicating them per
+   language would multiply maintenance without new signal. The `generic`
+   pseudolanguage applies to every discovered file.
+3. **Structural absence / memory-lifetime findings** — CWE-416 (use after
+   free), CWE-415 (double free), CWE-125 (OOB read), CWE-476 (NULL deref)
+   and CWE-362 (race/TOCTOU) need either block-range scoping or repeated
+   metavariable equality; the matcher compiles patterns to whole-file regexes
+   and Rust regex forbids duplicate capture names. Route-level CWE-287/306/
+   639/862/863 (missing decorator/middleware/authz check) and OWASP A04
+   (insecure design) are likewise *absence* findings. These are roadmap
+   (block scoping + taint event-ordering), not silent gaps: config-level
+   equivalents ARE covered — CWE-306 via auth-disabled settings, CWE-287 via
+   JWT verification bypasses, CWE-434 via client-filename uploads, CWE-117
+   via request-data-to-log sinks.
+
+## Precision contract
+
+- Sink-presence rules (pattern-only) are severity WARNING / confidence
+  MEDIUM or LOW unless the sink is rarely legitimate (`eval`, `unserialize`,
+  `sh -c` → ERROR/HIGH).
+- Taint rules (`taint:` block) carry the high-precision claims (ERROR/HIGH):
+  untrusted input must reach the sink, sanitizers honored.
+- Every rule ships only with a fail-fixture that triggers and a
+  pass-fixture that stays silent. `rule test` fails the build otherwise.

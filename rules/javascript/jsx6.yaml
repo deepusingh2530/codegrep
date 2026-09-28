@@ -1,0 +1,327 @@
+- id: "js-jwt-ignore-expiration"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "JWT verification ignores expiration/not-before"
+  fix: "Remove ignoreExpiration/ignoreNotBefore"
+  pattern-either:
+    - pattern: "ignoreExpiration: true"
+    - pattern: "ignoreNotBefore: true"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "js-hardcoded-bearer-token"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded bearer token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "Bearer $TOK\""
+    - pattern: "Bearer $TOK'"
+  metavariable-regex:
+    "TOK": "^[A-Za-z0-9._-]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-webhook"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded webhook URL (Discord/Teams)"
+  fix: "Read webhook URLs from the environment"
+  pattern-either:
+    - pattern: "discord.com/api/webhooks/"
+    - pattern: "discordapp.com/api/webhooks/"
+    - pattern: "webhook.office.com"
+    - pattern: "outlook.office.com/webhook"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-vault-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded HashiCorp Vault token"
+  fix: "Read VAULT_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"hvs.$REST\""
+    - pattern: "$VAR = 'hvs.$REST'"
+    - pattern: "$VAR: \"hvs.$REST\""
+    - pattern: "$VAR: 'hvs.$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-gcp-sa-key"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded GCP service-account private key"
+  fix: "Load the key from a secret manager"
+  pattern-either:
+    - pattern: "\"private_key\": \""
+    - pattern: "\"private_key\": '"
+    - pattern: "private_key: \""
+    - pattern: "private_key: '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-aws-session-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS session token"
+  fix: "Read AWS_SESSION_TOKEN from the environment/STS"
+  pattern-either:
+    - pattern: "$VAR = \"FwoGZXIvYXdz$REST\""
+    - pattern: "$VAR = 'FwoGZXIvYXdz$REST'"
+    - pattern: "$VAR: \"FwoGZXIvYXdz$REST\""
+    - pattern: "$VAR: 'FwoGZXIvYXdz$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "js-hardcoded-github-fine-grained-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded fine-grained GitHub personal access token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"github_pat_$REST\""
+    - pattern: "$VAR = 'github_pat_$REST'"
+    - pattern: "$VAR: \"github_pat_$REST\""
+    - pattern: "$VAR: 'github_pat_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-groq-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Groq API key"
+  fix: "Read GROQ_API_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"gsk_$REST\""
+    - pattern: "$VAR = 'gsk_$REST'"
+    - pattern: "$VAR: \"gsk_$REST\""
+    - pattern: "$VAR: 'gsk_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-tls-min-old"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS 1.0/1.1 minimum version selected"
+  fix: "Use minVersion: \"TLSv1.2\" or newer"
+  pattern-either:
+    - pattern: "minVersion: 'TLSv1'"
+    - pattern: "minVersion: \"TLSv1\""
+    - pattern: "minVersion: 'TLSv1.1'"
+    - pattern: "minVersion: \"TLSv1.1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "js-strict-ssl-false"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "strictSSL disables certificate verification"
+  fix: "Remove strictSSL: false"
+  pattern: "strictSSL: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "js-cleartext-urls"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Cleartext protocol URL (mqtt/amqp/redis/postgres)"
+  fix: "Use the TLS scheme (mqtts/amqps/rediss)"
+  pattern-either:
+    - pattern: "mqtt://"
+    - pattern: "amqp://"
+    - pattern: "redis://"
+    - pattern: "postgres://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "js-pg-ssl-false"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Database connection disables SSL"
+  fix: "Set ssl: true with certificate verification"
+  pattern: "ssl: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "js-mongo-tls-invalid"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "MongoDB client disables TLS certificate/host verification"
+  fix: "Remove tlsAllowInvalidCertificates/Hostnames"
+  pattern-either:
+    - pattern: "tlsAllowInvalidCertificates: true"
+    - pattern: "tlsAllowInvalidHostnames: true"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "js-hardcoded-totp-secret"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded TOTP seed secret"
+  fix: "Load the seed from a secret store"
+  pattern-either:
+    - pattern: "TOTP(\""
+    - pattern: "TOTP('"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-passphrase"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded private-key passphrase"
+  fix: "Read the passphrase from the environment"
+  pattern-either:
+    - pattern: "passphrase: \""
+    - pattern: "passphrase: '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-api-key"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded API key"
+  fix: "Read the key from the environment"
+  pattern-either:
+    - pattern: "apiKey: \""
+    - pattern: "apiKey: '"
+    - pattern: "api_key: \""
+    - pattern: "api_key: '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-basic-auth"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Basic auth credentials"
+  fix: "Read credentials from the environment"
+  pattern-either:
+    - pattern: "Basic $B64\""
+    - pattern: "Basic $B64'"
+  metavariable-regex:
+    "B64": "^[A-Za-z0-9+/=]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-salt"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded salt value"
+  fix: "Derive a unique salt per secret"
+  pattern-either:
+    - pattern: "salt: \""
+    - pattern: "salt: '"
+    - pattern: "salt = \""
+    - pattern: "salt = '"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-760"
+    "confidence": "MEDIUM"
+- id: "js-shelljs-exec"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "shell.exec runs OS commands (injection risk)"
+  fix: "Avoid shell.exec with dynamic input"
+  pattern: "shell.exec("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "js-reflect-set-pollution"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:prototype-pollution"
+  message: "Reflect.set with dynamic key may pollute prototypes"
+  fix: "Validate keys and use Object.create(null)"
+  pattern: "Reflect.set($O, $K, $V)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1321"
+    "confidence": "MEDIUM"
+- id: "js-deep-extend-proto"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:prototype-pollution"
+  message: "deepExtend merges untrusted objects (prototype pollution)"
+  fix: "Use safe merges with null-prototype targets"
+  pattern: "deepExtend("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1321"
+    "confidence": "MEDIUM"
+- id: "js-oauth-implicit-grant"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "OAuth implicit grant exposes tokens in the URL"
+  fix: "Use the authorization code flow with PKCE"
+  pattern-either:
+    - pattern: "response_type: 'token'"
+    - pattern: "response_type: \"token\""
+    - pattern: "response_type=token"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-522"
+    "confidence": "MEDIUM"
+- id: "js-express-dotfiles-allow"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "express.static serves dotfiles (.env exposure)"
+  fix: "Use dotfiles: 'ignore'"
+  pattern-either:
+    - pattern: "dotfiles: 'allow'"
+    - pattern: "dotfiles: \"allow\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-200"
+    "confidence": "MEDIUM"
+- id: "js-rc4-cipher"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "RC4 cipher in use"
+  fix: "Use AES-GCM"
+  pattern-either:
+    - pattern: "CryptoJS.RC4"
+    - pattern: "algo.RC4"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"

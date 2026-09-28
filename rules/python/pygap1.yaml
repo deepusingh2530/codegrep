@@ -1,0 +1,164 @@
+- id: "py-marshal-load"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "marshal.load deserializes untrusted data into arbitrary objects"
+  fix: "Use json or a safe format; never unmarshal untrusted input"
+  pattern: "marshal.load($F)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "py-xml-et-fromstring"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "ElementTree.fromstring parses XML that may resolve entities"
+  fix: "Use defusedxml.ElementTree or disable entity resolution"
+  pattern-either:
+    - pattern: "ET.fromstring($X)"
+    - pattern: "ElementTree.fromstring($X)"
+  metavariable-regex:
+    "X": "^[^\"']"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "py-pbkdf2-low-iterations"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "PBKDF2 iteration count is far below current guidance (<=9999)"
+  fix: "Use at least 600000 iterations (OWASP 2023) for PBKDF2-HMAC-SHA256"
+  pattern: "hashlib.pbkdf2_hmac($ARGS)"
+  metavariable-regex:
+    "ARGS": ",\\s*\\d{1,4}$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "py-django-secure-settings-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Django secure-cookie / HTTPS-redirect setting disabled"
+  fix: "Set SESSION_COOKIE_SECURE, CSRF_COOKIE_SECURE and SECURE_SSL_REDIRECT to True in production"
+  pattern-either:
+    - pattern: "SESSION_COOKIE_SECURE = False"
+    - pattern: "CSRF_COOKIE_SECURE = False"
+    - pattern: "SECURE_SSL_REDIRECT = False"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "py-django-cors-wildcard"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "CORS configured to allow any origin"
+  fix: "Allowlist the exact origins that may call the API"
+  pattern-either:
+    - pattern: "CORS_ALLOW_ALL_ORIGINS = True"
+    - pattern: "CORS_ALLOW_ALL = True"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "HIGH"
+- id: "py-mass-assignment"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Object created directly from request data (mass assignment)"
+  fix: "Pass an explicit field allowlist instead of unpacking request data"
+  pattern: "create(**$DATA)"
+  metavariable-regex:
+    "DATA": "^request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-915"
+    "confidence": "HIGH"
+- id: "py-redos-user-pattern"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:denial-of-service"
+  message: "Regex built from request input (ReDoS via catastrophic backtracking)"
+  fix: "Constrain the pattern, cap input length, or use a linear-time engine"
+  pattern-either:
+    - pattern: "re.match($PAT, $S)"
+    - pattern: "re.search($PAT, $S)"
+    - pattern: "re.compile($PAT)"
+  metavariable-regex:
+    "PAT": "^request\\.|^req\\."
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-1333"
+    "confidence": "MEDIUM"
+- id: "py-weak-random-choices"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Non-cryptographic RNG used for choice/shuffle/sample"
+  fix: "Use the secrets module for anything security-relevant"
+  pattern-either:
+    - pattern: "random.choice($SEQ)"
+    - pattern: "random.shuffle($L)"
+    - pattern: "random.sample($POP, $K)"
+    - pattern: "random.randrange($N)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-338"
+    "confidence": "MEDIUM"
+- id: "py-redirect-user-input"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:open-redirect"
+  message: "Redirect target taken from request input (open redirect)"
+  fix: "Map the parameter to an allowlist of local destinations"
+  pattern: "redirect($URL)"
+  metavariable-regex:
+    "URL": "^(request\\.|\\$_)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "HIGH"
+- id: "py-xmlrpc-ssrf"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "xmlrpc ServerProxy points at a computed endpoint (SSRF)"
+  fix: "Pin the endpoint to a constant, allowlisted URL"
+  pattern: "xmlrpc.client.ServerProxy($URL)"
+  metavariable-regex:
+    "URL": "^[^\"']"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "py-debugger-trace"
+  languages: ["python"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Debugger breakpoint left in source"
+  fix: "Remove the breakpoint before committing"
+  pattern-either:
+    - pattern: "pdb.set_trace()"
+    - pattern: "breakpoint()"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "HIGH"
+- id: "py-sqlite-conn-execute"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:sqli"
+  message: "SQLite execute called with a dynamically built statement"
+  fix: "Use parameter binding: execute(\"... WHERE id = ?\", (value,))"
+  pattern-either:
+    - pattern: "conn.execute($Q)"
+    - pattern: "connection.execute($Q)"
+  metavariable-regex:
+    "Q": "^f\"|^[A-Za-z_][\\w.]*$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"

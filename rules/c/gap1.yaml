@@ -1,0 +1,96 @@
+- id: "c-malloc-size-overflow"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Allocation size is a product of two variables (integer overflow can under-allocate)"
+  fix: "Check multiplication for overflow or use a checked-alloc helper"
+  pattern-either:
+    - pattern: "malloc($N * $S)"
+    - pattern: "realloc($PTR, $N * $S)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-190"
+    "confidence": "MEDIUM"
+- id: "c-atoi-no-range-check"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "atoi/atol convert without overflow detection (silent wraparound)"
+  fix: "Use strtol with errno/endptr validation"
+  pattern-either:
+    - pattern: "atoi($S)"
+    - pattern: "atol($S)"
+    - pattern: "atoll($S)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-190"
+    "confidence": "MEDIUM"
+- id: "c-alloca-unbounded"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "alloca with a dynamic size can overflow the stack"
+  fix: "Use a fixed-size buffer or heap allocation with a bound"
+  pattern: "alloca($N)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-676"
+    "confidence": "MEDIUM"
+- id: "c-getpass-password"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "getpass is obsolete: static buffer, no reliable clearing"
+  fix: "Read from /dev/tty or use tcgetattr-based prompt with explicit wipe"
+  pattern: "getpass($PROMPT)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-676"
+    "confidence": "MEDIUM"
+- id: "c-wcscpy-unbounded"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "wcscpy copies without bounds checking"
+  fix: "Use wcsncpy or wcsncpy_s with the destination capacity"
+  pattern: "wcscpy($D, $S)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-676"
+    "confidence": "MEDIUM"
+- id: "c-strcat-unbounded"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "strcat appends without checking the destination capacity"
+  fix: "Use strncat with remaining-capacity arithmetic"
+  pattern: "strcat($D, $S)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-120"
+    "confidence": "HIGH"
+- id: "c-scanf-unbounded"
+  languages: ["c"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "scanf %s with no field width writes an unbounded string"
+  fix: "Give %s a width, e.g. \"%127s\""
+  pattern-either:
+    - pattern: "scanf(\"%s\", $B)"
+    - pattern: "fscanf($F, \"%s\", $B)"
+    - pattern: "sscanf($S, \"%s\", $B)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-120"
+    "confidence": "HIGH"
+- id: "c-off-by-one-loop"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Loop uses <= while indexing an array (classic off-by-one out-of-bounds)"
+  fix: "Use < with the length, or ensure capacity is length + 1"
+  pattern: "for (... <= $N; ...) ... $ARR[...]"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-787"
+    "confidence": "MEDIUM"

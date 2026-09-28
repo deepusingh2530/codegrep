@@ -1,0 +1,236 @@
+- id: "java-thymeleaf-process"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "Thymeleaf template name comes from request input (SSTI)"
+  fix: "Use a fixed template name; pass user data only as model attributes"
+  pattern: "templateEngine.process($T, ...)"
+  metavariable-regex:
+    "T": "request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "MEDIUM"
+- id: "java-dispatcher-user"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "RequestDispatcher target comes from request input"
+  fix: "Dispatch to a fixed set of internal views"
+  pattern: "RequestDispatcher($P)"
+  metavariable-regex:
+    "P": "request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "java-el-value-expression"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "EL expression created from a dynamic string and evaluated"
+  fix: "Never build value expressions from user input; use fixed logic"
+  pattern: "createValueExpression ... getValue"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "java-apache-http-ssrf"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "Apache HttpClient request URI comes from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern: "new HttpGet($U)"
+  metavariable-regex:
+    "U": "request\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "java-files-write-user"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File written to a path derived from request input"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern-either:
+    - pattern: "Files.write($P, $D)"
+    - pattern: "new FileOutputStream($P)"
+  metavariable-regex:
+    "P": "request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-73"
+    "confidence": "MEDIUM"
+- id: "java-hessian-deser"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Hessian binary deserialization of untrusted data"
+  fix: "Do not deserialize Hessian data from outside the trust boundary"
+  pattern: "new HessianInput("
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-jwt-alg-none"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT built or verified with the 'none' algorithm (signature bypass)"
+  fix: "Pin the allowed algorithms to the expected HMAC/RSA ones"
+  pattern: "SignatureAlgorithm.NONE"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "HIGH"
+- id: "java-upload-transfer-to"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "Multipart upload saved via transferTo without content validation"
+  fix: "Generate a server-side name, validate type/size, store outside the web root"
+  pattern: "transferTo($F)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-434"
+    "confidence": "MEDIUM"
+- id: "java-cookie-httponly-false"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie set without HttpOnly (readable from JS / XSS theft)"
+  fix: "Call cookie.setHttpOnly(true)"
+  pattern: "setHttpOnly(false)"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1004"
+    "confidence": "HIGH"
+- id: "java-cookie-secure-false"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie set without the Secure flag (sent over cleartext)"
+  fix: "Call cookie.setSecure(true)"
+  pattern: "setSecure(false)"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-614"
+    "confidence": "HIGH"
+- id: "java-cors-allow-credentials"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CORS configuration allows credentials (dangerous with wildcard origins)"
+  fix: "Combine credentials with an explicit origin allowlist only"
+  pattern: "setAllowCredentials(true)"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "MEDIUM"
+- id: "java-pbkdf2-sha1"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "PBKDF2-HMAC-SHA1 used as the password KDF"
+  fix: "Use PBKDF2WithHmacSHA256 with a high iteration count"
+  pattern: "\"PBKDF2WithHmacSHA1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "java-rsa-pkcs1-padding"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA with PKCS#1 v1.5 padding (padding oracle risk)"
+  fix: "Use RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+  pattern: "\"RSA/ECB/PKCS1Padding\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-780"
+    "confidence": "HIGH"
+- id: "java-http-invoker-exporter"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Spring HttpInvokerServiceExporter exposed (Java deserialization endpoint)"
+  fix: "Remove the exporter; use a JSON API instead"
+  pattern: "HttpInvokerServiceExporter"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-posix-permissions-open"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:file-permissions"
+  message: "World-writable file permissions set"
+  fix: "Grant the minimum owner/group permissions required"
+  pattern: "setPosixFilePermissions($P, $PERMS)"
+  metavariable-regex:
+    "PERMS": "rw.rw.rwx|777"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "java-redos-pattern-compile"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:denial-of-service"
+  message: "Regex compiled from request input (ReDoS via catastrophic backtracking)"
+  fix: "Constrain the pattern, cap input length, or precompile a fixed pattern"
+  pattern: "Pattern.compile($PAT)"
+  metavariable-regex:
+    "PAT": "request\\.|params"
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-1333"
+    "confidence": "MEDIUM"
+- id: "java-des-key-spec"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "DES key in use (56-bit, broken)"
+  fix: "Use AES-GCM with a 256-bit key"
+  pattern: "new DESKeySpec("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "java-hmac-md5"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "HMAC-MD5 used (weak MAC)"
+  fix: "Use HmacSHA256 or stronger"
+  pattern: "\"HmacMD5\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "java-threadlocal-random"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "ThreadLocalRandom used where a CSPRNG is required (predictable tokens)"
+  fix: "Use SecureRandom for tokens, nonces, and keys"
+  pattern: "ThreadLocalRandom.current("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "MEDIUM"
+- id: "java-webclient-uri"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "WebClient URI comes from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern: ".uri($U)"
+  metavariable-regex:
+    "U": "request\\.|params"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"

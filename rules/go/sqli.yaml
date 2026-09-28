@@ -1,0 +1,15 @@
+id: go-sqli
+languages: [go]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via fmt-built query to db.Query
+fix: Use parameterized queries ($1, ? placeholders)
+pattern-either:
+  - pattern: db.Query($VAR)
+  - pattern: db.Query($VAR, ...)
+  - pattern: db.Exec($VAR)
+  - pattern: db.Exec($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

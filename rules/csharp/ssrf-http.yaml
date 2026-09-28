@@ -1,0 +1,13 @@
+id: csharp-ssrf-http
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via HttpClient call to user-controlled URL
+fix: Allowlist hosts and validate URL scheme/host
+pattern-either:
+  - pattern: GetStringAsync($VAR)
+  - pattern: GetAsync($VAR)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

@@ -1,0 +1,88 @@
+- id: "go-text-template"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "text/template does not HTML-escape output (XSS)"
+  fix: "Use html/template for untrusted data"
+  pattern: "\"text/template\""
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "go-sha1-new"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "SHA-1 hash constructed"
+  fix: "Use sha256 or stronger"
+  pattern: "sha1.New()"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "go-des-cipher"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "Weak DES cipher constructed"
+  fix: "Use AES-GCM for encryption"
+  pattern: "des.NewCipher($KEY)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "go-rc4-cipher"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "RC4 cipher constructed (broken)"
+  fix: "Use AES-GCM instead"
+  pattern: "rc4.NewCipher($KEY)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "go-xml-new-decoder"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "XML decoder may process external entities (XXE)"
+  fix: "Disable DTDs / external entities in the decoder"
+  pattern: "xml.NewDecoder($R)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "go-ioutil-readfile"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "ioutil.ReadFile with a possibly user-controlled path"
+  fix: "Clean and validate the path against a base directory"
+  pattern: "ioutil.ReadFile($P)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "go-fmt-sprintf-sql"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:sqli"
+  message: "fmt.Sprintf builds a SQL query (injection)"
+  fix: "Use parameterized queries with placeholders"
+  pattern: "fmt.Sprintf($FMT, ...)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "go-http-listen-tls-off"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Plain HTTP server (no TLS)"
+  fix: "Serve over TLS or terminate TLS upstream"
+  pattern: "http.ListenAndServe($ADDR, ...)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "LOW"

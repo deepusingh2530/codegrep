@@ -1,0 +1,11 @@
+id: spring-path-resource
+languages: [java]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via FileSystemResource on user input
+fix: Normalize and enforce a base directory
+pattern: FileSystemResource($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

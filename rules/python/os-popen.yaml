@@ -1,0 +1,11 @@
+id: py-os-popen
+languages: [python]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via os.popen()
+fix: Use subprocess.run() with an argument list
+pattern: os.popen($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

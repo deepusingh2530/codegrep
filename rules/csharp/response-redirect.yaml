@@ -1,0 +1,11 @@
+id: csharp-response-redirect
+languages: [csharp]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via Response.Redirect() to user input
+fix: Allowlist redirect targets
+pattern: Response.Redirect($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

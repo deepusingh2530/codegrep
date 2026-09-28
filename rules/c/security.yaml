@@ -1,0 +1,57 @@
+- id: "c-gets-buffer-overflow"
+  languages: ["c"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "gets() cannot bound input length and overflows the buffer"
+  fix: "Use fgets(buf, sizeof(buf), stdin)"
+  pattern: "gets($BUF)"
+  pattern-not: "fgets"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-120"
+    "confidence": "HIGH"
+- id: "c-strcpy-unbounded"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "strcpy copies without bounds checking"
+  fix: "Use strncpy or strlcpy with an explicit size"
+  pattern: "strcpy($DST, $SRC)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-120"
+    "confidence": "HIGH"
+- id: "c-sprintf-buffer-overflow"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "sprintf may overflow its destination buffer"
+  fix: "Use snprintf with an explicit size"
+  pattern: "sprintf($BUF, ...)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-787"
+    "confidence": "MEDIUM"
+- id: "c-system-command-injection"
+  languages: ["c"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "system() invokes a shell and enables command injection"
+  fix: "Avoid the shell; use execve with a fixed argument vector"
+  pattern: "system($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "c-printf-user-format"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "printf uses user data as the format string"
+  fix: "Pass a constant format: printf(\"%s\", user_input)"
+  pattern: "printf($FMT)"
+  pattern-not: "printf(\""
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-134"
+    "confidence": "MEDIUM"

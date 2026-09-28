@@ -1,0 +1,11 @@
+id: java-xml-decoder
+languages: [java]
+severity: ERROR
+category: security:deserialization
+message: Unsafe deserialization via XMLDecoder on untrusted XML
+fix: Avoid XMLEncoder/XMLDecoder on untrusted data; use JSON
+pattern: new XMLDecoder($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: HIGH

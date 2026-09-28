@@ -1,0 +1,15 @@
+id: "js-hardcoded-openai-key"
+languages: ["javascript"]
+severity: "WARNING"
+category: "security:secrets"
+message: "Hardcoded OpenAI API key"
+fix: "Read the key from the environment"
+pattern-either:
+  - pattern: "\"sk-$REST\""
+  - pattern: "`sk-$REST`"
+metavariable-regex:
+  "REST": "^[A-Za-z0-9_-]{16,}$"
+metadata:
+  "owasp": "A07:2021-Identification-Auth"
+  "cwe": "CWE-798"
+  "confidence": "HIGH"

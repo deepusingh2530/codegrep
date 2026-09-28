@@ -1,0 +1,169 @@
+- id: "rb-hardcoded-sendgrid-key"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded SendGrid API key"
+  fix: "Read SENDGRID_API_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"SG.$REST\""
+    - pattern: "$VAR = 'SG.$REST'"
+    - pattern: "$VAR: \"SG.$REST\""
+    - pattern: "$VAR: 'SG.$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-shopify-key"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Shopify access token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"shpat_$REST\""
+    - pattern: "$VAR = 'shpat_$REST'"
+    - pattern: "$VAR: \"shpat_$REST\""
+    - pattern: "$VAR: 'shpat_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-slack-token"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Slack bot/user token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"xoxb-$REST\""
+    - pattern: "$VAR = 'xoxb-$REST'"
+    - pattern: "$VAR: \"xoxb-$REST\""
+    - pattern: "$VAR: 'xoxb-$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-stripe-key"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Stripe secret key"
+  fix: "Read STRIPE_SECRET_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"sk_live_$REST\""
+    - pattern: "$VAR = 'sk_live_$REST'"
+    - pattern: "$VAR: \"sk_live_$REST\""
+    - pattern: "$VAR: 'sk_live_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-twilio-sid"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Twilio auth token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"SK$REST\""
+    - pattern: "$VAR = 'SK$REST'"
+    - pattern: "$VAR: \"SK$REST\""
+    - pattern: "$VAR: 'SK$REST'"
+  metavariable-regex:
+    "REST": "^[0-9a-f]{32,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-msgpack-deser"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "MessagePack unpack deserializes untrusted data"
+  fix: "Use JSON.parse for untrusted payloads"
+  pattern: "MessagePack.unpack($DATA)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "rb-execute-sqli"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Raw SQL passed to connection.execute"
+  fix: "Use parameterized queries / sanitize SQL"
+  pattern: "connection.execute($SQL"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "rb-csrf-null-session"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:csrf"
+  message: "Rails CSRF protection downgraded to null_session"
+  fix: "Use protect_from_forgery with: :exception"
+  pattern: "with: :null_session"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "rb-erb-raw-output"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "ERB raw output tag <%== (unescaped)"
+  fix: "Use <%= unless the value is trusted HTML"
+  pattern: "<%=="
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "rb-hmac-md5"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "HMAC-MD5 in use"
+  fix: "Use HMAC-SHA256"
+  pattern: "HMAC::MD5"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "rb-hardcoded-passphrase"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded private-key passphrase"
+  fix: "Read the passphrase from the environment"
+  pattern-either:
+    - pattern: "passphrase: \""
+    - pattern: "passphrase: '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-totp"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded TOTP seed secret"
+  fix: "Load the seed from a secret store"
+  pattern-either:
+    - pattern: "ROTP::TOTP.new(\""
+    - pattern: "ROTP::TOTP.new('"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-ransack-raw-params"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Ransack queried with raw params (arbitrary predicates)"
+  fix: "Permit allowed attributes before ransacking"
+  pattern: "ransack(params)"
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-915"
+    "confidence": "MEDIUM"

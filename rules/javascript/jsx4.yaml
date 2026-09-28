@@ -1,0 +1,293 @@
+- id: "js-spawn-sync"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "spawnSync runs a shell command (command injection if data-driven)"
+  fix: "Use a fixed argv list and shell:false"
+  pattern: "spawnSync($VAR, ...)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "MEDIUM"
+- id: "js-set-immediate-string"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "setImmediate given a string (evaluated as code)"
+  fix: "Pass a function callback instead of a string"
+  pattern: "setImmediate($CODE)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "MEDIUM"
+- id: "js-vm-compile-function"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Dynamic code compiled and run in the vm module"
+  fix: "Never compile untrusted source; run only fixed logic"
+  pattern: "vm.compileFunction($CODE)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "js-permissive-chmod"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "World-writable file mode (0o777) set"
+  fix: "Grant the minimum owner/group permissions required"
+  pattern: "0o777"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "js-hmac-md5"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "HMAC-MD5 used (weak MAC)"
+  fix: "Use createHmac('sha256', ...)"
+  pattern: "createHmac(\"md5\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "js-rsa-pkcs1-padding"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA with PKCS#1 v1.5 padding (padding oracle risk)"
+  fix: "Use RSA_PKCS1_OAEP_PADDING"
+  pattern: "RSA_PKCS1_PADDING"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-780"
+    "confidence": "HIGH"
+- id: "js-hardcoded-github-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitHub personal access token"
+  fix: "Load the token from an environment secret and rotate it"
+  pattern-either:
+    - pattern: "$VAR = \"ghp_$REST\""
+    - pattern: "$VAR = 'ghp_$REST'"
+    - pattern: "$VAR: \"ghp_$REST\""
+    - pattern: "$VAR: 'ghp_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-slack-webhook"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Slack webhook URL"
+  fix: "Load the webhook from an environment secret and rotate it"
+  pattern: "https://hooks.slack.com/$REST"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-password"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded password literal"
+  fix: "Load the password from an environment secret"
+  pattern-either:
+    - pattern: "password: \""
+    - pattern: "password = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-private-key"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded private key material in source"
+  fix: "Load keys from a secret store and rotate them"
+  pattern-either:
+    - pattern: "-----BEGIN RSA PRIVATE KEY"
+    - pattern: "-----BEGIN EC PRIVATE KEY"
+    - pattern: "-----BEGIN PRIVATE KEY"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-res-location"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:open-redirect"
+  message: "res.location redirect target may be attacker-controlled"
+  fix: "Redirect only to fixed internal paths or an allowlisted host"
+  pattern: "res.location($VAR)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "MEDIUM"
+- id: "js-res-download"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "res.download path may be attacker-controlled (path traversal)"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern: "res.download($VAR)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-unlink-user"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "File deleted using a request-derived path"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern-either:
+    - pattern: "fs.unlink($P)"
+    - pattern: "fs.rm($P)"
+  metavariable-regex:
+    "P": "req\\.|request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-new-buffer"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Deprecated new Buffer() (unsafe input handling)"
+  fix: "Use Buffer.from(data) or Buffer.alloc(size)"
+  pattern: "new Buffer("
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-20"
+    "confidence": "MEDIUM"
+- id: "js-window-open"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:open-redirect"
+  message: "window.open target may be attacker-controlled"
+  fix: "Open only fixed internal URLs or allowlisted hosts"
+  pattern: "window.open($URL)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "MEDIUM"
+- id: "js-document-location-assign"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:open-redirect"
+  message: "document.location assigned from a dynamic value"
+  fix: "Navigate only to fixed internal paths"
+  pattern: "document.location = $X"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "MEDIUM"
+- id: "js-net-ssrf"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "Outbound TCP connection to a dynamic host"
+  fix: "Allowlist destination hosts"
+  pattern-either:
+    - pattern: "net.connect($HOST)"
+    - pattern: "tls.connect($HOST)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "js-http-request-ssrf"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "http(s).request options may be attacker-controlled"
+  fix: "Allowlist destination hosts"
+  pattern-either:
+    - pattern: "http.request($OPTS)"
+    - pattern: "https.request($OPTS)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "js-nunjucks-render"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "Nunjucks template rendered from a dynamic name"
+  fix: "Use a fixed template name; pass user data only as variables"
+  pattern: "nunjucks.render($T)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "js-rsa-modulus-1024"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA key generated with a modulus below 2048 bits"
+  fix: "Generate keys with modulusLength: 2048 or larger"
+  pattern-either:
+    - pattern: "modulusLength: 1024"
+    - pattern: "modulusLength: 512"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-326"
+    "confidence": "HIGH"
+- id: "js-pbkdf2-low-iterations"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "PBKDF2 with fewer than 100000 iterations"
+  fix: "Use at least 600000 iterations with SHA-256"
+  pattern-either:
+    - pattern: "pbkdf2Sync($PW, $SALT, $ITER, ..."
+    - pattern: "pbkdf2($PW, $SALT, $ITER, ..."
+  metavariable-regex:
+    "ITER": "^\\d{1,5}$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "js-cors-header-reflection"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CORS Access-Control-Allow-Origin reflects the caller origin"
+  fix: "Return an explicit origin allowlist, never a reflected value"
+  pattern: "res.setHeader(\"Access-Control-Allow-Origin\", $O)"
+  metavariable-regex:
+    "O": "(?i)origin|request\\."
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "MEDIUM"
+- id: "js-credentials-in-url"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Credentials embedded in HTTP(S) URL"
+  fix: "Read user and password from environment variables at runtime"
+  pattern-either:
+    - pattern: "http://$CREDS@"
+    - pattern: "https://$CREDS@"
+  metavariable-regex:
+    "CREDS": "^[^:@]+:[^:@0-9]"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-mysql-multiple-statements"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "MySQL connection allows multiple statements (SQL injection amplifier)"
+  fix: "Set multipleStatements:false and use parameterized queries"
+  pattern: "multipleStatements: true"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"

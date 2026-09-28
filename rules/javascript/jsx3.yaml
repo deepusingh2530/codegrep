@@ -1,0 +1,149 @@
+- id: "js-lodash-merge-proto"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:prototype-pollution"
+  message: "lodash merge with user input (prototype pollution)"
+  fix: "Use _.merge with a sanitized source or a safe merge utility"
+  pattern: "_.merge($O, ...)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1321"
+    "confidence": "MEDIUM"
+- id: "js-jquery-html"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "jQuery .html() with untrusted input (XSS)"
+  fix: "Use .text() or sanitize before inserting"
+  pattern: ".html($X)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-vue-v-html"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "Vue v-html renders untrusted HTML (XSS)"
+  fix: "Use {{ }} interpolation or sanitize"
+  pattern: "v-html"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-angular-bypass-security"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:owasp-a3-xss"
+  message: "Angular sanitizer bypassed for HTML (XSS)"
+  fix: "Avoid bypassSecurityTrust* for untrusted input"
+  pattern: "bypassSecurityTrustHtml($X)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "HIGH"
+- id: "js-sequelize-query"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:sqli"
+  message: "sequelize.query with a concatenated string (SQL injection)"
+  fix: "Use replacements/bind parameters"
+  pattern: "sequelize.query($SQL)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "js-knex-raw"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:sqli"
+  message: "knex.raw with interpolated input (SQL injection)"
+  fix: "Use ? placeholders in raw queries"
+  pattern: "knex.raw($SQL)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "js-outerhtml-assign"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "outerHTML assigned untrusted input (XSS)"
+  fix: "Use textContent or sanitize before inserting"
+  pattern: "outerHTML = $X"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-document-writeln"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "document.writeln with untrusted input (XSS)"
+  fix: "Use textContent or sanitize before inserting"
+  pattern: "document.writeln($HTML)"
+  metavariable-regex:
+    "HTML": "^[A-Za-z_][A-Za-z0-9_]*$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-setinterval-string"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "setInterval invoked with a string (evaluated as code)"
+  fix: "Pass a function reference instead of a string"
+  pattern: "setInterval($CODE)"
+  metavariable-regex:
+    "CODE": "^[^A-Za-z_]"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "MEDIUM"
+- id: "js-iframe-srcdoc"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "iframe srcdoc set to untrusted input (XSS)"
+  fix: "Avoid srcdoc with user data; use sandboxing"
+  pattern: "srcdoc = $X"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-create-read-stream"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "createReadStream from a possibly user-controlled path"
+  fix: "Validate the path against a base directory"
+  pattern: "createReadStream($P)"
+  metavariable-regex:
+    "P": "^[^\"']"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-fs-append-file"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "appendFile writes to a possibly user-controlled path"
+  fix: "Validate the destination path"
+  pattern: "appendFile($P)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-create-cipher-no-iv"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "createCipher used without an IV (insecure)"
+  fix: "Use createCipheriv with a random IV"
+  pattern: "createCipher($ALG, ...)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-329"
+    "confidence": "HIGH"

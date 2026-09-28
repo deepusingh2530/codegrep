@@ -1,0 +1,13 @@
+id: go-weak-rand
+languages: [go]
+severity: WARNING
+category: security:weak-crypto
+message: math/rand used where security randomness may be needed
+fix: Use crypto/rand for security-sensitive randomness
+pattern-either:
+  - pattern: rand.Intn($VAR)
+  - pattern: rand.Read($VAR)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-338
+  confidence: LOW

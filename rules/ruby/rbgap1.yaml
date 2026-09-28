@@ -1,0 +1,149 @@
+- id: "rb-mass-assignment"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Object created directly from request data (mass assignment)"
+  fix: "Permit an explicit field allowlist before mass-assigning attributes"
+  pattern-either:
+    - pattern: "new(params[:$MODEL])"
+    - pattern: "create(params[:$MODEL])"
+    - pattern: "update(params[:$MODEL])"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-915"
+    "confidence": "HIGH"
+- id: "rb-render-file-user"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "render file: target comes from request input (path traversal)"
+  fix: "Render a fixed template or resolve the path against a trusted root"
+  pattern: "render file: $PATH"
+  metavariable-regex:
+    "PATH": "^params\\["
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "HIGH"
+- id: "rb-render-inline-ssti"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a3-injection"
+  message: "render inline: template comes from request input (SSTI)"
+  fix: "Use a fixed template file instead of inlining user-controlled ERB"
+  pattern: "render inline: $TMPL"
+  metavariable-regex:
+    "TMPL": "^params\\["
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "MEDIUM"
+- id: "rb-ssrf-http-libs"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "Outbound HTTP request URL taken from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern-either:
+    - pattern: "HTTParty.get($URL)"
+    - pattern: "RestClient.get($URL)"
+    - pattern: "Faraday.get($URL)"
+  metavariable-regex:
+    "URL": "^params\\["
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "HIGH"
+- id: "rb-require-user-path"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "require() target taken from request input (code load)"
+  fix: "Require a fixed set of modules; never load paths from user input"
+  pattern-either:
+    - pattern: "require($FILE)"
+    - pattern: "require $FILE"
+  metavariable-regex:
+    "FILE": "^params\\["
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"
+- id: "rb-csrf-disabled"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:csrf"
+  message: "CSRF protection explicitly disabled"
+  fix: "Keep verify_authenticity_token enabled for cookie-authenticated routes"
+  pattern-either:
+    - pattern: "skip_before_action :verify_authenticity_token"
+    - pattern: "allow_forgery_protection = false"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "rb-oj-load"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Oj.load deserializes untrusted data"
+  fix: "Use Oj.strict_load or parse plain JSON for untrusted input"
+  pattern: "Oj.load($DATA)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "MEDIUM"
+- id: "rb-file-write-user"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File write path taken from request input (path traversal)"
+  fix: "Resolve the path under a fixed upload root and reject traversal"
+  pattern: "File.write($PATH, $DATA)"
+  metavariable-regex:
+    "PATH": "^params\\["
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "HIGH"
+- id: "rb-redos-user-pattern"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:denial-of-service"
+  message: "Regex built from request input (ReDoS via catastrophic backtracking)"
+  fix: "Constrain the pattern, cap input length, or use a linear-time engine"
+  pattern: "Regexp.new($PAT)"
+  metavariable-regex:
+    "PAT": "^params\\["
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-1333"
+    "confidence": "MEDIUM"
+- id: "rb-log-request-input"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize or structure-log the value instead of interpolating raw input"
+  pattern-either:
+    - pattern: "Rails.logger.info($MSG)"
+    - pattern: "Rails.logger.error($MSG)"
+  metavariable-regex:
+    "MSG": "params"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "rb-cipher-ecb"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "ECB cipher selected (leaks plaintext structure)"
+  fix: "Use AES-256-GCM with a random nonce"
+  pattern: "Cipher.new($ALGO)"
+  metavariable-regex:
+    "ALGO": "(?i)ecb"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"

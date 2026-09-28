@@ -1,0 +1,101 @@
+- id: "php-passthru"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "passthru runs a shell command"
+  fix: "Avoid the shell; use fixed commands"
+  pattern: "passthru($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "php-proc-open"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "proc_open runs a shell command"
+  fix: "Avoid the shell; use a fixed program"
+  pattern: "proc_open($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "php-include-variable"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "Dynamic file include (LFI/RFI)"
+  fix: "Allowlist included files; never include request input"
+  pattern: "include $FILE"
+  metavariable-regex:
+    "FILE": "^\\$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-98"
+    "confidence": "HIGH"
+- id: "php-md5-weak"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5 used for hashing"
+  fix: "Use SHA-256 or bcrypt for passwords"
+  pattern: "md5($STR)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "php-mt-rand-weak"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "mt_rand is not cryptographically secure"
+  fix: "Use random_int for tokens and nonces"
+  pattern: "mt_rand($S)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-338"
+    "confidence": "MEDIUM"
+- id: "php-simplexml-xxe"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "simplexml_load_string may process external entities (XXE)"
+  fix: "Disable external entity loading"
+  pattern: "simplexml_load_string($XML)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "php-dom-loadxml"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "DOMDocument loadXML may process external entities (XXE)"
+  fix: "Disable external entity loading"
+  pattern: "loadXML($XML)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "php-file-put-contents"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "file_put_contents writes to a possibly user-controlled path"
+  fix: "Validate and allowlist the destination path"
+  pattern: "file_put_contents($P)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "php-mail-header-injection"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "mail() with user-controlled headers (CRLF injection)"
+  fix: "Sanitize newlines from header values"
+  pattern: "mail($TO)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-93"
+    "confidence": "MEDIUM"

@@ -1,0 +1,13 @@
+id: py-eval-exec
+languages: [python]
+severity: ERROR
+category: security:code-execution
+message: Avoid eval()/exec() on untrusted input
+fix: Replace eval with ast.literal_eval or a safe parser
+pattern-either:
+  - pattern: eval($...ARGS)
+  - pattern: exec($...ARGS)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

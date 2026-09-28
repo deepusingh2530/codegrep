@@ -1,0 +1,82 @@
+- id: "yaml-compose-user-root"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Container service runs as root"
+  fix: "Set user to a non-root UID:GID"
+  pattern-either:
+    - pattern: "user: root"
+    - pattern: "user: \"0\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "HIGH"
+- id: "yaml-apparmor-unconfined"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "AppArmor confinement set to unconfined"
+  fix: "Use a defined profile (e.g. runtime/default)"
+  pattern-either:
+    - pattern: "container.apparmor.security.beta.kubernetes.io/$C: unconfined"
+    - pattern: "apparmor:unconfined"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "HIGH"
+- id: "yaml-seccomp-proc-unconfined"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "seccomp disabled or proc mount unmasked"
+  fix: "Set seccompProfile type RuntimeDefault and drop procMount override"
+  pattern-either:
+    - pattern: "seccomp.security.alpha.kubernetes.io/pod: unconfined"
+    - pattern: "seccomp.security.alpha.kubernetes.io/$C: unconfined"
+    - pattern: "type: Unconfined"
+    - pattern: "procMount: Unmasked"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "MEDIUM"
+- id: "yaml-k8s-extra-caps"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Container adds powerful Linux capability"
+  fix: "Drop all caps and add back only what is required"
+  pattern-either:
+    - pattern: "NET_ADMIN"
+    - pattern: "SYS_PTRACE"
+    - pattern: "SYS_MODULE"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "MEDIUM"
+- id: "yaml-ansible-validate-certs-off"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "Ansible module disables TLS certificate validation"
+  fix: "Set validate_certs: true and trust the correct CA"
+  pattern-either:
+    - pattern: "validate_certs: no"
+    - pattern: "validate_certs: False"
+    - pattern: "validate_certs: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "yaml-service-binds-all"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Service binds all network interfaces"
+  fix: "Bind to localhost or a specific internal address"
+  pattern-either:
+    - pattern: "network.host: 0.0.0.0"
+    - pattern: "bind 0.0.0.0"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-668"
+    "confidence": "MEDIUM"

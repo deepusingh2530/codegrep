@@ -1,0 +1,328 @@
+- id: "rb-cookie-samesite-none"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:csrf"
+  message: "Session/cookie SameSite policy disabled"
+  fix: "Use same_site: :lax"
+  pattern-either:
+    - pattern: "same_site: :none"
+    - pattern: "same_site: 'None'"
+    - pattern: "same_site: \"None\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "rb-haml-escape-off"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "Haml HTML escaping disabled (XSS)"
+  fix: "Keep escape_html enabled"
+  pattern-either:
+    - pattern: "escape_html: false"
+    - pattern: "escape_html = false"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "rb-file-umask-zero"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "File.umask(0) creates world-writable files"
+  fix: "Use File.umask(0o022) or stricter"
+  pattern: "File.umask(0)"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "rb-dsa-keygen"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "DSA key generation (deprecated, weak)"
+  fix: "Generate RSA-2048+ or EC keys"
+  pattern: "DSA.generate("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "rb-cipher-legacy"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "Legacy/weak OpenSSL cipher in use (Blowfish/3DES/CAST/RC2/SEED)"
+  fix: "Use aes-256-gcm"
+  pattern-either:
+    - pattern: "bf-cbc"
+    - pattern: "des-ede3-cbc"
+    - pattern: "cast5-cbc"
+    - pattern: "rc2-cbc"
+    - pattern: "seed-cbc"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "rb-weak-rsa-keygen"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA key generated with weak size (<=1024 bits)"
+  fix: "Use RSA.new(2048) or larger"
+  pattern: "RSA.new($N)"
+  metavariable-regex:
+    "N": "^(256|512|768|1024)$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "rb-tls-old-version"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS 1.0/1.1 explicitly selected"
+  fix: "Use min_version: :TLSv1_2 or newer"
+  pattern-either:
+    - pattern: ":TLSv1)"
+    - pattern: ":TLSv1,"
+    - pattern: ":TLSv1_1)"
+    - pattern: ":TLSv1_1,"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "rb-bcrypt-low-rounds"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "bcrypt cost rounds too low (<9)"
+  fix: "Use cost: 12"
+  pattern-either:
+    - pattern: "cost: $C)"
+    - pattern: "cost: $C,"
+  metavariable-regex:
+    "C": "^[1-8]$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-pem-private-key"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded PEM private key in source"
+  fix: "Load keys from a secret store"
+  pattern-either:
+    - pattern: "BEGIN RSA PRIVATE KEY"
+    - pattern: "BEGIN EC PRIVATE KEY"
+    - pattern: "BEGIN DSA PRIVATE KEY"
+    - pattern: "BEGIN ENCRYPTED PRIVATE KEY"
+    - pattern: "BEGIN OPENSSH PRIVATE KEY"
+    - pattern: "BEGIN PRIVATE KEY"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-webhook"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded webhook URL (Slack/Discord/Teams)"
+  fix: "Read webhook URLs from the environment"
+  pattern-either:
+    - pattern: "hooks.slack.com/services/"
+    - pattern: "discord.com/api/webhooks/"
+    - pattern: "discordapp.com/api/webhooks/"
+    - pattern: "webhooks.office.com"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-debugger-code"
+  languages: ["ruby"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Debugger statement left in code"
+  fix: "Remove binding.pry/byebug before shipping"
+  pattern-either:
+    - pattern: "binding.pry"
+    - pattern: "byebug"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "LOW"
+- id: "rb-zip-slip"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "ZipFile extract may write outside target (zip-slip)"
+  fix: "Validate entry paths before extraction"
+  pattern: "extract("
+  pattern-inside: "Zip::File"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "rb-verify-false"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "TLS certificate verification disabled in client"
+  fix: "Remove verify: false"
+  pattern-either:
+    - pattern: "verify: false"
+    - pattern: "verify_ssl: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "rb-pg-sslmode-off"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "PostgreSQL SSL mode disables encryption"
+  fix: "Use sslmode: 'require' or stronger"
+  pattern-either:
+    - pattern: "sslmode: 'disable'"
+    - pattern: "sslmode: \"disable\""
+    - pattern: "sslmode: 'none'"
+    - pattern: "sslmode: \"none\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "rb-s3-acl-public"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "S3 object ACL grants public read"
+  fix: "Use acl: 'private' with presigned URLs"
+  pattern-either:
+    - pattern: "acl: 'public-read'"
+    - pattern: "acl: \"public-read\""
+    - pattern: "acl: :public_read"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-password-kwarg"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded literal password"
+  fix: "Load passwords from the environment/secret store"
+  pattern-either:
+    - pattern: "password: '$PW'"
+    - pattern: "password: \"$PW\""
+  metavariable-regex:
+    "PW": "^[A-Za-z0-9_.!@$%^&*+=/|:,~%-]+$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-json-load"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "JSON.load / create_additions enables object injection"
+  fix: "Use JSON.parse without create_additions"
+  pattern-either:
+    - pattern: "JSON.load("
+    - pattern: "create_additions: true"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "rb-cors-origins-star"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CORS allows any origin"
+  fix: "Allowlist explicit origins"
+  pattern-either:
+    - pattern: "origins '*'"
+    - pattern: "origins \"*\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "MEDIUM"
+- id: "rb-skip-auth"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Controller skips authentication callback"
+  fix: "Keep authentication callbacks enabled"
+  pattern-either:
+    - pattern: "skip_before_action :authenticate_user!"
+    - pattern: "skip_before_action :authenticate_admin!"
+    - pattern: "skip_before_action :require_login"
+    - pattern: "skip_before_action :require_admin"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-306"
+    "confidence": "MEDIUM"
+- id: "rb-hardcoded-bearer-token"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded bearer token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "Bearer $TOK\""
+    - pattern: "Bearer $TOK'"
+  metavariable-regex:
+    "TOK": "^[A-Za-z0-9._-]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-jwt-alg-none"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT accepted with algorithm 'none' (signature bypass)"
+  fix: "Require an explicit HMAC/RSA algorithm"
+  pattern-either:
+    - pattern: "algorithm: 'none'"
+    - pattern: "algorithm: \"none\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "rb-net-ssh-host-key"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Net::SSH disables host key verification"
+  fix: "Use verify_host_key: :always with known_hosts"
+  pattern: "verify_host_key: :never"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "rb-saml-no-signature"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "SAML signature verification disabled"
+  fix: "Set want_assertions_signed: true"
+  pattern-either:
+    - pattern: "want_assertions_signed: false"
+    - pattern: "want_response_signed: false"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-iv"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded IV/nonce"
+  fix: "Generate a fresh IV per encryption"
+  pattern-either:
+    - pattern: "iv = '"
+    - pattern: "iv = \""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-329"
+    "confidence": "MEDIUM"

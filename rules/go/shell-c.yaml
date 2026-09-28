@@ -1,0 +1,11 @@
+id: go-shell-c
+languages: [go]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via sh -c with user input
+fix: Avoid shell wrappers; call executables directly with argument lists
+pattern: '"sh", "-c", $VAR'
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

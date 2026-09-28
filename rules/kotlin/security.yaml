@@ -1,0 +1,22 @@
+- id: "kotlin-runtime-exec"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Runtime.exec runs an OS command from input"
+  fix: "Avoid Runtime.exec on untrusted data; use fixed arguments"
+  pattern: "Runtime.getRuntime().exec($CMD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "kotlin-weak-md5"
+  languages: ["kotlin"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Weak hash algorithm MD5 requested"
+  fix: "Use SHA-256 or stronger; bcrypt for passwords"
+  pattern: "\"MD5\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"

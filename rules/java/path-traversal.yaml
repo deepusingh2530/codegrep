@@ -1,0 +1,15 @@
+id: java-path-traversal
+languages: [java]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via File/FileInputStream on user input
+fix: Normalize path and enforce base directory
+pattern-either:
+  - pattern: new File($VAR)
+  - pattern: new java.io.File($VAR)
+  - pattern: new FileInputStream($VAR)
+  - pattern: new java.io.FileInputStream($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

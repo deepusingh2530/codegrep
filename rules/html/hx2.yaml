@@ -1,0 +1,11 @@
+id: "html-insecure-object-embed"
+languages: ["html"]
+severity: "WARNING"
+category: "security:misconfig"
+message: "object/embed element loads a resource over cleartext http://"
+fix: "Serve embedded content over https"
+pattern: "<object data=\"http://"
+metadata:
+  "owasp": "A02:2021-Crypto-Failures"
+  "cwe": "CWE-319"
+  "confidence": "MEDIUM"

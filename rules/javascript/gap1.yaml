@@ -1,0 +1,54 @@
+- id: "js-log-request-input"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize the value or log structured fields"
+  pattern-either:
+    - pattern: "console.log($MSG)"
+    - pattern: "logger.info($MSG)"
+  metavariable-regex:
+    "MSG": "req\\.(query|body|params|headers)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "js-upload-client-filename"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Upload stored under the client-supplied originalname (dangerous type / overwrite)"
+  fix: "Generate a server-side name and validate the content type"
+  pattern: "path.join($DIR, $NAME)"
+  metavariable-regex:
+    "NAME": "originalname"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-434"
+    "confidence": "HIGH"
+- id: "js-jwt-alg-none"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT verify allows the 'none' algorithm (signature bypass)"
+  fix: "Pin the allowed algorithms to the expected HMAC/RSA ones"
+  pattern: "jwt.verify($T, $K, $OPTS)"
+  metavariable-regex:
+    "OPTS": "algorithms.*none"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "HIGH"
+- id: "js-crlf-header-injection"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Response header value comes from request input (CRLF header injection)"
+  fix: "Allowlist or strip CR/LF from header values"
+  pattern: "res.setHeader($NAME, $VALUE)"
+  metavariable-regex:
+    "VALUE": "req\\.(query|body|params)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-93"
+    "confidence": "MEDIUM"

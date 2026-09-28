@@ -1,0 +1,11 @@
+id: "kotlin-webview-js-enabled"
+languages: ["kotlin"]
+severity: "WARNING"
+category: "security:misconfig"
+message: "WebView enables JavaScript (XSS surface)"
+fix: "Enable JavaScript only for trusted content with a strict CSP"
+pattern: "javaScriptEnabled = true"
+metadata:
+  "owasp": "A05:2021-Security-Misconfiguration"
+  "cwe": "CWE-693"
+  "confidence": "MEDIUM"

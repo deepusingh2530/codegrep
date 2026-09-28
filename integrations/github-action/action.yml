@@ -1,0 +1,11 @@
+name: codegrep
+on: [pull_request]
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: ./
+        with:
+          args: scan --baseline origin/main --diff-only --metrics --sarif -o results.sarif

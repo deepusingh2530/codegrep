@@ -1,0 +1,13 @@
+id: csharp-ssti-razor
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a3-injection
+message: Possible SSTI via Razor parsing of user-controlled template
+fix: Use static views; never parse user-controlled Razor templates
+pattern-either:
+  - pattern: Razor.Parse($VAR, ...)
+  - pattern: RazorParse($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

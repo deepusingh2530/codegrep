@@ -1,0 +1,13 @@
+id: java-command-injection
+languages: [java]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via Runtime.exec / ProcessBuilder
+fix: Allowlist commands; avoid shell with user input
+pattern-either:
+  - pattern: Runtime.getRuntime().exec($VAR)
+  - pattern: ProcessBuilder($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

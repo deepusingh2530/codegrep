@@ -1,0 +1,11 @@
+id: csharp-deserialization
+languages: [csharp]
+severity: ERROR
+category: security:deserialization
+message: Unsafe deserialization via BinaryFormatter.Deserialize
+fix: Avoid BinaryFormatter on untrusted data; use JSON
+pattern: Deserialize($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: HIGH

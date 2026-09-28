@@ -1,0 +1,54 @@
+- id: "php-require-user-input"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "require() includes a path taken from request input (LFI/RFI)"
+  fix: "Map request input to an allowlist of local files"
+  pattern: "require($F)"
+  metavariable-regex:
+    "F": "\\$_(GET|POST|REQUEST|COOKIE)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-98"
+    "confidence": "HIGH"
+- id: "php-ldap-search-user-filter"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "LDAP search filter is built from request input (LDAP injection)"
+  fix: "Escape filter values with ldap_escape"
+  pattern: "ldap_search($CONN, $BASE, $FILTER)"
+  metavariable-regex:
+    "FILTER": "\\$_(GET|POST|REQUEST)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-90"
+    "confidence": "HIGH"
+- id: "php-crlf-setcookie-injection"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Cookie value comes from request input (CRLF/header injection)"
+  fix: "Encode or allowlist the cookie value"
+  pattern-either:
+    - pattern: "setcookie($NAME, $VALUE)"
+    - pattern: "setrawcookie($NAME, $VALUE)"
+  metavariable-regex:
+    "VALUE": "\\$_(GET|POST|REQUEST)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-93"
+    "confidence": "MEDIUM"
+- id: "php-upload-client-filename"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Uploaded file stored under its client-supplied name (dangerous type / overwrite)"
+  fix: "Rename the upload to a server-generated name and validate the type"
+  pattern: "move_uploaded_file($TMP, $DIR . $NAME)"
+  metavariable-regex:
+    "NAME": "FILES.*name"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-434"
+    "confidence": "HIGH"

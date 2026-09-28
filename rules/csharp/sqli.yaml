@@ -1,0 +1,13 @@
+id: csharp-sqli
+languages: [csharp]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via SqlCommand with concatenated query
+fix: Use SqlParameter with parameterized queries
+pattern-either:
+  - pattern: new SqlCommand($VAR, ...)
+  - pattern: ExecuteReader($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

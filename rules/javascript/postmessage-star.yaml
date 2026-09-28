@@ -1,0 +1,11 @@
+id: js-postmessage-star
+languages: [javascript]
+severity: WARNING
+category: security:misconfig
+message: postMessage() with wildcard origin leaks data to any site
+fix: Replace "*" with the exact expected origin
+pattern: postMessage($VAR, "*")
+metadata:
+  owasp: A05:2021-Misconfiguration
+  cwe: CWE-942
+  confidence: MEDIUM

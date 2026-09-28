@@ -1,0 +1,13 @@
+id: py-pymongo-find
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible NoSQL injection via MongoDB query built from user input
+fix: Validate query operators and types before passing user data
+pattern-either:
+  - pattern: find($VAR)
+  - pattern: find_one($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-943
+  confidence: MEDIUM

@@ -1,0 +1,299 @@
+- id: "java-hardcoded-aws-access-key"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS access key ID"
+  fix: "Read credentials from the environment/STS"
+  pattern-either:
+    - pattern: "$VAR = \"AKIA$REST\""
+    - pattern: "$VAR: \"AKIA$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-github-token"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitHub token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"ghp_$REST\""
+    - pattern: "$VAR: \"ghp_$REST\""
+    - pattern: "$VAR = \"github_pat_$REST\""
+    - pattern: "$VAR: \"github_pat_$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-stripe-key"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Stripe secret key"
+  fix: "Read STRIPE_SECRET_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"sk_live_$REST\""
+    - pattern: "$VAR: \"sk_live_$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-vault-token"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded HashiCorp Vault token"
+  fix: "Read VAULT_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"hvs.$REST\""
+    - pattern: "$VAR: \"hvs.$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-password"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded password"
+  fix: "Read passwords from the environment"
+  pattern-either:
+    - pattern: "password = \""
+    - pattern: "password: \""
+    - pattern: "setPassword(\""
+    - pattern: "Password = \""
+    - pattern: "Password: \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-basic-auth"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Basic auth credentials"
+  fix: "Read credentials from the environment"
+  pattern: "Basic $B64\""
+  metavariable-regex:
+    "B64": "^[A-Za-z0-9+/=]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-hardcoded-bearer-token"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded bearer token"
+  fix: "Read the token from the environment"
+  pattern: "Bearer $TOK\""
+  metavariable-regex:
+    "TOK": "^[A-Za-z0-9._-]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-credentials-in-url"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Credentials embedded in URL"
+  fix: "Read credentials from the environment"
+  pattern-either:
+    - pattern: "http://$CREDS@"
+    - pattern: "https://$CREDS@"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-commons-text-substitutor"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "commons-text StringSubstitutor (text4shell RCE)"
+  fix: "Use a plain map lookup, not StringSubstitutor, on untrusted input"
+  pattern: "StringSubstitutor("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "java-beanshell"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "BeanShell interpreter executes code"
+  fix: "Remove BeanShell; never evaluate untrusted scripts"
+  pattern: "bsh.Interpreter("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "java-jdbc-rowset-jndi"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "JdbcRowSetImpl JNDI deserialization gadget"
+  fix: "Remove JdbcRowSetImpl setDataSourceName/setAutoCommit on untrusted data"
+  pattern: "new JdbcRowSetImpl("
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-resttemplate-ssrf"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "RestTemplate request with dynamic URL (SSRF)"
+  fix: "Allowlist destinations and validate URLs"
+  pattern-either:
+    - pattern: "restTemplate.getForObject($URL"
+    - pattern: "restTemplate.getForEntity($URL"
+    - pattern: "restTemplate.exchange($URL"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "java-socket-ssrf"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "Socket opened to dynamic host/port (SSRF)"
+  fix: "Allowlist destinations"
+  pattern: "new Socket($HOST, $PORT)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "java-jpa-native-query"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "JPA native query with concatenated SQL"
+  fix: "Use parameter binding (?1, :param)"
+  pattern: "createNativeQuery($Q)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "java-zip-slip"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "Zip entry extracted with client-controlled name (zip slip)"
+  fix: "Normalize and validate the destination path"
+  pattern-either:
+    - pattern: "new File($DIR, entry.getName("
+    - pattern: "new File($DIR, zipEntry.getName("
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "HIGH"
+- id: "java-urlclassloader"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "URLClassLoader loads remote classes"
+  fix: "Load classes from the application classpath only"
+  pattern: "new URLClassLoader("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "java-actuator-heapdump"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Actuator heapdump endpoint exposed (memory secrets)"
+  fix: "Disable the heapdump endpoint"
+  pattern: "heapdump"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-200"
+    "confidence": "MEDIUM"
+- id: "java-actuator-shutdown"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Actuator shutdown endpoint enabled (DoS)"
+  fix: "Disable the shutdown endpoint"
+  pattern-either:
+    - pattern: "actuator/shutdown"
+    - pattern: "endpoint.shutdown.enabled=true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-284"
+    "confidence": "MEDIUM"
+- id: "java-h2-console"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "H2 database console enabled (RCE in production)"
+  fix: "Set spring.h2.console.enabled=false"
+  pattern: "h2.console.enabled=true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-284"
+    "confidence": "HIGH"
+- id: "java-jdwp-exposed"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "JDWP debug agent enabled (remote code execution)"
+  fix: "Remove -agentlib:jdwp from production launches"
+  pattern: "agentlib:jdwp"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "MEDIUM"
+- id: "java-cookie-samesite-none"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie SameSite=None disables CSRF defense"
+  fix: "Use SameSite=Lax or Strict"
+  pattern-either:
+    - pattern: "SameSiteMode.NONE"
+    - pattern: "SameSite=None"
+    - pattern: "sameSite(\"None"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "java-hardcoded-salt"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded salt value"
+  fix: "Derive a unique salt per secret"
+  pattern-either:
+    - pattern: "salt = \""
+    - pattern: "salt: \""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-760"
+    "confidence": "MEDIUM"
+- id: "java-rc4-cipher"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RC4/ARCFOUR cipher in use"
+  fix: "Use AES-GCM"
+  pattern-either:
+    - pattern: "\"RC4"
+    - pattern: "\"ARCFOUR"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "java-cipher-des"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "DES/3DES cipher in use"
+  fix: "Use AES-GCM"
+  pattern: "getInstance(\"DES"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"

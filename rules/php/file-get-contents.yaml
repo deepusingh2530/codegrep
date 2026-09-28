@@ -1,0 +1,11 @@
+id: php-file-get-contents
+languages: [php]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal or SSRF via file_get_contents() on user input
+fix: Validate paths/URLs against an allowlist
+pattern: file_get_contents($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

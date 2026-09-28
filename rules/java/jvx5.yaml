@@ -1,0 +1,49 @@
+- id: "java-secret-key-spec-literal"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "SecretKeySpec created from a string literal"
+  fix: "Load the key from a KMS or secret manager at runtime"
+  pattern: "SecretKeySpec(\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "java-tls-legacy-protocols"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Obsolete SSL/TLS protocol enabled (TLSv1/TLSv1.1/SSLv3)"
+  fix: "Enable only TLSv1.2+ protocols"
+  pattern-either:
+    - pattern: "\"TLSv1\""
+    - pattern: "\"TLSv1.1\""
+    - pattern: "\"SSLv3\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "java-weak-rsa-keygen"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA/DH key generated with <2048-bit modulus"
+  fix: "Generate 2048-bit or larger keys"
+  pattern-either:
+    - pattern: "RSAKeyGenParameterSpec(1024"
+    - pattern: ".initialize(1024"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "java-mysql-use-ssl-false"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "MySQL JDBC connection with TLS disabled (useSSL=false)"
+  fix: "Require TLS and verify server certificates"
+  pattern: "useSSL=false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"

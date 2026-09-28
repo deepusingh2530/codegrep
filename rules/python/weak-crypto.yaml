@@ -1,0 +1,13 @@
+id: py-weak-crypto
+languages: [python]
+severity: WARNING
+category: security:weak-crypto
+message: Weak hash (md5/sha1) used for security purpose
+fix: Use sha256+ or bcrypt/argon2 for passwords
+pattern-either:
+  - pattern: hashlib.md5($...ARGS)
+  - pattern: hashlib.sha1($...ARGS)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

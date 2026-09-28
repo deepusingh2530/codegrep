@@ -1,0 +1,13 @@
+id: php-create-function
+languages: [php]
+severity: ERROR
+category: security:code-execution
+message: Possible code injection via create_function() on user input
+fix: Replace create_function() with closures
+pattern-either:
+  - pattern: create_function($VAR)
+  - pattern: create_function($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

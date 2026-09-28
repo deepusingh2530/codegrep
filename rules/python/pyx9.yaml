@@ -1,0 +1,327 @@
+- id: "py-lib-cleartext-pop-imap"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "POP3/IMAP4 used without SSL (credentials in cleartext)"
+  fix: "Use poplib.POP3_SSL / imaplib.IMAP4_SSL"
+  pattern-either:
+    - pattern: "poplib.POP3("
+    - pattern: "imaplib.IMAP4("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "py-zipfile-extractall"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "ZipFile.extractall may extract outside the target dir (zip-slip)"
+  fix: "Validate member paths before extraction"
+  pattern: "extractall($DEST)"
+  pattern-inside: "ZipFile"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "py-weak-key-size"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Asymmetric key generated with a weak key size (<=1024 bits)"
+  fix: "Use key_size=2048 or larger"
+  pattern-either:
+    - pattern: "key_size = $K)"
+    - pattern: "key_size = $K,"
+  metavariable-regex:
+    "K": "^(512|768|1024)$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-totp-secret"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded TOTP/HOTP seed secret"
+  fix: "Load the seed from a secret store"
+  pattern-either:
+    - pattern: "TOTP(\""
+    - pattern: "TOTP('"
+    - pattern: "HOTP(\""
+    - pattern: "HOTP('"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-aiohttp-ssl-false"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "aiohttp request disables TLS certificate verification"
+  fix: "Remove ssl=False or supply a verifying SSLContext"
+  pattern-either:
+    - pattern: "session.get($URL, ssl = False"
+    - pattern: "session.post($URL, ssl = False"
+    - pattern: "session.put($URL, ssl = False"
+    - pattern: "session.delete($URL, ssl = False"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "py-bcrypt-low-rounds"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "bcrypt cost rounds too low (<9)"
+  fix: "Use bcrypt.gensalt(rounds=12)"
+  pattern: "gensalt(rounds = $C)"
+  metavariable-regex:
+    "C": "^[1-8]$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "py-django-email-backend-dev"
+  languages: ["python"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Django dev email backend (mail is silently dropped)"
+  fix: "Use the SMTP backend in production"
+  pattern-either:
+    - pattern: "console.EmailBackend"
+    - pattern: "locmem.EmailBackend"
+    - pattern: "filebased.EmailBackend"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "HIGH"
+- id: "py-boto-unsigned"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "boto3 client configured for unsigned requests"
+  fix: "Sign requests; drop signature_version=UNSIGNED"
+  pattern: "signature_version = UNSIGNED"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-306"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-vault-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded HashiCorp Vault token"
+  fix: "Read VAULT_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"hvs.$REST\""
+    - pattern: "$VAR = 'hvs.$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-gcp-sa-key"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded GCP service-account private key"
+  fix: "Load the key from a secret manager"
+  pattern-either:
+    - pattern: "\"private_key\": \""
+    - pattern: "'private_key': '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-crypto-camellia"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Camellia legacy cipher in use"
+  fix: "Use AES-GCM"
+  pattern-either:
+    - pattern: "algorithms.Camellia("
+    - pattern: "Camellia.new("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-saml-no-signature"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "SAML assertion/response signature verification disabled"
+  fix: "Set wantAssertionsSigned/wantResponseSigned to True"
+  pattern-either:
+    - pattern: "wantAssertionsSigned = False"
+    - pattern: "wantAssertionsSigned\": False"
+    - pattern: "wantResponseSigned = False"
+    - pattern: "wantResponseSigned\": False"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "py-django-xframe-none"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "X_FRAME_OPTIONS NONE disables clickjacking protection"
+  fix: "Use DENY or SAMEORIGIN"
+  pattern-either:
+    - pattern: "X_FRAME_OPTIONS = \"NONE\""
+    - pattern: "X_FRAME_OPTIONS = 'NONE'"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1021"
+    "confidence": "MEDIUM"
+- id: "py-django-samesite-none"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:csrf"
+  message: "Session cookie SameSite policy disabled"
+  fix: "Set SESSION_COOKIE_SAMESITE='Lax'"
+  pattern-either:
+    - pattern: "SESSION_COOKIE_SAMESITE = None"
+    - pattern: "SESSION_COOKIE_SAMESITE = \"None\""
+    - pattern: "SESSION_COOKIE_SAMESITE = 'None'"
+    - pattern: "SESSION_COOKIE_SAMESITE'] = None"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "py-jwt-verify-aud-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "JWT audience verification disabled"
+  fix: "Remove verify_aud=False"
+  pattern-either:
+    - pattern: "\"verify_aud\": False"
+    - pattern: "'verify_aud': False"
+    - pattern: "verify_aud = False"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "py-passlib-legacy-hash"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "passlib legacy hash scheme in use (md5_crypt/descrypt/nthash/lmhash)"
+  fix: "Use pbkdf2_sha256, bcrypt, or argon2"
+  pattern-either:
+    - pattern: "md5_crypt"
+    - pattern: "descrypt"
+    - pattern: "nthash"
+    - pattern: "lmhash"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-iv"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded IV/nonce in code"
+  fix: "Generate a fresh IV per encryption"
+  pattern-either:
+    - pattern: "iv = b\""
+    - pattern: "iv = b'"
+    - pattern: "iv = \""
+    - pattern: "iv = '"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-329"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-salt"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded salt value"
+  fix: "Derive a unique salt per secret"
+  pattern-either:
+    - pattern: "salt = \""
+    - pattern: "salt = '"
+    - pattern: "salt = b\""
+    - pattern: "salt = b'"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-760"
+    "confidence": "MEDIUM"
+- id: "py-pbkdf2-sha1"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "PBKDF2-HMAC-SHA1 in use"
+  fix: "Use pbkdf2_hmac('sha256', ...)"
+  pattern-either:
+    - pattern: "pbkdf2_hmac('sha1'"
+    - pattern: "pbkdf2_hmac(\"sha1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-lxml-resolve-entities"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "lxml XMLParser resolves external entities"
+  fix: "Set resolve_entities=False, no_network=True"
+  pattern-either:
+    - pattern: "resolve_entities = True"
+    - pattern: "no_network = False"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-611"
+    "confidence": "HIGH"
+- id: "py-pycurl-verify-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "SSL certificate verification disabled (pycurl)"
+  fix: "Keep SSL_VERIFYPEER/SSL_VERIFYHOST enabled"
+  pattern-either:
+    - pattern: "SSL_VERIFYPEER, 0"
+    - pattern: "SSL_VERIFYHOST, 0"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-groq-key"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Groq API key"
+  fix: "Read GROQ_API_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"gsk_$REST\""
+    - pattern: "$VAR = 'gsk_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-aws-session-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS session token"
+  fix: "Read AWS_SESSION_TOKEN from the environment/STS"
+  pattern-either:
+    - pattern: "$VAR = \"FwoGZXIvYXdz$REST\""
+    - pattern: "$VAR = 'FwoGZXIvYXdz$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-github-fine-grained-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded fine-grained GitHub personal access token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"github_pat_$REST\""
+    - pattern: "$VAR = 'github_pat_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

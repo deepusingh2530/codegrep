@@ -1,0 +1,11 @@
+id: php-open-redirect-header
+languages: [php]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via header(Location) to user input
+fix: Allowlist redirect targets
+pattern: header($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

@@ -1,0 +1,11 @@
+id: py-hardcoded-api-key
+languages: [python]
+severity: WARNING
+category: security:secrets
+message: Possible hardcoded API key assignment
+fix: Load API keys from env or a secret manager
+pattern: api_key = $VAR
+metadata:
+  owasp: "A07:2021-Identification-Auth"
+  cwe: CWE-798
+  confidence: MEDIUM

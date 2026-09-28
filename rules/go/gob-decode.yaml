@@ -1,0 +1,11 @@
+id: go-gob-decode
+languages: [go]
+severity: WARNING
+category: security:deserialization
+message: Risky gob decode of untrusted stream
+fix: Prefer JSON with strict field validation for untrusted data
+pattern: gob.NewDecoder($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: MEDIUM

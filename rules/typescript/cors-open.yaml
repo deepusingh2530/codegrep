@@ -1,0 +1,11 @@
+id: ts-cors-open
+languages: [typescript]
+severity: WARNING
+category: security:misconfig
+message: CORS enabled with default permissive settings
+fix: Restrict CORS origins explicitly
+pattern: cors()
+metadata:
+  owasp: A05:2021-Misconfiguration
+  cwe: CWE-942
+  confidence: LOW

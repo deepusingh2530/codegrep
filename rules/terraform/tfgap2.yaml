@@ -1,0 +1,118 @@
+- id: "tf-elasticache-at-rest-off"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "ElastiCache at-rest encryption disabled"
+  fix: "Set at_rest_encryption_enabled = true"
+  pattern: "at_rest_encryption_enabled = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-311"
+    "confidence": "HIGH"
+- id: "tf-azurerm-sql-old-tls"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "Azure SQL allows obsolete TLS versions"
+  fix: "Set minimal_tls_version = \"1.2\""
+  pattern-either:
+    - pattern: "minimal_tls_version = \"1.0\""
+    - pattern: "minimal_tls_version = \"1.1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "tf-nsg-open-any"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Network security group rule opens every port"
+  fix: "Restrict destination_port_range to the required ports"
+  pattern: "destination_port_range = \"*\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "HIGH"
+- id: "tf-azure-role-owner"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Owner/Contributor role assigned"
+  fix: "Grant a least-privilege role scoped to the needed resources"
+  pattern-either:
+    - pattern: "role_definition_name = \"Owner\""
+    - pattern: "role_definition_name = \"Contributor\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-269"
+    "confidence": "HIGH"
+- id: "tf-gke-legacy-abac"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "GKE legacy ABAC authorization enabled"
+  fix: "Set enable_legacy_abac = false and use RBAC"
+  pattern: "enable_legacy_abac = true"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "HIGH"
+- id: "tf-hardcoded-api-key"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "API key hard-coded in Terraform source"
+  fix: "Reference a variable sourced from a secrets manager"
+  pattern: "api_key = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "tf-sg-open-db-ports"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Security group opens a database port"
+  fix: "Restrict the source CIDR to known application subnets"
+  pattern-either:
+    - pattern: "from_port = 5432"
+    - pattern: "from_port = 1433"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "MEDIUM"
+- id: "tf-msk-plaintext"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "MSK broker communication set to PLAINTEXT"
+  fix: "Set client_broker = \"TLS\""
+  pattern: "client_broker = \"PLAINTEXT\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "tf-s3-versioning-status-off"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Bucket versioning disabled (data-loss / ransomware risk)"
+  fix: "Set versioning status to Enabled"
+  pattern-either:
+    - pattern: "versioning_configuration ... status = \"Disabled\""
+    - pattern: "versioning ... enabled = false"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-693"
+    "confidence": "MEDIUM"
+- id: "tf-cloudtrail-multi-region-off"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CloudTrail limited to a single region"
+  fix: "Set is_multi_region_trail = true for organization-wide coverage"
+  pattern: "is_multi_region_trail = false"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1177"
+    "confidence": "MEDIUM"

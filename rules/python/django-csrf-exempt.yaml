@@ -1,0 +1,11 @@
+id: django-csrf-exempt
+languages: [python]
+severity: WARNING
+category: security:csrf
+message: View exempted from CSRF protection via @csrf_exempt
+fix: Remove csrf_exempt or restrict the view and add compensating checks
+pattern: '@csrf_exempt'
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-352
+  confidence: MEDIUM

@@ -1,0 +1,11 @@
+id: flask-ssti-template
+languages: [python]
+severity: ERROR
+category: security:owasp-a3-injection
+message: Possible SSTI via jinja2 Template() rendered with user input
+fix: Use static templates with render_template(); never build templates from user input
+pattern: Template($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

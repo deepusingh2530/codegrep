@@ -1,0 +1,11 @@
+id: rails-ssti-erb
+languages: [ruby]
+severity: ERROR
+category: security:owasp-a3-injection
+message: Possible SSTI via ERB.new on user-controlled template
+fix: Use static templates; never render user-controlled ERB
+pattern: ERB.new($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

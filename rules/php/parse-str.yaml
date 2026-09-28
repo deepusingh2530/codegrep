@@ -1,0 +1,11 @@
+id: php-parse-str
+languages: [php]
+severity: WARNING
+category: security:misconfig
+message: parse_str() without result array pollutes the symbol table
+fix: Always pass a result array to parse_str()
+pattern: parse_str($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-621
+  confidence: MEDIUM

@@ -1,0 +1,14 @@
+id: "yaml-spring-actuator-expose"
+languages: ["yaml"]
+severity: "ERROR"
+category: "security:misconfig"
+message: "Spring Boot actuator endpoints fully exposed (env/heapdump/htrace)"
+fix: "Expose only needed endpoints, e.g. health,info, and secure them"
+pattern-either:
+  - pattern: "exposure.include: \"*\""
+  - pattern: "exposure: include: \"*\""
+  - pattern: "exposure.include: '*'"
+metadata:
+  "owasp": "A05:2021-Misconfiguration"
+  "cwe": "CWE-200"
+  "confidence": "HIGH"

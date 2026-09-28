@@ -1,0 +1,22 @@
+- id: "go-tls-min-version-10"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS minimum version set to 1.0 (deprecated)"
+  fix: "Require tls.VersionTLS12 or higher"
+  pattern: "VersionTLS10"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-326"
+    "confidence": "MEDIUM"
+- id: "go-grpc-insecure"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "gRPC client connects without TLS"
+  fix: "Use transport credentials with TLS"
+  pattern: "grpc.WithInsecure()"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"

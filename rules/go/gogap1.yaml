@@ -1,0 +1,188 @@
+- id: "go-cookie-secure-false"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Session cookie issued without the Secure flag"
+  fix: "Set Secure: true so the cookie only travels over HTTPS"
+  pattern: "Secure: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-614"
+    "confidence": "MEDIUM"
+- id: "go-cookie-httponly-false"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie issued with HttpOnly disabled (JS can read it)"
+  fix: "Set HttpOnly: true on session cookies"
+  pattern: "HttpOnly: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-1004"
+    "confidence": "MEDIUM"
+- id: "go-cors-checkorigin-true"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "CORS CheckOrigin always returns true (any origin allowed)"
+  fix: "Compare r.Host against an allowlist of origins"
+  pattern: "CheckOrigin: func($R) bool { return true }"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "MEDIUM"
+- id: "go-pprof-endpoints"
+  languages: ["go"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "net/http/pprof imported (debug endpoints on default mux)"
+  fix: "Remove the import or register pprof only on a protected admin server"
+  pattern: "net/http/pprof"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "HIGH"
+- id: "go-log-injection"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize or structure-log the value instead of interpolating raw input"
+  pattern-either:
+    - pattern: "log.Print($MSG)"
+    - pattern: "log.Printf($MSG)"
+    - pattern: "log.Println($MSG)"
+  metavariable-regex:
+    "MSG": "r\\.URL|r\\.Form|r\\.Header"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "go-password-sha256"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "Password hashed with plain SHA-256 (fast hash)"
+  fix: "Use bcrypt, scrypt, or argon2id for password storage"
+  pattern: "Sum256([]byte($PW))"
+  metavariable-regex:
+    "PW": "(?i)pass|pwd"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "go-path-write-traversal"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File created from user-controlled path (path traversal)"
+  fix: "Resolve the path under a fixed root and reject traversal"
+  pattern-either:
+    - pattern: "os.Create($PATH)"
+    - pattern: "os.WriteFile($PATH, $DATA)"
+    - pattern: "ioutil.WriteFile($PATH, $DATA)"
+  metavariable-regex:
+    "PATH": "Filename|filename|r\\.URL|r\\.Form"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "HIGH"
+- id: "go-cors-allowed-origins-all"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "CORS configured to allow every origin"
+  fix: "List the exact origins that may call this API"
+  pattern-either:
+    - pattern: "AllowedOrigins: []string{\"*\"}"
+    - pattern: "AllowAllOrigins: true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "HIGH"
+- id: "go-path-join-traversal"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "filepath.Join appends a user-controlled component (path traversal)"
+  fix: "Reject '..' components and verify the joined path stays under the root"
+  pattern: "filepath.Join($BASE, $USER)"
+  metavariable-regex:
+    "USER": "Filename|filename|r\\.URL|r\\.Form"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "go-gorm-raw-sqli"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "GORM Raw() builds SQL by formatting or concatenation (injection)"
+  fix: "Pass placeholders and args: db.Raw(\"... WHERE id = ?\", id)"
+  pattern: "db.Raw($SQL)"
+  metavariable-regex:
+    "SQL": "fmt\\.Sprintf|\\+"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "go-jwt-nil-keyfunc"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "jwt.Parse called with nil key function (signature never verified)"
+  fix: "Provide a keyfunc that validates the algorithm and key"
+  pattern: "jwt.Parse($T, nil)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "go-servefile-traversal"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "http.ServeFile path derived from the request URL (path traversal)"
+  fix: "Clean and confine the path under the document root first"
+  pattern: "http.ServeFile($W, $R, $FP)"
+  metavariable-regex:
+    "FP": "r\\.URL|r\\.Form"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "go-ssh-insecure-hostkey"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "SSH host key verification disabled (InsecureIgnoreHostKey)"
+  fix: "Use ssh.FixedHostKey or a known_hosts callback"
+  pattern: "ssh.InsecureIgnoreHostKey()"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "go-tls-weak-ciphersuite"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Weak TLS cipher suite enabled (RC4/3DES/CBC-RSA)"
+  fix: "Restrict CipherSuites to AEAD suites (GCM/ChaCha20)"
+  pattern-either:
+    - pattern: "TLS_RSA_WITH_AES_128_CBC_SHA"
+    - pattern: "TLS_RSA_WITH_RC4_128_SHA"
+    - pattern: "TLS_RSA_WITH_3DES"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "go-hardcoded-aes-key"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "AES key is a hard-coded string literal"
+  fix: "Load the key from a KMS or secret manager at runtime"
+  pattern: "aes.NewCipher([]byte(\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

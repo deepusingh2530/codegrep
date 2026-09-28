@@ -1,0 +1,294 @@
+- id: "py-telnetlib-cleartext"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "telnetlib sends credentials in cleartext"
+  fix: "Use paramiko or SSH instead of telnetlib"
+  pattern: "telnetlib.Telnet("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "py-grpc-insecure-channel"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "gRPC channel created without TLS (insecure_channel)"
+  fix: "Use grpc.secure_channel with TLS credentials"
+  pattern: "grpc.insecure_channel("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "py-kafka-plaintext"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Kafka client configured for PLAINTEXT (no encryption/auth)"
+  fix: "Use security_protocol = \"SASL_SSL\" or \"SSL\""
+  pattern: "PLAINTEXT\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "py-redis-no-tls"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Redis client without TLS (credentials/data in cleartext)"
+  fix: "Use redis.Redis with ssl=True / rediss:// URLs"
+  pattern: "redis.Redis($HOST)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "py-verify-certs-false"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Certificate verification disabled (verify_certs=False)"
+  fix: "Enable certificate verification with a proper CA bundle"
+  pattern: "verify_certs = False"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "py-mongo-invalid-tls"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS certificate validation disabled for a client"
+  fix: "Validate server certificates during the TLS handshake"
+  pattern-either:
+    - pattern: "tlsAllowInvalidCertificates = True"
+    - pattern: "CERT_NONE"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "py-k8s-verify-ssl-false"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Kubernetes client disables API server certificate verification"
+  fix: "Remove verify_ssl=False and trust the cluster CA"
+  pattern: "verify_ssl = False"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "py-mysql-ssl-disabled"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "MySQL connection explicitly disables SSL"
+  fix: "Set ssl_disabled = False and provide CA certificates"
+  pattern: "ssl_disabled = True"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "py-requests-hardcoded-auth"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "HTTP client called with literal credentials in auth=(...)"
+  fix: "Read credentials from a secret store or environment"
+  pattern-either:
+    - pattern: "auth=(\""
+    - pattern: "auth=('"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-tokens-weak-length"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Secret token generated with too few bytes (<=8)"
+  fix: "Use at least 32 bytes for security tokens"
+  pattern-either:
+    - pattern: "token_urlsafe(4)"
+    - pattern: "token_urlsafe(8)"
+    - pattern: "token_bytes(4)"
+    - pattern: "token_bytes(8)"
+    - pattern: "token_hex(4)"
+    - pattern: "token_hex(8)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "HIGH"
+- id: "py-hardcoded-hf-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Hugging Face API token"
+  fix: "Read the token from the HF_TOKEN environment variable"
+  pattern-either:
+    - pattern: "$VAR = \"hf_$REST\""
+    - pattern: "$VAR = 'hf_$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9_-]{16,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-databricks-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Databricks personal access token (dapi...)"
+  fix: "Read the token from an environment variable or secret store"
+  pattern-either:
+    - pattern: "$VAR = \"dapi$REST\""
+    - pattern: "$VAR = 'dapi$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{24,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-pip-index-url-http"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Package index configured over plain HTTP (supply-chain tampering)"
+  fix: "Use an https:// package index URL"
+  pattern-either:
+    - pattern: "index_url = \"http://"
+    - pattern: "--index-url http://"
+  metadata:
+    "owasp": "A08:2021-Software-Integrity"
+    "cwe": "CWE-494"
+    "confidence": "MEDIUM"
+- id: "py-urlretrieve-unverified"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "urllib.request.urlretrieve downloads without integrity verification"
+  fix: "Download over HTTPS and verify checksums/signatures"
+  pattern: "urlretrieve("
+  metadata:
+    "owasp": "A08:2021-Software-Integrity"
+    "cwe": "CWE-494"
+    "confidence": "MEDIUM"
+- id: "py-tornado-xsrf-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Tornado XSRF protection disabled"
+  fix: "Set xsrf_cookies = True"
+  pattern: "xsrf_cookies = False"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "py-tornado-cookie-secret"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Tornado cookie_secret"
+  fix: "Generate cookie_secret at startup or read it from the environment"
+  pattern: "cookie_secret = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-django-weak-hasher"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Django password hasher uses MD5/SHA1"
+  fix: "Use PBKDF2PasswordHasher or Argon2PasswordHasher"
+  pattern-either:
+    - pattern: "MD5PasswordHasher"
+    - pattern: "SHA1PasswordHasher"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-drf-no-throttle"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "DRF view disables throttling (no rate limiting)"
+  fix: "Configure throttle_classes with sensible rate limits"
+  pattern-either:
+    - pattern: "throttle_classes = []"
+    - pattern: "throttle_classes = ()"
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-770"
+    "confidence": "MEDIUM"
+- id: "py-django-debug-toolbar"
+  languages: ["python"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "django-debug-toolbar enabled (debug panels in production)"
+  fix: "Remove debug_toolbar from INSTALLED_APPS outside development"
+  pattern: "debug_toolbar"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "HIGH"
+- id: "py-wsgi-simple-server"
+  languages: ["python"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "wsgiref development server referenced (single-threaded dev server)"
+  fix: "Deploy with a production WSGI server (gunicorn, uWSGI)"
+  pattern: "wsgiref.simple_server"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-548"
+    "confidence": "LOW"
+- id: "py-sys-path-tmp"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "World-writable /tmp added to sys.path (module hijacking)"
+  fix: "Do not import from /tmp; use installed packages"
+  pattern-either:
+    - pattern: "sys.path.insert(0, \"/tmp\")"
+    - pattern: "sys.path.insert(0, '/tmp')"
+    - pattern: "sys.path.append(\"/tmp\")"
+    - pattern: "sys.path.append('/tmp')"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-427"
+    "confidence": "MEDIUM"
+- id: "py-ftp-anon-login"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "FTP login without credentials (anonymous access)"
+  fix: "Authenticate with explicit credentials or use SFTP"
+  pattern: ".login()"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "MEDIUM"
+- id: "py-ldap-simple-bind"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "LDAP simple bind sends credentials in cleartext"
+  fix: "Use StartTLS or LDAPS for simple_bind_s"
+  pattern: "simple_bind_s("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "py-pandas-query-fstring"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "pandas query built with an f-string (code injection)"
+  fix: "Use parameterized @variables in pandas.query"
+  pattern-either:
+    - pattern: ".query(f\""
+    - pattern: ".query(f'"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"

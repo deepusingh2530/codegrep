@@ -1,0 +1,11 @@
+id: ts-weak-random
+languages: [typescript]
+severity: WARNING
+category: security:weak-crypto
+message: Math.random() used where security randomness may be needed
+fix: Use crypto.randomUUID() or crypto.getRandomValues() for security uses
+pattern: Math.random()
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-338
+  confidence: LOW

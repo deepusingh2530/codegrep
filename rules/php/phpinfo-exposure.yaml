@@ -1,0 +1,11 @@
+id: php-phpinfo-exposure
+languages: [php]
+severity: WARNING
+category: security:misconfig
+message: phpinfo() output exposes server configuration
+fix: Remove phpinfo() calls from production code
+pattern: phpinfo()
+metadata:
+  owasp: A05:2021-Misconfiguration
+  cwe: CWE-215
+  confidence: MEDIUM

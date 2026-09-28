@@ -1,0 +1,14 @@
+id: laravel-sqli-raw
+languages: [php]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via DB::raw / DB::select with untrusted input
+fix: Use parameter binding instead of raw expressions
+pattern-either:
+  - pattern: DB::raw($VAR)
+  - pattern: DB::select($VAR)
+  - pattern: DB::select($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

@@ -1,0 +1,13 @@
+id: go-md5-new
+languages: [go]
+severity: WARNING
+category: security:weak-crypto
+message: MD5 used where a strong hash is needed
+fix: Use crypto/sha256 for integrity and bcrypt for passwords
+pattern-either:
+  - pattern: md5.New()
+  - pattern: md5.Sum($VAR)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

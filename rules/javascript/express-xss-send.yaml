@@ -1,0 +1,11 @@
+id: express-xss-send
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via res.send() of untrusted data
+fix: Escape output or send JSON with proper content types
+pattern: res.send($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

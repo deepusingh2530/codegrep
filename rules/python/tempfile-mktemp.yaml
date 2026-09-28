@@ -1,0 +1,11 @@
+id: py-tempfile-mktemp
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Insecure tempfile.mktemp() is racy and predictable
+fix: Use tempfile.mkstemp() or TemporaryFile()
+pattern: tempfile.mktemp()
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-377
+  confidence: MEDIUM

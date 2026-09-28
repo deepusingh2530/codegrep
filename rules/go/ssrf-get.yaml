@@ -1,0 +1,13 @@
+id: go-ssrf-get
+languages: [go]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via http.Get/Post on user-controlled URL
+fix: Allowlist hosts and validate URL scheme/host
+pattern-either:
+  - pattern: http.Get($VAR)
+  - pattern: http.Post($VAR, ...)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

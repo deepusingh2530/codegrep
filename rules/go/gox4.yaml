@@ -1,0 +1,75 @@
+- id: "go-rand-seed"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "math/rand seeded deterministically (predictable output)"
+  fix: "Use crypto/rand for security-sensitive randomness"
+  pattern-either:
+    - pattern: "rand.Seed("
+    - pattern: "mrand.Seed("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-338"
+    "confidence": "MEDIUM"
+- id: "go-mongo-nosqli"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "MongoDB operator expression from untrusted input (NoSQL injection)"
+  fix: "Use typed operator expressions instead of $where/$regex"
+  pattern: "\"$OP\""
+  metavariable-regex:
+    "OP": "^(\\$where|\\$regex|\\$function)$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-943"
+    "confidence": "HIGH"
+- id: "go-hardcoded-slack-token"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Slack API token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"xoxb-$REST\""
+    - pattern: "$VAR := \"xoxb-$REST\""
+    - pattern: "$VAR: \"xoxb-$REST\""
+    - pattern: "$VAR = \"xoxp-$REST\""
+    - pattern: "$VAR := \"xoxp-$REST\""
+    - pattern: "$VAR: \"xoxp-$REST\""
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9_-]{20,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-npm-token"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded npm automation token (npm_...)"
+  fix: "Read NPM_TOKEN from CI secrets"
+  pattern-either:
+    - pattern: "$VAR = \"npm_$REST\""
+    - pattern: "$VAR := \"npm_$REST\""
+    - pattern: "$VAR: \"npm_$REST\""
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{30,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-salt"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded salt value"
+  fix: "Derive a unique salt per secret"
+  pattern-either:
+    - pattern: "salt = \""
+    - pattern: "salt := \""
+    - pattern: "salt: \""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-760"
+    "confidence": "MEDIUM"

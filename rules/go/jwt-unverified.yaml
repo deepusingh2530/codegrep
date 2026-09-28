@@ -1,0 +1,13 @@
+id: go-jwt-unverified
+languages: [go]
+severity: WARNING
+category: security:owasp-a2-crypto
+message: JWT parsed without verification (ParseUnverified)
+fix: Verify tokens with the expected key before trusting claims
+pattern-either:
+  - pattern: jwt.ParseUnverified($VAR, ...)
+  - pattern: ParseUnverified($VAR, ...)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-347
+  confidence: MEDIUM

@@ -1,0 +1,78 @@
+- id: "tf-iam-action-wildcard"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "IAM policy grants Action = \"*\" (full permissions)"
+  fix: "Scope Action to the required operations"
+  pattern: "Action = \"*\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-269"
+    "confidence": "MEDIUM"
+- id: "tf-ec2-imds-optional"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "IMDSv2 not required (http_tokens = optional)"
+  fix: "Set http_tokens = \"required\""
+  pattern: "http_tokens = \"optional\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-200"
+    "confidence": "MEDIUM"
+- id: "tf-hardcoded-access-key"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded access key in Terraform config"
+  fix: "Reference the key from a secret store"
+  pattern: "access_key = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "tf-gcp-iam-allusers"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "GCP IAM grants access to allUsers (public)"
+  fix: "Grant to specific identities instead"
+  pattern: "allUsers"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "tf-sg-open-mysql"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Security group opens MySQL (3306) to the network"
+  fix: "Restrict ingress to known application hosts"
+  pattern: "from_port = 3306"
+  pattern-inside: "resource \"aws_security_group\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "MEDIUM"
+- id: "tf-api-gateway-cors-wildcard"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "API Gateway allows a wildcard CORS origin"
+  fix: "Restrict allow_origins to trusted domains"
+  pattern: "allow_origins = [\"*\"]"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "MEDIUM"
+- id: "tf-cloudtrail-validation"
+  languages: ["terraform"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "CloudTrail log file validation disabled"
+  fix: "Enable log file validation for tamper detection"
+  pattern: "enable_log_file_validation = false"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1177"
+    "confidence": "LOW"

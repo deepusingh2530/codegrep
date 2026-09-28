@@ -1,0 +1,182 @@
+- id: "ts-hardcoded-jwt-secret"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "JWT signed with a hard-coded literal secret"
+  fix: "Load the signing secret from the environment or a KMS"
+  pattern-either:
+    - pattern: "jwt.sign($P, \""
+    - pattern: "jwt.sign($P, '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "ts-jwt-none-alg"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT verify allows the 'none' algorithm (signature bypass)"
+  fix: "Pin the allowed algorithms to the expected HMAC/RSA ones"
+  pattern-either:
+    - pattern: "jwt.verify($T, $K, $OPTS)"
+    - pattern: "algorithms: [\"none\"]"
+  metavariable-regex:
+    "OPTS": "algorithms.*none"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "HIGH"
+- id: "ts-cookie-httponly-false"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie set without HttpOnly (readable from JS / XSS theft)"
+  fix: "Set httpOnly: true on session cookies"
+  pattern: "httpOnly: false"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1004"
+    "confidence": "HIGH"
+- id: "ts-node-tls-off"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Node TLS certificate verification disabled process-wide"
+  fix: "Remove the override and fix the certificate trust instead"
+  pattern: "NODE_TLS_REJECT_UNAUTHORIZED = \"0\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "ts-redos-new-regexp"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:denial-of-service"
+  message: "RegExp built from request input (ReDoS via catastrophic backtracking)"
+  fix: "Constrain the pattern, cap input length, or use a linear-time engine"
+  pattern: "new RegExp($PAT)"
+  metavariable-regex:
+    "PAT": "req\\.|params"
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-1333"
+    "confidence": "MEDIUM"
+- id: "ts-writefile-user"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "File written to a dynamically built path"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern-either:
+    - pattern: "fs.writeFile($P, $D)"
+    - pattern: "fs.writeFileSync($P, $D)"
+  metavariable-regex:
+    "P": "\\+|req\\.|request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "ts-create-write-stream"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "Write stream opened on a non-literal path"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern: "createWriteStream($P)"
+  metavariable-regex:
+    "P": "^[^\"']"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "ts-dynamic-import"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Dynamic import() driven by input (arbitrary module load)"
+  fix: "Map the input to a fixed set of allowed module paths"
+  pattern: "import($SRC)"
+  metavariable-regex:
+    "SRC": "^(req\\.|request\\.|[A-Za-z_$][A-Za-z0-9_$]*\\s*\\+)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "ts-path-resolve-traversal"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "path.resolve combines a base with request input (traversal)"
+  fix: "Resolve then assert the result stays under the base directory"
+  pattern: "path.resolve($BASE, $USER)"
+  metavariable-regex:
+    "USER": "req\\.|params"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "ts-hardcoded-session-secret"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Session signing secret hard-coded in source"
+  fix: "Load the session secret from a secret manager"
+  pattern-either:
+    - pattern: "secret: \""
+    - pattern: "secret: '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "ts-axios-ssrf"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "axios issues an outbound request (SSRF if the URL is user-driven)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern-either:
+    - pattern: "axios.get($URL)"
+    - pattern: "axios.post($URL, ...)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "ts-shell-option-true"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "child_process invoked with shell:true (shell injection risk)"
+  fix: "Avoid shell:true; pass args as an array"
+  pattern: "shell: true"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "MEDIUM"
+- id: "ts-upload-client-filename"
+  languages: ["typescript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Upload stored under the client-supplied originalname (dangerous type / overwrite)"
+  fix: "Generate a server-side name and validate the content type"
+  pattern: "path.join($DIR, $NAME)"
+  metavariable-regex:
+    "NAME": "originalname"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-434"
+    "confidence": "HIGH"
+- id: "ts-log-request-input"
+  languages: ["typescript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize the value or log structured fields"
+  pattern-either:
+    - pattern: "console.log($MSG)"
+    - pattern: "logger.info($MSG)"
+  metavariable-regex:
+    "MSG": "req\\.(query|body|params|headers)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"

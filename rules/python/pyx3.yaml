@@ -1,0 +1,33 @@
+- id: "py-setattr-dynamic"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "setattr with a user-controlled attribute name"
+  fix: "Map input to a fixed set of attributes"
+  pattern: "setattr($O)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-915"
+    "confidence": "MEDIUM"
+- id: "py-django-order-by-injection"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:sqli"
+  message: "order_by with a user-controlled expression (SQL injection)"
+  fix: "Allowlist permitted ordering fields"
+  pattern: "order_by($VAR)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "py-werkzeug-debugger"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Werkzeug interactive debugger enabled (RCE)"
+  fix: "Disable the debugger in production"
+  pattern: "use_debugger=True"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "HIGH"

@@ -1,0 +1,13 @@
+id: py-weak-random
+languages: [python]
+severity: WARNING
+category: security:weak-crypto
+message: Weak PRNG (random module) used where security randomness is needed
+fix: Use the secrets module for tokens and randomness
+pattern-either:
+  - pattern: random.random()
+  - pattern: random.randint($VAR, ...)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-338
+  confidence: MEDIUM

@@ -1,0 +1,11 @@
+id: js-weak-hash
+languages: [javascript]
+severity: WARNING
+category: security:weak-crypto
+message: MD5 hash created for general use
+fix: Use SHA-256 or stronger for integrity; bcrypt for passwords
+pattern: createHash("md5")
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

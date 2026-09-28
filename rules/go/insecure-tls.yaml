@@ -1,0 +1,11 @@
+id: go-insecure-tls
+languages: [go]
+severity: WARNING
+category: security:misconfig
+message: TLS verification disabled via InsecureSkipVerify
+fix: Remove InsecureSkipVerify so certificates are validated
+pattern: 'InsecureSkipVerify: true'
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-295
+  confidence: HIGH

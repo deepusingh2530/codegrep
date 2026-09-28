@@ -1,0 +1,11 @@
+id: php-smarty-fetch
+languages: [php]
+severity: WARNING
+category: security:owasp-a3-injection
+message: Possible SSTI via Smarty fetch() of user-controlled template
+fix: Use static templates; never fetch user-controlled template names
+pattern: $smarty->fetch($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

@@ -1,0 +1,11 @@
+id: rails-xss-raw
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via raw() on untrusted HTML
+fix: Avoid raw() on user input; use sanitize()
+pattern: raw($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

@@ -1,0 +1,11 @@
+id: js-ssrf-fetch
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via fetch() to user-controlled URL
+fix: Allowlist hosts and validate URL
+pattern: fetch($VAR, ...)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

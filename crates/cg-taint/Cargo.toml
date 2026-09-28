@@ -1,0 +1,9 @@
+[package]
+name = "cg-taint"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+cg-ir = { path = "../cg-ir" }
+regex = "1"

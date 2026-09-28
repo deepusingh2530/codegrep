@@ -1,0 +1,11 @@
+id: spring-deser-jackson
+languages: [java]
+severity: WARNING
+category: security:deserialization
+message: Risky Jackson deserialization of untrusted JSON into generic types
+fix: Validate input and avoid polymorphic type handling on untrusted data
+pattern: readValue($VAR, ...)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: LOW

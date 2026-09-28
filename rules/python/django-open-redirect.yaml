@@ -1,0 +1,11 @@
+id: django-open-redirect
+languages: [python]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via HttpResponseRedirect to user input
+fix: Validate redirect targets against an allowlist
+pattern: HttpResponseRedirect($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

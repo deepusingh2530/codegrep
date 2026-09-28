@@ -1,0 +1,316 @@
+- id: "go-hardcoded-aws-access-key"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS access key ID"
+  fix: "Read credentials from the environment/STS"
+  pattern-either:
+    - pattern: "$VAR = \"AKIA$REST\""
+    - pattern: "$VAR := \"AKIA$REST\""
+    - pattern: "$VAR: \"AKIA$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-github-token"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitHub token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"ghp_$REST\""
+    - pattern: "$VAR := \"ghp_$REST\""
+    - pattern: "$VAR: \"ghp_$REST\""
+    - pattern: "$VAR = \"github_pat_$REST\""
+    - pattern: "$VAR := \"github_pat_$REST\""
+    - pattern: "$VAR: \"github_pat_$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-stripe-key"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Stripe secret key"
+  fix: "Read STRIPE_SECRET_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"sk_live_$REST\""
+    - pattern: "$VAR := \"sk_live_$REST\""
+    - pattern: "$VAR: \"sk_live_$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-slack-webhook"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded webhook URL (Slack/Discord/Teams)"
+  fix: "Read webhook URLs from the environment"
+  pattern-either:
+    - pattern: "hooks.slack.com/services/"
+    - pattern: "discord.com/api/webhooks/"
+    - pattern: "discordapp.com/api/webhooks/"
+    - pattern: "webhooks.office.com"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-password"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded password"
+  fix: "Read passwords from the environment"
+  pattern-either:
+    - pattern: "password = \""
+    - pattern: "password := \""
+    - pattern: "password: \""
+    - pattern: "Password = \""
+    - pattern: "Password := \""
+    - pattern: "Password: \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-basic-auth"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Basic auth credentials"
+  fix: "Read credentials from the environment"
+  pattern-either:
+    - pattern: "Basic $B64\""
+    - pattern: "Basic $B64'"
+  metavariable-regex:
+    "B64": "^[A-Za-z0-9+/=]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-bearer-token"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded bearer token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "Bearer $TOK\""
+    - pattern: "Bearer $TOK'"
+  metavariable-regex:
+    "TOK": "^[A-Za-z0-9._-]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-upload-client-filename"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Upload joined with client-supplied filename"
+  fix: "Generate the server-side name; sanitize the client name"
+  pattern: "filepath.Join($DIR, header.Filename"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-434"
+    "confidence": "HIGH"
+- id: "go-rsa-pkcs1-decrypt"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA PKCS#1 v1.5 decryption (padding oracle risk)"
+  fix: "Use RSA-OAEP"
+  pattern: "DecryptPKCS1v15("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-780"
+    "confidence": "HIGH"
+- id: "go-aes-ecb-mode"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "AES in ECB mode"
+  fix: "Use AES-GCM"
+  pattern: "NewECBEncrypter"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "go-pbkdf2-low-iterations"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "PBKDF2 key derivation with weak iteration count"
+  fix: "Use >=600k iterations or argon2id"
+  pattern: "pbkdf2.Key($PW, $SALT, $ITER"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "go-hardcoded-iv"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Hardcoded IV/nonce"
+  fix: "Generate a random IV/nonce per encryption"
+  pattern-either:
+    - pattern: "iv := []byte(\""
+    - pattern: "nonce := []byte(\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-329"
+    "confidence": "HIGH"
+- id: "go-cookie-store-secret"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded cookie-store signing key"
+  fix: "Load the key from the environment"
+  pattern: "NewCookieStore([]byte(\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-jwt-signed-literal"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded JWT HMAC signing key"
+  fix: "Load the signing key from the environment"
+  pattern: "SignedString([]byte(\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-bcrypt-low-cost"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "bcrypt cost below 10"
+  fix: "Use cost >= 10 (bcrypt.DefaultCost)"
+  pattern: "bcrypt.GenerateFromPassword($P, $C)"
+  metavariable-regex:
+    "C": "^([1-9])$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "go-weak-rsa-keygen"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA key generated with <2048-bit modulus"
+  fix: "Generate 2048-bit or larger keys"
+  pattern: "rsa.GenerateKey(rand.Reader, $BITS)"
+  metavariable-regex:
+    "BITS": "^(512|768|1024)$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "go-hardcoded-pem-key"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "PEM private key embedded in source"
+  fix: "Load keys from a secret manager"
+  pattern-either:
+    - pattern: "BEGIN RSA PRIVATE KEY"
+    - pattern: "BEGIN EC PRIVATE KEY"
+    - pattern: "BEGIN DSA PRIVATE KEY"
+    - pattern: "BEGIN ENCRYPTED PRIVATE KEY"
+    - pattern: "BEGIN OPENSSH PRIVATE KEY"
+    - pattern: "BEGIN PRIVATE KEY"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-cookie-samesite-none"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie SameSite=None disables CSRF defense"
+  fix: "Use SameSite=Lax or Strict"
+  pattern-either:
+    - pattern: "SameSite: http.SameSiteNoneMode"
+    - pattern: "SameSite=None"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "go-credentials-in-url"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Credentials embedded in URL"
+  fix: "Read credentials from the environment"
+  pattern-either:
+    - pattern: "http://$CREDS@"
+    - pattern: "https://$CREDS@"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-oauth-client-secret"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded OAuth2 client secret"
+  fix: "Read the secret from the environment"
+  pattern: "ClientSecret: \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-fasthttp-ssrf"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "fasthttp request with dynamic URL (SSRF)"
+  fix: "Allowlist destinations and validate URLs"
+  pattern: "fasthttp.Get($URL)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "go-jwt-alg-none"
+  languages: ["go"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT none algorithm accepted"
+  fix: "Restrict algorithms to HS256/RS256"
+  pattern: "jwt.SigningMethodNone"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "HIGH"
+- id: "go-hardcoded-vault-token"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded HashiCorp Vault token"
+  fix: "Read VAULT_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"hvs.$REST\""
+    - pattern: "$VAR := \"hvs.$REST\""
+    - pattern: "$VAR: \"hvs.$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-hf-token"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Hugging Face token"
+  fix: "Read HF_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"hf_$REST\""
+    - pattern: "$VAR := \"hf_$REST\""
+    - pattern: "$VAR: \"hf_$REST\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

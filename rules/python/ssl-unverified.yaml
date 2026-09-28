@@ -1,0 +1,11 @@
+id: py-ssl-unverified
+languages: [python]
+severity: WARNING
+category: security:misconfig
+message: Unverified SSL context disables certificate validation
+fix: Use ssl.create_default_context() instead
+pattern: ssl._create_unverified_context()
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-295
+  confidence: MEDIUM

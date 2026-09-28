@@ -1,0 +1,22 @@
+- id: "c-strncpy-unbounded"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "strncpy may leave the destination without a terminator"
+  fix: "NUL-terminate explicitly or use strlcpy"
+  pattern: "strncpy($DST, $SRC, $N)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-170"
+    "confidence": "MEDIUM"
+- id: "c-memcpy-strlen"
+  languages: ["c"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "memcpy sized by strlen (no room for the terminator / unchecked)"
+  fix: "Copy min(strlen(src), dest_size) and reserve space for '\\0'"
+  pattern: "memcpy($D, $S, strlen("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-120"
+    "confidence": "MEDIUM"

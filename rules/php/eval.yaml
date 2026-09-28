@@ -1,0 +1,11 @@
+id: php-eval
+languages: [php]
+severity: ERROR
+category: security:code-execution
+message: Avoid eval() on untrusted input
+fix: Replace eval with structured parsing
+pattern: eval($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

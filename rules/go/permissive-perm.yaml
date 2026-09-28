@@ -1,0 +1,11 @@
+id: go-permissive-perm
+languages: [go]
+severity: WARNING
+category: security:misconfig
+message: Overly permissive file mode 0777
+fix: Use restrictive modes such as 0600
+pattern: '0777'
+metadata:
+  owasp: "A01:2021-Broken-Access-Control"
+  cwe: CWE-732
+  confidence: MEDIUM

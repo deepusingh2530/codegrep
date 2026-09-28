@@ -1,0 +1,14 @@
+id: java-sqli
+languages: [java]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via concatenated query to executeQuery/execute
+fix: Use PreparedStatement with ? placeholders
+pattern-either:
+  - pattern: executeQuery($VAR)
+  - pattern: execute($VAR)
+  - pattern: createStatement($...ARGS)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

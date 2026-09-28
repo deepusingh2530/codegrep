@@ -1,0 +1,14 @@
+id: "c-insecure-temp-file"
+languages: ["c"]
+severity: "WARNING"
+category: "security:misconfig"
+message: "Insecure temporary file API (racy/predictable name)"
+fix: "Use mkstemp() or mkdtemp() with O_EXCL"
+pattern-either:
+  - pattern: "tmpnam("
+  - pattern: "mktemp("
+  - pattern: "tempnam("
+metadata:
+  "owasp": "A05:2021-Security-Misconfiguration"
+  "cwe": "CWE-377"
+  "confidence": "HIGH"

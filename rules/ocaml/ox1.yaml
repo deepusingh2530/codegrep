@@ -1,0 +1,148 @@
+- id: "ocaml-marshal-from-channel"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Marshal.from_channel deserializes untrusted data"
+  fix: "Do not unmarshal data from outside the process trust boundary"
+  pattern: "Marshal.from_channel"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "ocaml-input-value"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "input_value reads an OCaml-marshaled value (code exec risk)"
+  fix: "Use a safe text format with explicit validation"
+  pattern: "input_value"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "ocaml-digest-md5"
+  languages: ["ocaml"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Digest module computes MD5 (weak hash)"
+  fix: "Use a SHA-256-based library (digestif) for integrity"
+  pattern: "Digest.string"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "ocaml-unix-open-process"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Unix.open_process runs a shell command"
+  fix: "Never build shell commands from untrusted input; use fixed argv"
+  pattern: "Unix.open_process"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "ocaml-cohttp-ssrf"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "Cohttp client called with a request-derived URL (SSRF)"
+  fix: "Allowlist destination hosts or map the query to known endpoints"
+  pattern: "Client.get ($U)"
+  metavariable-regex:
+    "U": "Req\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "ocaml-execv"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Unix.exec* replaces the process with a given program/args"
+  fix: "Never exec on untrusted data; use a fixed program and argv"
+  pattern: "Unix.execv"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "ocaml-dynlink-load"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Dynlink loads code at runtime (arbitrary code if path is untrusted)"
+  fix: "Load only bundled, integrity-checked modules"
+  pattern: "Dynlink.load"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"
+- id: "ocaml-unix-system"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Unix.system runs a shell command line"
+  fix: "Never build shell commands from untrusted input; use fixed argv"
+  pattern: "Unix.system"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "ocaml-world-writable"
+  languages: ["ocaml"]
+  severity: "WARNING"
+  category: "security:file-permissions"
+  message: "World-writable permissions (0o777) granted"
+  fix: "Grant the minimum owner/group permissions required"
+  pattern: "0o777"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "ocaml-weak-random"
+  languages: ["ocaml"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Stdlib Random is not cryptographically secure"
+  fix: "Use a CSPRNG (e.g. Nocrypto.Rng / randombytes) for secrets"
+  pattern-either:
+    - pattern: "Random.int"
+    - pattern: "Random.float"
+    - pattern: "Random.bits"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "MEDIUM"
+- id: "ocaml-weak-ecb"
+  languages: ["ocaml"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Cipher configured in ECB mode (leaks plaintext structure)"
+  fix: "Use an authenticated mode (CTR + MAC, or GCM)"
+  pattern: "`ECB"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "ocaml-digestif-md5"
+  languages: ["ocaml"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "digestif MD5 used (weak hash)"
+  fix: "Use SHA-256 or stronger; a password KDF for passwords"
+  pattern: "Digestif.MD5"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "ocaml-digestif-sha1"
+  languages: ["ocaml"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "digestif SHA1 used (weak hash)"
+  fix: "Use SHA-256 or stronger; a password KDF for passwords"
+  pattern: "Digestif.SHA1"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"

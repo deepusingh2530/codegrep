@@ -1,0 +1,55 @@
+- id: "java-mvel-eval"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "MVEL expression evaluated from input"
+  fix: "Never evaluate untrusted expressions"
+  pattern: "MVEL.eval($EXPR)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-917"
+    "confidence": "HIGH"
+- id: "java-velocity-eval"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "Velocity evaluates a template built from input (SSTI)"
+  fix: "Use fixed templates"
+  pattern: "Velocity.evaluate($CTX)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "java-xxe-transformer-factory"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "TransformerFactory default config may allow XXE"
+  fix: "Set ACCESS_EXTERNAL_DTD/STYLESHEET to empty"
+  pattern: "TransformerFactory.newInstance()"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "java-xxe-schema-factory"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "SchemaFactory default config may allow XXE"
+  fix: "Disable external schema resolution"
+  pattern: "SchemaFactory.newInstance()"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "java-sql-callable-statement"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:sqli"
+  message: "CallableStatement built from a concatenated string (SQL injection)"
+  fix: "Use parameter markers in prepareCall"
+  pattern: "prepareCall($SQL)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"

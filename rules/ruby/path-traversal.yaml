@@ -1,0 +1,13 @@
+id: ruby-path-traversal
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via File.read/open on user input
+fix: Expand and enforce base directory
+pattern-either:
+  - pattern: File.read($VAR)
+  - pattern: File.open($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

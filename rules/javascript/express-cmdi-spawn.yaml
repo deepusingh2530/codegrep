@@ -1,0 +1,13 @@
+id: express-cmdi-spawn
+languages: [javascript]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via child_process.spawn with shell option
+fix: Avoid shell:true with user input; use argument arrays
+pattern-either:
+  - pattern: spawn($VAR)
+  - pattern: spawn($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: MEDIUM

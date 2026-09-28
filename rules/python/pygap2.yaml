@@ -1,0 +1,204 @@
+- id: "py-lxml-parse"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "lxml etree.parse resolves external entities by default"
+  fix: "Use defusedxml or pass a parser with resolve_entities=False"
+  pattern: "etree.parse($SRC)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "py-xpath-injection"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "XPath query built from request input (injection)"
+  fix: "Use parameterized XPath functions or validate against an allowlist"
+  pattern: ".xpath($EXPR)"
+  metavariable-regex:
+    "EXPR": "request\\.|params\\["
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-643"
+    "confidence": "MEDIUM"
+- id: "py-jwt-alg-none"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT accepted with algorithm \"none\" (signature bypass)"
+  fix: "Pin the expected algorithm explicitly, e.g. algorithms=[\"HS256\"]"
+  pattern: "algorithms=[$ALGS]"
+  metavariable-regex:
+    "ALGS": "(?i)\"none\"|'none'"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "py-jinja-autoescape-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "Jinja environment created with autoescape disabled (XSS)"
+  fix: "Keep autoescape enabled for HTML templates"
+  pattern: "autoescape=False"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "py-celery-serializer-pickle"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Celery configured to serialize tasks with pickle (RCE on worker)"
+  fix: "Use the json serializer for task and result payloads"
+  pattern-either:
+    - pattern: "task_serializer = \"pickle\""
+    - pattern: "result_serializer = \"pickle\""
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "py-hardcoded-bearer-secret"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Secret-looking value assigned to a credential variable"
+  fix: "Load the secret from the environment or a secrets manager"
+  pattern: "$VAR = \"$VAL\""
+  metavariable-regex:
+    "VAR": "(?i)(secret|password|token|_key)$"
+    "VAL": "^.{8,}"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "py-crypto-des-new"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "DES/3DES cipher requested (broken block cipher)"
+  fix: "Use AES-GCM from the cryptography package"
+  pattern-either:
+    - pattern: "DES.new("
+    - pattern: "DES3.new("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-crypto-hash-weak"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 hash constructed via PyCryptodome"
+  fix: "Use SHA-256 or stronger; bcrypt/argon2 for passwords"
+  pattern-either:
+    - pattern: "MD5.new("
+    - pattern: "SHA1.new("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-pymongo-where"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "MongoDB $where executes JavaScript (NoSQL injection)"
+  fix: "Use operator expressions instead of $where"
+  pattern: "\"$WHERE\""
+  metavariable-regex:
+    "WHERE": "^\\$where$"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-943"
+    "confidence": "HIGH"
+- id: "py-hardcoded-openssh-key"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "OpenSSH private key embedded in source"
+  fix: "Load the key from a secret store; never commit private keys"
+  pattern: "-----BEGIN OPENSSH PRIVATE KEY"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-ssl-protocol-tls1"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Obsolete SSL/TLS protocol version selected"
+  fix: "Use ssl.create_default_context() or PROTOCOL_TLS_SERVER"
+  pattern-either:
+    - pattern: "PROTOCOL_TLSv1"
+    - pattern: "PROTOCOL_SSLv3"
+    - pattern: "PROTOCOL_SSLv2"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "py-credentials-in-url"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Basic-auth credentials embedded in the request URL"
+  fix: "Pass credentials via an auth object or a secret header"
+  pattern-either:
+    - pattern: "http://$CREDS@"
+    - pattern: "https://$CREDS@"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-522"
+    "confidence": "MEDIUM"
+- id: "py-getattr-user"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "getattr target comes from request input (code-path injection)"
+  fix: "Map the parameter to a fixed allowlist of attributes"
+  pattern: "getattr($OBJ, $NAME)"
+  metavariable-regex:
+    "NAME": "request\\.|params\\["
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-470"
+    "confidence": "MEDIUM"
+- id: "py-import-user"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "__import__ invoked with dynamic code loading"
+  fix: "Import a fixed set of modules; never import user-controlled names"
+  pattern: "__import__($MOD)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "py-ctypes-user-lib"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "ctypes.CDLL loads a library from request input"
+  fix: "Load a fixed library path; never accept library names from users"
+  pattern: "ctypes.CDLL($LIB)"
+  metavariable-regex:
+    "LIB": "request\\.|params\\["
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-session-secret"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Session signing secret hard-coded in source"
+  fix: "Read the secret key from the environment or a secret manager"
+  pattern-either:
+    - pattern: "secret_key = \""
+    - pattern: "SECRET_KEY = \""
+    - pattern: "secret_key = '"
+    - pattern: "SECRET_KEY = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

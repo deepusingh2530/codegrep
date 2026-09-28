@@ -1,0 +1,11 @@
+id: php-xss-echo
+languages: [php]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via echo of untrusted data
+fix: Escape with htmlspecialchars() before echo
+pattern: echo $VAR
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

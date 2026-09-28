@@ -1,0 +1,66 @@
+- id: "docker-ssh-private-key"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Private SSH key material copied into the image"
+  fix: "Mount keys at runtime or use BuildKit secret mounts"
+  pattern: "id_rsa"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "docker-setuid-binary"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Binary marked setuid (chmod +s) inside the image"
+  fix: "Drop the setuid bit and grant privileges at the runtime"
+  pattern-either:
+    - pattern: "chmod +s"
+    - pattern: "chmod u+s"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "docker-env-hardcoded-key"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Access key material baked into an ENV instruction"
+  fix: "Pass the key at runtime or with BuildKit secret mounts"
+  pattern-either:
+    - pattern: "ENV PRIVATE_KEY=$VAL"
+    - pattern: "ENV SSH_KEY=$VAL"
+    - pattern: "ENV AWS_ACCESS_KEY_ID=$VAL"
+  metavariable-regex:
+    "VAL": "^[A-Za-z0-9+/=_-]{10,}"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "docker-apt-cleartext-source"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "APT package source fetched over cleartext http://"
+  fix: "Use https:// package mirrors"
+  pattern-either:
+    - pattern: "deb http://"
+    - pattern: "deb-src http://"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-494"
+    "confidence": "HIGH"
+- id: "docker-pip-cleartext-index"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "pip index configured over cleartext http://"
+  fix: "Use an https:// package index"
+  pattern-either:
+    - pattern: "--index-url http://"
+    - pattern: "--index-url=http://"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-494"
+    "confidence": "HIGH"

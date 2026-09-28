@@ -1,0 +1,13 @@
+id: flask-path-send-file
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via send_file() on user input
+fix: Validate paths and enforce a base directory
+pattern-either:
+  - pattern: send_file($VAR)
+  - pattern: send_file($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

@@ -1,0 +1,13 @@
+id: ruby-deserialization
+languages: [ruby]
+severity: ERROR
+category: security:deserialization
+message: Unsafe deserialization via Marshal.load / YAML.load on untrusted data
+fix: Use JSON or YAML.safe_load
+pattern-either:
+  - pattern: Marshal.load($VAR)
+  - pattern: YAML.load($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: HIGH

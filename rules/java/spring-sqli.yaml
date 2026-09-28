@@ -1,0 +1,15 @@
+id: spring-sqli-template
+languages: [java]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via JdbcTemplate query with concatenated SQL
+fix: Use ? placeholders with prepared-statement args
+pattern-either:
+  - pattern: queryForList($VAR)
+  - pattern: queryForList($VAR, ...)
+  - pattern: queryForObject($VAR)
+  - pattern: queryForObject($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

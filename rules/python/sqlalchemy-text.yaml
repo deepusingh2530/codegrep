@@ -1,0 +1,11 @@
+id: py-sqlalchemy-text
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible SQL injection via SQLAlchemy text() with interpolated SQL
+fix: Use bound parameters with text() instead of string interpolation
+pattern: text($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

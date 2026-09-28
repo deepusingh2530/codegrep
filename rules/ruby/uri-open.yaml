@@ -1,0 +1,11 @@
+id: ruby-uri-open
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via URI.open on user-controlled URL
+fix: Allowlist hosts and validate URL scheme/host
+pattern: URI.open($VAR)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

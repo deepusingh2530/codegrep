@@ -1,0 +1,53 @@
+- id: "py-log-request-input"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize or structure-log the value instead of interpolating raw input"
+  pattern-either:
+    - pattern: "logging.info($MSG)"
+    - pattern: "logging.warning($MSG)"
+    - pattern: "logging.error($MSG)"
+  metavariable-regex:
+    "MSG": "request\\.(args|form|GET|POST|json|data)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "py-upload-client-filename"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Upload saved under the client-supplied filename (dangerous type / overwrite)"
+  fix: "Generate a server-side name and validate the content type"
+  pattern: "os.path.join($DIR, $NAME)"
+  metavariable-regex:
+    "NAME": "\\.filename"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-434"
+    "confidence": "HIGH"
+- id: "py-jwt-verify-disabled"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "JWT signature verification disabled on decode"
+  fix: "Decode with the key and keep signature verification enabled"
+  pattern: "jwt.decode($TOKEN, $KEY, options = {\"verify_signature\": False})"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "HIGH"
+- id: "py-password-base64"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Password material protected only with base64 (reversible encoding)"
+  fix: "Hash passwords with bcrypt/scrypt/argon2; never store them recoverable"
+  pattern: "base64.b64encode($PW)"
+  metavariable-regex:
+    "PW": "pass|pwd|secret"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-522"
+    "confidence": "MEDIUM"

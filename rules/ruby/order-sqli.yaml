@@ -1,0 +1,11 @@
+id: ruby-order-sqli
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible SQL injection via order() with user-controlled fragment
+fix: Allowlist sort columns instead of interpolating user input
+pattern: order($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

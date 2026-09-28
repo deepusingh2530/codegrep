@@ -1,0 +1,11 @@
+id: php-sha1
+languages: [php]
+severity: WARNING
+category: security:weak-crypto
+message: SHA-1 used where a strong hash is needed
+fix: Use SHA-256 or stronger; password_hash() for passwords
+pattern: sha1($VAR)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

@@ -1,0 +1,13 @@
+id: csharp-path-traversal
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via File.ReadAllText/open on user input
+fix: Use Path.GetFullPath and enforce base directory
+pattern-either:
+  - pattern: File.ReadAllText($VAR)
+  - pattern: File.Open($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

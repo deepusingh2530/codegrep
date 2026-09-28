@@ -1,0 +1,77 @@
+- id: "yaml-private-key-block"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Private key committed in YAML"
+  fix: "Store keys in a secret manager, not in source"
+  pattern: "PRIVATE KEY"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-321"
+    "confidence": "HIGH"
+- id: "yaml-api-key"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "API key committed in YAML"
+  fix: "Reference the key from a secret manager"
+  pattern: "api_key:"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "yaml-gha-self-hosted"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Workflow job runs on a self-hosted runner (exposed to fork code)"
+  fix: "Use GitHub-hosted runners for untrusted workflows"
+  pattern: "self-hosted"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-829"
+    "confidence": "MEDIUM"
+- id: "yaml-ansible-host-key-checking"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "SSH host key checking disabled in Ansible"
+  fix: "Enable host key checking or pin known hosts"
+  pattern: "host_key_checking: False"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "yaml-compose-pid-host"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Compose service shares the host PID namespace"
+  fix: "Avoid pid: host unless strictly required"
+  pattern: "pid: host"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-668"
+    "confidence": "MEDIUM"
+- id: "yaml-compose-network-host"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Compose service joins the host network"
+  fix: "Use a dedicated bridge network"
+  pattern: "network_mode: host"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-668"
+    "confidence": "MEDIUM"
+- id: "yaml-compose-docker-socket"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Docker socket mounted into a container (container escape)"
+  fix: "Do not mount /var/run/docker.sock"
+  pattern: "docker.sock"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "HIGH"

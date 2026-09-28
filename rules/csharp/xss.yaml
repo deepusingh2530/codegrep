@@ -1,0 +1,11 @@
+id: csharp-xss
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via Response.Write of untrusted data
+fix: Encode output with HtmlEncode before writing
+pattern: Response.Write($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

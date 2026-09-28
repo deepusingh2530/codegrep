@@ -1,0 +1,13 @@
+id: csharp-proc-startinfo
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible command injection via ProcessStartInfo with user input
+fix: Allowlist executables and avoid shell execution
+pattern-either:
+  - pattern: new ProcessStartInfo($VAR)
+  - pattern: new ProcessStartInfo($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: MEDIUM

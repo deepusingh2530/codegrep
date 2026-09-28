@@ -1,0 +1,22 @@
+- id: "yaml-mongo-auth-disabled"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "MongoDB runs with authorization disabled"
+  fix: "Set security.authorization: enabled and provision users"
+  pattern: "authorization: disabled"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-306"
+    "confidence": "HIGH"
+- id: "yaml-elastic-security-disabled"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Elasticsearch security (auth/TLS) is disabled"
+  fix: "Set xpack.security.enabled: true and configure credentials/TLS"
+  pattern: "xpack.security.enabled: false"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-306"
+    "confidence": "HIGH"

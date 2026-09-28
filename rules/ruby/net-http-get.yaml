@@ -1,0 +1,13 @@
+id: ruby-net-http-get
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via Net::HTTP request to user-controlled URI
+fix: Allowlist hosts and validate URL scheme/host
+pattern-either:
+  - pattern: Net::HTTP.get($VAR)
+  - pattern: Net::HTTP.get($VAR, ...)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

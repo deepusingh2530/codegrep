@@ -1,0 +1,16 @@
+id: php-command-injection
+languages: [php]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via system/exec/shell_exec on user input
+fix: Avoid shell with user input; allowlist commands
+pattern-either:
+  - pattern: system($VAR)
+  - pattern: system($VAR, ...)
+  - pattern: exec($VAR)
+  - pattern: exec($VAR, ...)
+  - pattern: shell_exec($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

@@ -1,0 +1,156 @@
+- id: "tf-iam-admin-attachment"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "IAM entity attached to AWS-managed AdministratorAccess policy"
+  fix: "Attach a policy scoped to the required actions and resources"
+  pattern: "policy_arn = \"arn:aws:iam::aws:policy/AdministratorAccess\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-269"
+    "confidence": "HIGH"
+- id: "tf-elasticache-no-transit-encryption"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "ElastiCache transit encryption disabled (plaintext on the wire)"
+  fix: "Set transit_encryption_enabled = true"
+  pattern: "transit_encryption_enabled = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "tf-azurerm-storage-https-off"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "Storage account allows non-HTTPS traffic"
+  fix: "Set enable_https_traffic_only = true"
+  pattern: "enable_https_traffic_only = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "tf-azurerm-tls-old"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Minimum TLS version below 1.2"
+  fix: "Set minimum_tls_version = \"TLS1_2\""
+  pattern-either:
+    - pattern: "minimum_tls_version = \"TLS1_0\""
+    - pattern: "minimum_tls_version = \"TLS1_1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "tf-azure-storage-open"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Azure firewall default_action allows all networks"
+  fix: "Set default_action = \"Deny\" and add explicit source ranges"
+  pattern: "default_action = \"Allow\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "MEDIUM"
+- id: "tf-elb-ssl-policy-old"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "ELB/ALB security policy permits TLS 1.0/1.1"
+  fix: "Use an ELBSecurityPolicy that allows TLS 1.2+ only"
+  pattern-either:
+    - pattern: "ELBSecurityPolicy-2015-05"
+    - pattern: "ELBSecurityPolicy-2016-08"
+    - pattern: "ELBSecurityPolicy-TLS-1-0-2017-01"
+    - pattern: "ELBSecurityPolicy-TLS-1-1-2017-01"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "tf-dynamodb-encryption-off"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "DynamoDB server-side encryption disabled"
+  fix: "Set sse_enabled = true (owner-managed KMS key optional)"
+  pattern: "sse_enabled = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-311"
+    "confidence": "HIGH"
+- id: "tf-gcp-sql-no-ssl"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "Cloud SQL connection does not require SSL"
+  fix: "Set require_ssl = true (or ssl_mode = ENCRYPTED)"
+  pattern: "require_ssl = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "tf-gcp-bucket-public-access-inherited"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Bucket inherits public access prevention (may be publicly readable)"
+  fix: "Set public_access_prevention = \"enforced\""
+  pattern: "public_access_prevention = \"inherited\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "tf-es-encryption-off"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "OpenSearch/Elasticsearch encryption at rest or in transit disabled"
+  fix: "Enable encrypt_at_rest and node_to_node_encryption"
+  pattern-either:
+    - pattern: "encrypt_at_rest ... enabled = false"
+    - pattern: "node_to_node_encryption ... enabled = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-311"
+    "confidence": "HIGH"
+- id: "tf-cloudfront-http-allow"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "CloudFront allows HTTP (viewer_protocol_policy allow-all)"
+  fix: "Use redirect-to-https or https-only"
+  pattern: "viewer_protocol_policy = \"allow-all\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "tf-nsg-open-rdp-ssh"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Azure NSG exposes RDP/SSH to any source"
+  fix: "Restrict source_address_prefix to admin networks"
+  pattern-either:
+    - pattern: "destination_port_range = \"22\""
+    - pattern: "destination_port_range = \"3389\""
+  pattern-inside: "source_address_prefix = \"*\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "HIGH"
+- id: "tf-gcp-role-owner"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "GCP role grants owner/editor (full project control)"
+  fix: "Grant only the specific roles the workload needs"
+  pattern-either:
+    - pattern: "role = \"roles/owner\""
+    - pattern: "role = \"roles/editor\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-269"
+    "confidence": "HIGH"

@@ -1,0 +1,11 @@
+id: django-debug-enabled
+languages: [python]
+severity: WARNING
+category: security:misconfig
+message: Django DEBUG mode enabled; leaks stack traces in production
+fix: Set DEBUG = False in production settings
+pattern: DEBUG = True
+metadata:
+  owasp: A05:2021-Misconfiguration
+  cwe: CWE-215
+  confidence: MEDIUM

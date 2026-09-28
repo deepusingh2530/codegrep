@@ -1,0 +1,13 @@
+id: csharp-weak-hash
+languages: [csharp]
+severity: WARNING
+category: security:weak-crypto
+message: Weak hash algorithm (SHA-1/MD5) requested
+fix: Use SHA-256 or stronger; bcrypt for passwords
+pattern-either:
+  - pattern: SHA1.Create()
+  - pattern: MD5.Create()
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

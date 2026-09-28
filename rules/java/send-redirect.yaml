@@ -1,0 +1,11 @@
+id: java-send-redirect
+languages: [java]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via sendRedirect() to user input
+fix: Allowlist redirect targets
+pattern: sendRedirect($VAR)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

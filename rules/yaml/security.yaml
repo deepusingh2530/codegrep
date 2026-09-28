@@ -1,0 +1,45 @@
+- id: "yaml-k8s-privileged-container"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Container runs in privileged mode, disabling isolation"
+  fix: "Remove privileged: true; drop capabilities instead"
+  pattern: "privileged: true"
+  metadata:
+    "owasp": "A05:2021-Security-Logging"
+    "cwe": "CWE-250"
+    "confidence": "HIGH"
+- id: "yaml-k8s-host-network"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Pod uses the host network namespace"
+  fix: "Set hostNetwork: false or remove it"
+  pattern: "hostNetwork: true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-668"
+    "confidence": "MEDIUM"
+- id: "yaml-debug-enabled"
+  languages: ["yaml"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Debug mode enabled in configuration"
+  fix: "Disable debug in production configuration"
+  pattern: "debug: true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "LOW"
+- id: "yaml-plaintext-password"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Plaintext password committed in configuration"
+  fix: "Reference a secret manager or environment variable"
+  pattern: "password:"
+  pattern-not: "admin_password"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"

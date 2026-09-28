@@ -1,0 +1,11 @@
+id: csharp-html-raw
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via Html.Raw() on untrusted HTML
+fix: Avoid Html.Raw() on user input; rely on default encoding
+pattern: Html.Raw($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

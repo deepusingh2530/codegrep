@@ -1,0 +1,11 @@
+id: java-hostname-verifier
+languages: [java]
+severity: WARNING
+category: security:misconfig
+message: Custom hostname verifier may disable TLS host checking
+fix: Use the default hostname verifier
+pattern: setHostnameVerifier($VAR, ...)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-295
+  confidence: MEDIUM

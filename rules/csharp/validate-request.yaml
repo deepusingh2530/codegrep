@@ -1,0 +1,11 @@
+id: csharp-validate-request
+languages: [csharp]
+severity: WARNING
+category: security:misconfig
+message: ASP.NET request validation disabled
+fix: Re-enable request validation or encode all output
+pattern: ValidateRequest="false"
+metadata:
+  owasp: A05:2021-Misconfiguration
+  cwe: CWE-554
+  confidence: MEDIUM

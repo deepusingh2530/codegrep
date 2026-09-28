@@ -1,0 +1,56 @@
+- id: "tf-s3-public-acl"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "S3 bucket ACL grants public read access"
+  fix: "Set bucket ACL to private and use presigned URLs or a CDN for public assets"
+  pattern: "acl = \"public-read\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "tf-s3-public-read-write"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "S3 bucket ACL allows anyone to read and write objects"
+  fix: "Set the bucket ACL to private"
+  pattern: "acl = \"public-read-write\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "tf-ebs-unencrypted"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "EBS volume encryption disabled"
+  fix: "Set encrypted = true on block devices"
+  pattern: "encrypted = false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-311"
+    "confidence": "MEDIUM"
+- id: "tf-sg-world-open"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Security group allows ingress from the entire internet (0.0.0.0/0)"
+  fix: "Restrict cidr_blocks to known networks"
+  pattern: "0.0.0.0/0"
+  pattern-inside: "resource \"aws_security_group\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "MEDIUM"
+- id: "tf-rds-publicly-accessible"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "RDS instance is publicly accessible"
+  fix: "Set publicly_accessible = false and use a private subnet"
+  pattern: "publicly_accessible = true"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-284"
+    "confidence": "HIGH"

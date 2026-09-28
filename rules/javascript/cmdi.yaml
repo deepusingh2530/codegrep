@@ -1,0 +1,13 @@
+id: js-command-injection
+languages: [javascript]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via child_process
+fix: Avoid exec with user input; use execFile with static args
+pattern-either:
+  - pattern: child_process.exec($VAR, ...)
+  - pattern: exec($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: MEDIUM

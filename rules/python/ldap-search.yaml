@@ -1,0 +1,13 @@
+id: py-ldap-search
+languages: [python]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible LDAP injection via search filter built from user input
+fix: Escape filter values or use parameterized LDAP filters
+pattern-either:
+  - pattern: search_s($VAR, ...)
+  - pattern: search($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-90
+  confidence: MEDIUM

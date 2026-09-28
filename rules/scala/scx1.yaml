@@ -1,0 +1,97 @@
+- id: "scala-process-string"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Process() runs an OS command built from request input"
+  fix: "Avoid Process on untrusted data; use fixed arguments"
+  pattern: "Process($CMD)"
+  metavariable-regex:
+    "CMD": "request\\.|req\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "scala-jdbc-embedded-password"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Database credentials embedded in the JDBC URL"
+  fix: "Load the JDBC URL and credentials from a secret store"
+  pattern: "jdbc:$URL"
+  metavariable-regex:
+    "URL": "^[^:]+://[^/]*:[^/]*@"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "scala-weak-sha1"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Weak hash algorithm SHA1 requested"
+  fix: "Use SHA-256 or stronger; bcrypt for passwords"
+  pattern: "\"SHA1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "scala-sql-concat"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL statement built by concatenation (SQL injection)"
+  fix: "Use anorm/parameterized statements instead of string concatenation"
+  pattern: "execute($SQL)"
+  metavariable-regex:
+    "SQL": "\\+|request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "scala-random-nextbytes"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Key material generated with scala.util.Random (predictable)"
+  fix: "Use SecureRandom.nextBytes for keys and tokens"
+  pattern: "Random.nextBytes("
+  pattern-not: "SecureRandom"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "MEDIUM"
+- id: "scala-new-random-seed"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Seeded scala Random used (predictable output)"
+  fix: "Use SecureRandom for anything security-relevant"
+  pattern: "new Random($SEED)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "MEDIUM"
+- id: "scala-ldap-search-user"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "LDAP search filter built from request input (LDAP injection)"
+  fix: "Escape filter characters with a filter-encoding helper"
+  pattern: "search($BASE, $FILTER)"
+  metavariable-regex:
+    "FILTER": "request\\.|req\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-90"
+    "confidence": "MEDIUM"
+- id: "scala-hardcoded-iv"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Cipher IV is a hard-coded string literal"
+  fix: "Generate a random IV per encryption (SecureRandom)"
+  pattern: "new IvParameterSpec(\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-329"
+    "confidence": "HIGH"

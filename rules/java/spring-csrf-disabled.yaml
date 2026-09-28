@@ -1,0 +1,11 @@
+id: spring-csrf-disabled
+languages: [java]
+severity: WARNING
+category: security:csrf
+message: Spring CSRF protection disabled
+fix: Re-enable CSRF protection or add compensating checks
+pattern: csrf().disable()
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-352
+  confidence: MEDIUM

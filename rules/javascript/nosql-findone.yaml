@@ -1,0 +1,13 @@
+id: js-nosql-findone
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible NoSQL injection via findOne() with user-controlled query
+fix: Validate query operators and field types
+pattern-either:
+  - pattern: findOne($VAR)
+  - pattern: find($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-943
+  confidence: MEDIUM

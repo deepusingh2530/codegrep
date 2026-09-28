@@ -1,0 +1,15 @@
+id: express-path-sendfile
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via res.sendFile() on user input
+fix: Resolve against a base directory and validate
+pattern-either:
+  - pattern: res.sendFile($VAR)
+  - pattern: res.sendFile($VAR, ...)
+  - pattern: res.sendfile($VAR)
+  - pattern: res.sendfile($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

@@ -1,0 +1,11 @@
+id: "bash-mysql-skip-grant-tables"
+languages: ["bash"]
+severity: "ERROR"
+category: "security:misconfig"
+message: "MySQL started with --skip-grant-tables (authentication bypass)"
+fix: "Start normally and reset credentials via a maintenance session"
+pattern: "skip-grant-tables"
+metadata:
+  "owasp": "A07:2021-Identification-Auth"
+  "cwe": "CWE-306"
+  "confidence": "HIGH"

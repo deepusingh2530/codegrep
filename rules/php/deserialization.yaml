@@ -1,0 +1,11 @@
+id: php-deserialization
+languages: [php]
+severity: ERROR
+category: security:deserialization
+message: Unsafe deserialization via unserialize() on untrusted data
+fix: Use JSON instead of native serialization
+pattern: unserialize($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: HIGH

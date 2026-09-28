@@ -1,0 +1,11 @@
+id: rails-xss-html-safe
+languages: [ruby]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via html_safe on untrusted data
+fix: Avoid html_safe on user input; use sanitize()
+pattern: $VAR.html_safe
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

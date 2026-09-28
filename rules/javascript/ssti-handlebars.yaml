@@ -1,0 +1,11 @@
+id: js-ssti-handlebars
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a3-injection
+message: Possible SSTI via Handlebars.compile() on user-controlled template
+fix: Use static templates; never compile user-controlled templates
+pattern: Handlebars.compile($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

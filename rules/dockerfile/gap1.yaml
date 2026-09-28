@@ -1,0 +1,11 @@
+id: "docker-redis-protected-mode-off"
+languages: ["dockerfile"]
+severity: "ERROR"
+category: "security:misconfig"
+message: "Redis started with protected-mode off"
+fix: "Keep protected-mode on and set requirepass / use ACLs"
+pattern: "--protected-mode no"
+metadata:
+  "owasp": "A07:2021-Identification-Auth"
+  "cwe": "CWE-306"
+  "confidence": "HIGH"

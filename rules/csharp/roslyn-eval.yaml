@@ -1,0 +1,13 @@
+id: csharp-roslyn-eval
+languages: [csharp]
+severity: ERROR
+category: security:code-execution
+message: Possible code injection via Roslyn scripting EvaluateAsync on user input
+fix: Never evaluate user-controlled C# code
+pattern-either:
+  - pattern: EvaluateAsync($VAR)
+  - pattern: EvaluateAsync($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

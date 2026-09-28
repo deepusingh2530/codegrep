@@ -1,0 +1,22 @@
+- id: "json-debug-true"
+  languages: ["json"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Debug mode enabled in JSON configuration"
+  fix: "Set debug to false in production config"
+  pattern: "\"debug\": true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "LOW"
+- id: "json-hardcoded-password"
+  languages: ["json"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded password in JSON config"
+  fix: "Load the password from a secret store or environment"
+  pattern: "\"password\": \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

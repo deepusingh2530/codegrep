@@ -1,0 +1,34 @@
+- id: "html-form-insecure-action"
+  languages: ["html"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Form submits to an insecure http:// endpoint"
+  fix: "Use https:// for form actions"
+  pattern: "action=\"http://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "html-script-src-http"
+  languages: ["html"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Script loaded over insecure http://"
+  fix: "Load scripts over https with Subresource Integrity"
+  pattern: "src=\"http://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "html-target-blank-noopener"
+  languages: ["html"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "target=_blank without rel=noopener allows reverse tabnabbing"
+  fix: "Add rel=\"noopener noreferrer\""
+  pattern: "target=\"_blank\""
+  pattern-not: "rel="
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-1022"
+    "confidence": "LOW"

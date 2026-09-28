@@ -1,0 +1,316 @@
+- id: "py-compile-exec-mode"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "compile() with exec/single mode builds executable code"
+  fix: "Avoid compiling dynamic source; validate inputs"
+  pattern-either:
+    - pattern: "compile($SRC, $F, \"exec\")"
+    - pattern: "compile($SRC, $F, \"single\")"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"
+- id: "py-yaml-unsafe-loader"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "PyYAML load with an unsafe Loader (arbitrary object creation)"
+  fix: "Use yaml.safe_load or SafeLoader"
+  pattern-either:
+    - pattern: "UnsafeLoader"
+    - pattern: "yaml.Loader"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "py-format-map-user"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "str.format_map on untrusted data (format-string injection)"
+  fix: "Use explicit key access instead of format_map"
+  pattern: ".format_map($D)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-134"
+    "confidence": "MEDIUM"
+- id: "py-xmlrpc-server-exposed"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "SimpleXMLRPCServer exposed (unauthenticated RPC surface)"
+  fix: "Do not expose XML-RPC servers without authentication"
+  pattern: "SimpleXMLRPCServer("
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-306"
+    "confidence": "MEDIUM"
+- id: "py-os-spawn-variants"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "os.spawn* family invoked (command execution)"
+  fix: "Avoid spawning processes from untrusted input"
+  pattern-either:
+    - pattern: "os.spawnl("
+    - pattern: "os.spawnlp("
+    - pattern: "os.spawnle("
+    - pattern: "os.spawnvp("
+    - pattern: "os.spawnve("
+    - pattern: "os.spawnvpe("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "py-django-no-password-validators"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Django AUTH_PASSWORD_VALIDATORS empty (no password policy)"
+  fix: "Add minimum-length and common-password validators"
+  pattern: "AUTH_PASSWORD_VALIDATORS = []"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-521"
+    "confidence": "HIGH"
+- id: "py-django-static-serve"
+  languages: ["python"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "django.views.static.serve used (dev file server in prod)"
+  fix: "Serve static files via a CDN/web server"
+  pattern: "static.serve"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "MEDIUM"
+- id: "py-amqp-cleartext"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "AMQP broker connection without TLS (amqp://)"
+  fix: "Use amqps:// for message broker connections"
+  pattern: "amqp://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "py-pg-sslmode-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "PostgreSQL connection disables TLS (sslmode none/disable)"
+  fix: "Use sslmode=verify-full with a CA bundle"
+  pattern-either:
+    - pattern: "sslmode = none"
+    - pattern: "sslmode = disable"
+    - pattern: "sslmode = \"none\""
+    - pattern: "sslmode = \"disable\""
+    - pattern: "sslmode = 'none'"
+    - pattern: "sslmode = 'disable'"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "py-oauth-client-secret"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded OAuth client_secret"
+  fix: "Load client_secret from an environment variable"
+  pattern-either:
+    - pattern: "client_secret = \""
+    - pattern: "client_secret = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-mailgun-key"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Mailgun API key (key-...)"
+  fix: "Read the key from an environment variable"
+  pattern-either:
+    - pattern: "$VAR = \"key-$REST\""
+    - pattern: "$VAR = 'key-$REST'"
+  metavariable-regex:
+    "REST": "^[a-f0-9]{32}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-pathlib-user-path"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "pathlib Path used with a dynamic path (path traversal)"
+  fix: "Resolve against a fixed base and verify containment"
+  pattern-either:
+    - pattern: "Path($P).read_text("
+    - pattern: "Path($P).read_bytes("
+    - pattern: "Path($P).write_text("
+    - pattern: "Path($P).write_bytes("
+    - pattern: "Path($P).open("
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "py-imds-access"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "Cloud instance metadata endpoint referenced (IMDS SSRF target)"
+  fix: "Guard metadata access (IMDSv2/token checks) from user input"
+  pattern-either:
+    - pattern: "169.254.169.254"
+    - pattern: "metadata.google.internal"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-github-oauth-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitHub OAuth/user token (gho_/ghs_)"
+  fix: "Read the token from an environment variable"
+  pattern-either:
+    - pattern: "$VAR = \"gho_$REST\""
+    - pattern: "$VAR = 'gho_$REST'"
+    - pattern: "$VAR = \"ghs_$REST\""
+    - pattern: "$VAR = 'ghs_$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{20,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-gitlab-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitLab personal access token (glpat-)"
+  fix: "Read the token from an environment variable"
+  pattern-either:
+    - pattern: "$VAR = \"glpat-$REST\""
+    - pattern: "$VAR = 'glpat-$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9_-]{20,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-passphrase"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded passphrase"
+  fix: "Load passphrases from a keyring or secret store"
+  pattern-either:
+    - pattern: "passphrase = \""
+    - pattern: "passphrase = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-jwt-verify-exp-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "JWT expiry check disabled (verify_exp False)"
+  fix: "Verify token expiry"
+  pattern-either:
+    - pattern: "\"verify_exp\": False"
+    - pattern: "'verify_exp': False"
+    - pattern: "verify_exp = False"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-347"
+    "confidence": "HIGH"
+- id: "py-django-csrf-httponly-off"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CSRF cookie marked HttpOnly = False"
+  fix: "Set CSRF_COOKIE_HTTPONLY = True"
+  pattern: "CSRF_COOKIE_HTTPONLY = False"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1004"
+    "confidence": "HIGH"
+- id: "py-django-default-secret-key"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Django default dev secret key (django-insecure-...)"
+  fix: "Generate a unique SECRET_KEY per environment"
+  pattern: "django-insecure-"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-flask-app-debug"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Flask debug mode enabled (interactive debugger risk)"
+  fix: "Set app.debug = False in production"
+  pattern-either:
+    - pattern: "app.debug = True"
+    - pattern: "application.debug = True"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-489"
+    "confidence": "HIGH"
+- id: "py-runpy-user"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "runpy executes a dynamic path/module (code execution)"
+  fix: "Do not run untrusted modules or paths"
+  pattern-either:
+    - pattern: "runpy.run_path($P)"
+    - pattern: "runpy.run_module($M)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"
+- id: "py-imp-load-source"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "imp.load_source executes a source file from disk"
+  fix: "Import installed packages instead of loading arbitrary files"
+  pattern: "imp.load_source("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "MEDIUM"
+- id: "py-werkzeug-run-simple"
+  languages: ["python"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Werkzeug run_simple development server referenced"
+  fix: "Deploy with gunicorn/uWSGI behind a reverse proxy"
+  pattern: "run_simple("
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-548"
+    "confidence": "LOW"
+- id: "py-hardcoded-npm-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded npm automation token (npm_...)"
+  fix: "Read NPM_TOKEN from CI secrets"
+  pattern-either:
+    - pattern: "$VAR = \"npm_$REST\""
+    - pattern: "$VAR = 'npm_$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{30,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

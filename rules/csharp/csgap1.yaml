@@ -1,0 +1,227 @@
+- id: "csharp-weak-tls-protocol"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "Obsolete SSL/TLS protocol enabled"
+  fix: "Use SecurityProtocolType.Tls12 or newer only"
+  pattern-either:
+    - pattern: "SecurityProtocolType.Ssl3"
+    - pattern: "SecurityProtocolType.Tls |"
+    - pattern: "SecurityProtocolType.Tls;"
+    - pattern: "SecurityProtocolType.Tls11"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "csharp-ldap-filter-user"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "LDAP search filter built from request input (LDAP injection)"
+  fix: "Escape filter characters or use a parameterized DirectorySearcher filter"
+  pattern: ".Filter = $F"
+  metavariable-regex:
+    "F": "request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-90"
+    "confidence": "MEDIUM"
+- id: "csharp-xxe-dtd"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "XML reader processes DTDs (XXE risk)"
+  fix: "Set DtdProcessing = DtdProcessing.Ignore or ProhibitDtd = true"
+  pattern-either:
+    - pattern: "DtdProcessing = DtdProcessing.Parse"
+    - pattern: "ProhibitDtd = false"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-611"
+    "confidence": "HIGH"
+- id: "csharp-xpath-user"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "XPath expression built from request input (XPath injection)"
+  fix: "Use a parameterized XPath or escape the value"
+  pattern: "SelectSingleNode($XPATH)"
+  metavariable-regex:
+    "XPATH": "request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-643"
+    "confidence": "MEDIUM"
+- id: "csharp-binary-deser"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Insecure .NET binary formatter used"
+  fix: "Use System.Text.Json with explicit types instead of Binary/Soap/LosFormatter"
+  pattern-either:
+    - pattern: "new BinaryFormatter("
+    - pattern: "new SoapFormatter("
+    - pattern: "new LosFormatter("
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "csharp-regex-injection"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:denial-of-service"
+  message: "Regex built from request input (ReDoS via catastrophic backtracking)"
+  fix: "Constrain the pattern, cap input length, or use a linear-time engine"
+  pattern: "new Regex($PAT)"
+  metavariable-regex:
+    "PAT": "request\\.|params"
+  metadata:
+    "owasp": "A04:2021-Insecure-Design"
+    "cwe": "CWE-1333"
+    "confidence": "MEDIUM"
+- id: "csharp-hardcoded-conn-string"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Database password embedded in source code"
+  fix: "Load the connection string from a secret store or configuration"
+  pattern: "Password="
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "csharp-weak-pbkdf2"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "PBKDF2 iteration count below 10000"
+  fix: "Use at least 600000 iterations (PBKDF2-HMAC-SHA256)"
+  pattern: "new Rfc2898DeriveBytes($P, $S, $ITER)"
+  metavariable-regex:
+    "ITER": "^[1-9]\\d{0,3}$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "csharp-hardcoded-crypto-bytes"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Cryptographic bytes (key/IV/salt) decoded from a literal"
+  fix: "Generate or load key material at runtime"
+  pattern: "FromBase64String(\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-321"
+    "confidence": "MEDIUM"
+- id: "csharp-file-write-user"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File path for a write built from request input"
+  fix: "Map the name to a fixed directory and reject '..' components"
+  pattern: "File.WriteAllText($P, $C)"
+  metavariable-regex:
+    "P": "request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-73"
+    "confidence": "MEDIUM"
+- id: "csharp-cors-any-origin"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "CORS policy allows every origin"
+  fix: "Allow only the exact origins that may call this API"
+  pattern: "AllowAnyOrigin()"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "HIGH"
+- id: "csharp-jwt-hardcoded-key"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "JWT signing key hard-coded in source"
+  fix: "Load the signing key from the environment or a KMS"
+  pattern: "SymmetricSecurityKey ... GetBytes(\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "csharp-tls-cert-validation-off"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "Server certificate validation callback accepts every certificate"
+  fix: "Validate the certificate chain instead of returning true"
+  pattern: "ServerCertificateValidationCallback ... return true"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "csharp-upload-saveas"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Uploaded file saved without content validation"
+  fix: "Validate type/size, randomize the name, and store outside the web root"
+  pattern: "PostedFile.SaveAs("
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-434"
+    "confidence": "MEDIUM"
+- id: "csharp-log-injection"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize or structure-log the value instead of interpolating raw input"
+  pattern-either:
+    - pattern: "LogInformation($M)"
+    - pattern: "log.Info($M)"
+  metavariable-regex:
+    "M": "request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "csharp-webclient-ssrf"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "WebClient download URL comes from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern: "DownloadFile($U, $P)"
+  metavariable-regex:
+    "U": "request\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "csharp-ef-sql-injection"
+  languages: ["csharp"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "EF raw SQL built by concatenation (SQL injection)"
+  fix: "Use FromSqlInterpolated/ExecuteSqlInterpolated with parameters"
+  pattern-either:
+    - pattern: "FromSqlRaw($SQL)"
+    - pattern: "ExecuteSqlRaw($SQL)"
+  metavariable-regex:
+    "SQL": "request\\.|\\+"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "csharp-3des"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Triple DES is used (deprecated, 64-bit block)"
+  fix: "Use AES-GCM (AES.Create) for data at rest"
+  pattern: "TripleDES.Create()"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"

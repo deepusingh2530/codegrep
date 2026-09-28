@@ -1,0 +1,11 @@
+id: php-mcrypt-deprecated
+languages: [php]
+severity: WARNING
+category: security:owasp-a2-crypto
+message: Deprecated mcrypt extension used for cryptography
+fix: Migrate to OpenSSL with authenticated modes
+pattern: mcrypt_encrypt($VAR, ...)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

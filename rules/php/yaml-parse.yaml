@@ -1,0 +1,11 @@
+id: php-yaml-parse
+languages: [php]
+severity: WARNING
+category: security:deserialization
+message: Risky YAML parsing of untrusted input with object support
+fix: Validate YAML sources and disable object deserialization
+pattern: yaml_parse($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: MEDIUM

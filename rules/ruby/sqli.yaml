@@ -1,0 +1,13 @@
+id: ruby-sqli
+languages: [ruby]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via execute() with interpolated query
+fix: Use parameterized queries (exec_params with $1 placeholders)
+pattern-either:
+  - pattern: execute($VAR)
+  - pattern: exec_query($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

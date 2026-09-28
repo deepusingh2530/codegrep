@@ -1,0 +1,13 @@
+id: php-sqli
+languages: [php]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via query concatenation
+fix: Use prepared statements (PDO::prepare + bindParam)
+pattern-either:
+  - pattern: mysqli_query($VAR, ...)
+  - pattern: query($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

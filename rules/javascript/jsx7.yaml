@@ -1,0 +1,172 @@
+- id: "js-hardcoded-shopify-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Shopify access token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"shpat_$REST\""
+    - pattern: "$VAR = 'shpat_$REST'"
+    - pattern: "$VAR: \"shpat_$REST\""
+    - pattern: "$VAR: 'shpat_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-sendgrid-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded SendGrid API key"
+  fix: "Read SENDGRID_API_KEY from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"SG.$REST\""
+    - pattern: "$VAR = 'SG.$REST'"
+    - pattern: "$VAR: \"SG.$REST\""
+    - pattern: "$VAR: 'SG.$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-hf-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Hugging Face token"
+  fix: "Read HF_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"hf_$REST\""
+    - pattern: "$VAR = 'hf_$REST'"
+    - pattern: "$VAR: \"hf_$REST\""
+    - pattern: "$VAR: 'hf_$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-slack-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Slack bot/user token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"xoxb-$REST\""
+    - pattern: "$VAR = 'xoxb-$REST'"
+    - pattern: "$VAR: \"xoxb-$REST\""
+    - pattern: "$VAR: 'xoxb-$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-databricks-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Databricks token"
+  fix: "Read DATABRICKS_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"dapi$REST\""
+    - pattern: "$VAR = 'dapi$REST'"
+    - pattern: "$VAR: \"dapi$REST\""
+    - pattern: "$VAR: 'dapi$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-pypi-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded PyPI API token"
+  fix: "Read PYPI_TOKEN from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"pypi-$REST\""
+    - pattern: "$VAR = 'pypi-$REST'"
+    - pattern: "$VAR: \"pypi-$REST\""
+    - pattern: "$VAR: 'pypi-$REST'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-twilio-sid"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Twilio auth token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"SK$REST\""
+    - pattern: "$VAR = 'SK$REST'"
+    - pattern: "$VAR: \"SK$REST\""
+    - pattern: "$VAR: 'SK$REST'"
+  metavariable-regex:
+    "REST": "^[0-9a-f]{32,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-trust-proxy"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Express trusts all proxies (client IP spoofing)"
+  fix: "Configure trust proxy for your exact hop count/IP range"
+  pattern-either:
+    - pattern: "trust proxy', true"
+    - pattern: "trust proxy\", true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-290"
+    "confidence": "MEDIUM"
+- id: "js-superagent-ssrf"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "superagent request with dynamic URL (SSRF)"
+  fix: "Allowlist destinations and validate URLs"
+  pattern-either:
+    - pattern: "superagent.get($URL)"
+    - pattern: "superagent.post($URL)"
+    - pattern: "superagent.put($URL)"
+    - pattern: "superagent.delete($URL)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "js-cookie-parser-literal"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded cookie-parser secret"
+  fix: "Read the secret from the environment"
+  pattern-either:
+    - pattern: "cookieParser(\""
+    - pattern: "cookieParser('"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-ejs-raw-output"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "EJS raw output tag <%- (unescaped)"
+  fix: "Use <%= unless the value is trusted HTML"
+  pattern: "<%-"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-nosql-body-query"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Mongo query built from raw request body (operator injection)"
+  fix: "Allowlist fields; never pass req.body straight to find"
+  pattern-either:
+    - pattern: "find(req.body)"
+    - pattern: "findOne(req.body)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-943"
+    "confidence": "MEDIUM"

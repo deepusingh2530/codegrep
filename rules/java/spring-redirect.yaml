@@ -1,0 +1,11 @@
+id: spring-open-redirect
+languages: [java]
+severity: WARNING
+category: security:open-redirect
+message: 'Possible open redirect via Spring redirect prefix with user input'
+fix: Allowlist redirect targets
+pattern: 'return "redirect:" + $VAR'
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

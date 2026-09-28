@@ -1,0 +1,11 @@
+id: go-syscall-exec
+languages: [go]
+severity: ERROR
+category: security:code-execution
+message: Possible command execution via syscall.Exec on user input
+fix: Avoid syscall.Exec with dynamic binaries or arguments
+pattern: syscall.Exec($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

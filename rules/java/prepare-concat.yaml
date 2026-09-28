@@ -1,0 +1,11 @@
+id: java-prepare-concat
+languages: [java]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible SQL injection via prepareStatement() with concatenated SQL
+fix: Use ? placeholders with bound parameters
+pattern: prepareStatement($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

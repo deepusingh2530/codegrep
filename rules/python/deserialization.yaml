@@ -1,0 +1,14 @@
+id: py-deserialization
+languages: [python]
+severity: ERROR
+category: security:deserialization
+message: Unsafe deserialization via pickle/marshal
+fix: Avoid pickle on untrusted data; use JSON
+pattern-either:
+  - pattern: pickle.loads($VAR)
+  - pattern: marshal.loads($VAR)
+  - pattern: yaml.load($VAR, ...)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: HIGH

@@ -1,0 +1,11 @@
+id: java-script-engine
+languages: [java]
+severity: ERROR
+category: security:code-execution
+message: Possible code injection via ScriptEngine.eval() on user input
+fix: Never evaluate user-controlled scripts
+pattern: .eval($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

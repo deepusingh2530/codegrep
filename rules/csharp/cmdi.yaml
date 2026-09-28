@@ -1,0 +1,13 @@
+id: csharp-command-injection
+languages: [csharp]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via Process.Start on user input
+fix: Allowlist executables; avoid shell with user input
+pattern-either:
+  - pattern: Process.Start($VAR)
+  - pattern: Process.Start($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH

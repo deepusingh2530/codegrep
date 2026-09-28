@@ -1,0 +1,22 @@
+- id: "ocaml-sys-command"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Sys.command invokes a shell with untrusted input"
+  fix: "Avoid Sys.command; call fixed programs without a shell"
+  pattern: "Sys.command"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "ocaml-marshal-from-string"
+  languages: ["ocaml"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Marshal.from_string deserializes untrusted data"
+  fix: "Do not unmarshal untrusted bytes; use a safe format"
+  pattern: "Marshal.from_string"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"

@@ -1,0 +1,41 @@
+- id: "php-hardcoded-ghp-token"
+  languages: ["php"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded GitHub personal access token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "$VAR = \"ghp_$REST\""
+    - pattern: "$VAR = 'ghp_$REST'"
+    - pattern: "$VAR => \"ghp_$REST\""
+    - pattern: "$VAR => 'ghp_$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{16,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "php-ldap-bind-literal"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "LDAP bind with a literal password"
+  fix: "Read the bind password from the environment"
+  pattern: "ldap_bind($L, $D, \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "php-sql-into-outfile"
+  languages: ["php"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SELECT ... INTO OUTFILE/DUMPFILE enables SQLi file writes"
+  fix: "Remove INTO OUTFILE from user-influenced queries"
+  pattern-either:
+    - pattern: "INTO OUTFILE"
+    - pattern: "INTO DUMPFILE"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"

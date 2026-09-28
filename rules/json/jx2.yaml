@@ -1,0 +1,35 @@
+- id: "json-reject-unauthorized-false"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS certificate validation disabled (rejectUnauthorized=false)"
+  fix: "Keep rejectUnauthorized enabled"
+  pattern: "\"rejectUnauthorized\": false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "json-insecure-skip-verify"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS verification skipped (insecureSkipVerify=true)"
+  fix: "Verify server certificates"
+  pattern: "\"insecureSkipVerify\": true"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "json-s3-public-acl"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "S3 bucket ACL grants public access"
+  fix: "Use a private ACL and grant access with bucket policies"
+  pattern-either:
+    - pattern: "\"acl\": \"public-read\""
+    - pattern: "\"acl\": \"public-read-write\""
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"

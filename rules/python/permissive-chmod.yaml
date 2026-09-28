@@ -1,0 +1,11 @@
+id: py-permissive-chmod
+languages: [python]
+severity: WARNING
+category: security:misconfig
+message: Overly permissive file mode 0o777
+fix: Use restrictive modes such as 0o640 or 0o600
+pattern: 0o777
+metadata:
+  owasp: "A01:2021-Broken-Access-Control"
+  cwe: CWE-732
+  confidence: MEDIUM

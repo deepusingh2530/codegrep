@@ -1,0 +1,13 @@
+id: js-sqlite-run
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible SQL injection via sqlite db.run() with concatenated SQL
+fix: Use parameterized placeholders
+pattern-either:
+  - pattern: db.run($VAR)
+  - pattern: db.run($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

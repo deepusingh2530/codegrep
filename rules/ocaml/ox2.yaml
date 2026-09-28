@@ -1,0 +1,11 @@
+id: "ocaml-tls-verify-off"
+languages: ["ocaml"]
+severity: "WARNING"
+category: "security:owasp-a2-crypto"
+message: "TLS certificate verification disabled (Ssl.CERT_NONE)"
+fix: "Use Ssl.CERT_VERIFY_PEER and verify the peer chain"
+pattern: "CERT_NONE"
+metadata:
+  "owasp": "A02:2021-Crypto-Failures"
+  "cwe": "CWE-295"
+  "confidence": "MEDIUM"

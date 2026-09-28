@@ -1,0 +1,13 @@
+id: go-queryrow
+languages: [go]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible SQL injection via QueryRow() with concatenated SQL
+fix: Use placeholders ($1, ?) with bound arguments
+pattern-either:
+  - pattern: db.QueryRow($VAR)
+  - pattern: db.QueryRow($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

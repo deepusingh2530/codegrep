@@ -1,0 +1,17 @@
+id: py-ssrf
+languages: [python]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via requests to user-controlled URL
+fix: Allowlist hosts, disable redirects, validate URL scheme/host
+pattern-either:
+  - pattern: requests.get($VAR)
+  - pattern: requests.get($VAR, ...)
+  - pattern: requests.post($VAR)
+  - pattern: requests.post($VAR, ...)
+  - pattern: urlopen($VAR)
+  - pattern: urlopen($VAR, ...)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

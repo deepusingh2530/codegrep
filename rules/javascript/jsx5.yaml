@@ -1,0 +1,308 @@
+- id: "js-async-function-ctor"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "AsyncFunction constructor executes a code string"
+  fix: "Do not build functions from untrusted strings"
+  pattern: "AsyncFunction("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "js-uuid-v1-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "uuid.v1 generates a timestamp/predictable token"
+  fix: "Use uuid.v4() or crypto.randomUUID() for security tokens"
+  pattern: "uuid.v1("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "MEDIUM"
+- id: "js-hardcoded-aws-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS access key id (AKIA...)"
+  fix: "Read AWS_ACCESS_KEY_ID from the environment or a secrets manager"
+  pattern-either:
+    - pattern: "$VAR = \"AKIA$REST\""
+    - pattern: "$VAR = 'AKIA$REST'"
+    - pattern: "$VAR: \"AKIA$REST\""
+    - pattern: "$VAR: 'AKIA$REST'"
+  metavariable-regex:
+    "REST": "^[0-9A-Z]{16}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-stripe-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Stripe secret key (sk_live_...)"
+  fix: "Read the Stripe key from an environment variable"
+  pattern-either:
+    - pattern: "$VAR = \"sk_live_$REST\""
+    - pattern: "$VAR = 'sk_live_$REST'"
+    - pattern: "$VAR: \"sk_live_$REST\""
+    - pattern: "$VAR: 'sk_live_$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{16,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-npm-token"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded npm automation token (npm_...)"
+  fix: "Read NPM_TOKEN from CI secrets"
+  pattern-either:
+    - pattern: "$VAR = \"npm_$REST\""
+    - pattern: "$VAR = 'npm_$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{30,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-hardcoded-google-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Google API key (AIza...)"
+  fix: "Read the API key from an environment variable"
+  pattern-either:
+    - pattern: "$VAR = \"AIza$REST\""
+    - pattern: "$VAR = 'AIza$REST'"
+    - pattern: "$VAR: \"AIza$REST\""
+    - pattern: "$VAR: 'AIza$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9_-]{30,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "js-cookie-samesite-none"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie set with SameSite=None (CSRF exposure unless Secure)"
+  fix: "Use SameSite=Lax or SameSite=Strict with Secure"
+  pattern-either:
+    - pattern: "sameSite: \"none\""
+    - pattern: "sameSite: 'none'"
+    - pattern: "SameSite=None"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-352"
+    "confidence": "MEDIUM"
+- id: "js-bcrypt-low-rounds"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "bcrypt cost factor below 9 (fast to brute-force)"
+  fix: "Use a bcrypt cost of at least 10"
+  pattern-either:
+    - pattern: "bcrypt.hashSync($P, $C)"
+    - pattern: "bcrypt.hash($P, $C, ..."
+    - pattern: "bcrypt.genSaltSync($C)"
+  metavariable-regex:
+    "C": "^[1-8]$"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-916"
+    "confidence": "HIGH"
+- id: "js-lodash-update-path"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:prototype-pollution"
+  message: "lodash _.update with a dynamic path (prototype pollution)"
+  fix: "Validate/allowlist paths before updating objects"
+  pattern: "_.update($O, $PATH, $F)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-1321"
+    "confidence": "HIGH"
+- id: "js-proto-assign"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:prototype-pollution"
+  message: "Direct __proto__ assignment (prototype pollution)"
+  fix: "Avoid mutating __proto__; use Object.create/null-prototype objects"
+  pattern: ".__proto__ = "
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1321"
+    "confidence": "MEDIUM"
+- id: "js-handlebars-noescape"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "Handlebars rendering with noEscape disables HTML escaping"
+  fix: "Remove noEscape or escape untrusted values"
+  pattern: "noEscape: true"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"
+- id: "js-cookie-parser-no-secret"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "cookie-parser initialized without a signing secret"
+  fix: "Pass a secret: cookieParser(secret)"
+  pattern: "cookieParser()"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-565"
+    "confidence": "MEDIUM"
+- id: "js-des-cipher"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Weak DES cipher selected"
+  fix: "Use AES-256-GCM"
+  pattern-either:
+    - pattern: "des-ede3"
+    - pattern: "des-cbc"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "js-graphql-introspection"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "GraphQL introspection enabled (schema disclosure)"
+  fix: "Disable introspection in production"
+  pattern: "introspection: true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-200"
+    "confidence": "MEDIUM"
+- id: "js-fs-open-user"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "fs.open with a dynamic path (path traversal)"
+  fix: "Resolve paths against a fixed base and verify containment"
+  pattern-either:
+    - pattern: "fs.open($P, ..."
+    - pattern: "fs.openSync($P, ..."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-chmod-string-perm"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "chmod with world-writable string permissions"
+  fix: "Use 0o644/0o755 and drop world-write"
+  pattern-either:
+    - pattern: "chmod($P, \"777\")"
+    - pattern: "chmod($P, \"0777\")"
+    - pattern: "chmodSync($P, \"777\")"
+    - pattern: "chmodSync($P, \"0777\")"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "js-unlink-sync-user"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Synchronous unlink of a dynamic path (path traversal)"
+  fix: "Validate the path against an allowlisted directory"
+  pattern-either:
+    - pattern: "fs.unlinkSync($P)"
+    - pattern: "fs.rmSync($P)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-message-listener"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "postMessage listener added (verify event.origin)"
+  fix: "Check event.origin against an allowlist inside the handler"
+  pattern: "addEventListener(\"message\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-940"
+    "confidence": "LOW"
+- id: "js-hardcoded-encryption-key"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Literal encryption key passed to createCipheriv"
+  fix: "Derive keys (HKDF/PBKDF2) or load them from a KMS"
+  pattern: "createCipheriv($ALG, \""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-321"
+    "confidence": "HIGH"
+- id: "js-pbkdf2-empty-salt"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "PBKDF2 called with an empty salt"
+  fix: "Use a unique random salt per password (crypto.randomBytes)"
+  pattern-either:
+    - pattern: "pbkdf2Sync($P, \"\", $I, ..."
+    - pattern: "pbkdf2($P, \"\", $I, ..."
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-760"
+    "confidence": "HIGH"
+- id: "js-websocket-ws-url"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "WebSocket connected over unencrypted ws://"
+  fix: "Use wss://"
+  pattern: "new WebSocket(\"ws://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "js-csp-unsafe-inline"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Content-Security-Policy allows unsafe-inline"
+  fix: "Use nonces/hashes instead of 'unsafe-inline'"
+  pattern: "unsafe-inline"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-693"
+    "confidence": "MEDIUM"
+- id: "js-csp-unsafe-eval"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Content-Security-Policy allows unsafe-eval"
+  fix: "Remove 'unsafe-eval' from script-src"
+  pattern: "unsafe-eval"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-693"
+    "confidence": "MEDIUM"
+- id: "js-dynamic-script-tag"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "Dynamic <script> element created (XSS/remote script risk)"
+  fix: "Load scripts from a fixed allowlisted source with SRI"
+  pattern-either:
+    - pattern: "createElement(\"script\")"
+    - pattern: "createElement('script')"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "LOW"

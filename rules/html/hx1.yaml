@@ -1,0 +1,24 @@
+- id: "html-base-href-external"
+  languages: ["html"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "base href points at an external/insecure origin"
+  fix: "Use a relative base href"
+  pattern-either:
+    - pattern: "<base href=\"http://"
+    - pattern: "<base href=\"//"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "html-css-url-http"
+  languages: ["html"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CSS url() loads a resource over insecure http://"
+  fix: "Load CSS resources over https"
+  pattern: "url(http://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"

@@ -1,0 +1,15 @@
+id: django-sqli-raw
+languages: [python]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via Django raw() / RawSQL with untrusted input
+fix: Use parameterized raw() queries with %s placeholders and params list
+pattern-either:
+  - pattern: raw($VAR)
+  - pattern: raw($VAR, ...)
+  - pattern: RawSQL($VAR)
+  - pattern: RawSQL($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

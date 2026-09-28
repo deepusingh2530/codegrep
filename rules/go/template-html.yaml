@@ -1,0 +1,11 @@
+id: go-template-html
+languages: [go]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via template.HTML marking user string as safe
+fix: Let templates escape user data instead of marking it safe
+pattern: template.HTML($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

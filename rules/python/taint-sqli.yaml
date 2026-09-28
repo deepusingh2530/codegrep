@@ -1,0 +1,17 @@
+id: py-taint-sqli
+languages: [python]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Untrusted input flows to SQL execution (taint)
+fix: Use parameterized queries
+taint:
+  sources:
+    - patterns: [request.args, request.form, input(...)]
+  sinks:
+    - patterns: [cursor.execute(...)]
+  sanitizers:
+    - patterns: [escape_sql(...)]
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: HIGH

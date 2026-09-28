@@ -1,0 +1,11 @@
+id: java-deserialization
+languages: [java]
+severity: ERROR
+category: security:deserialization
+message: Unsafe Java deserialization via ObjectInputStream.readObject
+fix: Avoid native serialization on untrusted data; use JSON
+pattern: readObject()
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-502
+  confidence: MEDIUM

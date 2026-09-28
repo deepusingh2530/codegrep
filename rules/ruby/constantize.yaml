@@ -1,0 +1,11 @@
+id: ruby-constantize
+languages: [ruby]
+severity: WARNING
+category: security:code-execution
+message: Possible code execution via constantize on user input
+fix: Allowlist constant names instead of resolving user input
+pattern: $VAR.constantize
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-94
+  confidence: MEDIUM

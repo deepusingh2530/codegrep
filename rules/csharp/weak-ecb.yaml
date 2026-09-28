@@ -1,0 +1,11 @@
+id: csharp-weak-ecb
+languages: [csharp]
+severity: WARNING
+category: security:owasp-a2-crypto
+message: ECB cipher mode leaks plaintext patterns
+fix: Use an authenticated mode such as GCM instead of ECB
+pattern: CipherMode.ECB
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

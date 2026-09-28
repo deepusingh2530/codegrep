@@ -1,0 +1,15 @@
+id: "scala-hardcoded-aws-key"
+languages: ["scala"]
+severity: "WARNING"
+category: "security:secrets"
+message: "Hardcoded AWS access key ID"
+fix: "Read credentials from the environment/STS"
+pattern-either:
+  - pattern: "\"AKIA$REST\""
+  - pattern: "'AKIA$REST'"
+metavariable-regex:
+  "REST": "^[A-Za-z0-9]{16,}$"
+metadata:
+  "owasp": "A07:2021-Identification-Auth"
+  "cwe": "CWE-798"
+  "confidence": "HIGH"

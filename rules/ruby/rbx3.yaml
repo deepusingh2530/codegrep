@@ -1,0 +1,291 @@
+- id: "rb-psych-load"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Psych/YAML load of untrusted data (object injection)"
+  fix: "Use Psych.safe_load with an explicit permitted class list"
+  pattern-either:
+    - pattern: "Psych.load("
+    - pattern: "Psych.load_file("
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "rb-serialize-yaml"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "ActiveRecord column serialized as YAML (deserialization on load)"
+  fix: "Serialize with JSON instead of YAML"
+  pattern: "serialize :$ATTR, YAML"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-secret-key-base"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded Rails secret_key_base"
+  fix: "Load secret_key_base from credentials or the environment"
+  pattern-either:
+    - pattern: "secret_key_base = \""
+    - pattern: "secret_key_base = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-execjs-eval"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "ExecJS evaluates a dynamic string"
+  fix: "Never run untrusted source through ExecJS"
+  pattern: "ExecJS.eval("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "rb-arel-sql"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Raw SQL passed through Arel.sql (injection)"
+  fix: "Use bound parameters instead of Arel.sql with dynamic text"
+  pattern: "Arel.sql("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "rb-find-by-sqli"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "find_by with request-built SQL string"
+  fix: "Pass a hash of attributes instead of a SQL string"
+  pattern: "find_by($EXPR)"
+  metavariable-regex:
+    "EXPR": "params\\[|request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "rb-where-injection"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "where() called with request-built SQL fragment"
+  fix: "Use hash conditions or bind parameters"
+  pattern: "where($EXPR)"
+  metavariable-regex:
+    "EXPR": "params\\[|request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "rb-redirect-back-host"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:open-redirect"
+  message: "redirect_back allows arbitrary host (open redirect)"
+  fix: "Drop allow_other_host or pin allowed hosts"
+  pattern: "redirect_back ... allow_other_host"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "MEDIUM"
+- id: "rb-hosts-clear"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Rails host authorization disabled (hosts.clear)"
+  fix: "Keep the config.hosts allowlist in place"
+  pattern: "hosts.clear"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-644"
+    "confidence": "HIGH"
+- id: "rb-file-delete"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "File deleted with a dynamic path"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern: "File.delete($P)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "rb-dir-glob"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Dir.glob built from request input (path traversal)"
+  fix: "Use a fixed glob; sanitize any dynamic component"
+  pattern: "Dir.glob($P)"
+  metavariable-regex:
+    "P": "params\\[|request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "rb-tcp-socket-ssrf"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "Outbound TCP connection to a dynamic host"
+  fix: "Allowlist destination hosts"
+  pattern: "TCPSocket.new("
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "rb-open-pipe"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Kernel open with a pipe command (shell execution)"
+  fix: "Use File.open for files; use system/Open3 for commands"
+  pattern: "open(\"|$CMD\""
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "rb-hardcoded-api-key"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded API key literal"
+  fix: "Load the key from an environment secret"
+  pattern-either:
+    - pattern: "api_key = \""
+    - pattern: "api_key = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-db-credentials-in-url"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Database credentials embedded in connection URL"
+  fix: "Read user and password from environment variables at runtime"
+  pattern-either:
+    - pattern: "postgres://$CREDS@"
+    - pattern: "postgresql://$CREDS@"
+    - pattern: "mysql://$CREDS@"
+    - pattern: "mongodb://$CREDS@"
+    - pattern: "redis://$CREDS@"
+  metavariable-regex:
+    "CREDS": "^[^:@]+:[^:@0-9]"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-jwt-hardcoded-key"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "JWT signed with a literal secret"
+  fix: "Load the signing key from an environment secret"
+  pattern-either:
+    - pattern: "JWT.encode($P, \""
+    - pattern: "JWT.encode($P, '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "rb-rsa-pkcs1"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA with PKCS#1 v1.5 padding (padding oracle risk)"
+  fix: "Use OAEP padding"
+  pattern: "PKCS1_PADDING"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-780"
+    "confidence": "HIGH"
+- id: "rb-delete-all-sqli"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "delete_all called with raw SQL"
+  fix: "Use a where() clause with bound parameters"
+  pattern: "delete_all($SQL)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "rb-group-sqli"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "group() called with a dynamic value (SQL injection)"
+  fix: "Group by a fixed column name"
+  pattern: "group($VAR)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "rb-joins-sqli"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "joins() called with a dynamic value (SQL injection)"
+  fix: "Join fixed associations only"
+  pattern: "joins($VAR)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "rb-const-set"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "const_set with a dynamic constant name"
+  fix: "Map input to a fixed allowlist of constant names"
+  pattern: "const_set($NAME, $VAL)"
+  metavariable-regex:
+    "NAME": "params\\[|request\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-470"
+    "confidence": "MEDIUM"
+- id: "rb-nokogiri-noent"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "Nokogiri configured to expand entities (XXE)"
+  fix: "Parse without noent; keep default entity handling"
+  pattern-either:
+    - pattern: "noent"
+    - pattern: "NOENT"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "rb-rexml-parse"
+  languages: ["ruby"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "REXML document parsed (recursive entity expansion risk)"
+  fix: "Use Nokogiri with default entity handling"
+  pattern: "REXML::Document.new("
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "rb-hardcoded-basic-auth"
+  languages: ["ruby"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded HTTP Basic Authorization credentials"
+  fix: "Build the header from environment secrets at runtime"
+  pattern: "Basic $B64\""
+  metavariable-regex:
+    "B64": "^[A-Za-z0-9+/=]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

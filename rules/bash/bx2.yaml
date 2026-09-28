@@ -1,0 +1,38 @@
+- id: "bash-insecure-tls-download"
+  languages: ["bash"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "TLS certificate verification disabled in download"
+  fix: "Drop -k/--insecure and verify server certificates"
+  pattern-either:
+    - pattern: "curl -k"
+    - pattern: "curl --insecure"
+    - pattern: "wget --no-check-certificate"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "bash-openssl-ecb"
+  languages: ["bash"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "ECB block cipher mode in use"
+  fix: "Use aes-256-gcm with a random IV"
+  pattern-either:
+    - pattern: "-aes-256-ecb"
+    - pattern: "-aes-128-ecb"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "bash-sudo-nopasswd"
+  languages: ["bash"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "sudoers entry grants passwordless root (NOPASSWD)"
+  fix: "Restrict sudo to specific commands and require a password"
+  pattern: "NOPASSWD:"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "MEDIUM"

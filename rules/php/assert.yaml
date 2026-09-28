@@ -1,0 +1,11 @@
+id: php-assert-injection
+languages: [php]
+severity: ERROR
+category: security:code-execution
+message: Possible code injection via assert() on user input
+fix: Never pass user input to assert(); validate first
+pattern: assert($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: MEDIUM

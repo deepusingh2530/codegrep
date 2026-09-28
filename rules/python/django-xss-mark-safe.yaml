@@ -1,0 +1,11 @@
+id: django-xss-mark-safe
+languages: [python]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via mark_safe() on untrusted data
+fix: Avoid mark_safe on user input; use autoescaped templates
+pattern: mark_safe($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

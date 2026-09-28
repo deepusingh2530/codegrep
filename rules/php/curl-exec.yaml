@@ -1,0 +1,11 @@
+id: php-curl-exec
+languages: [php]
+severity: WARNING
+category: security:owasp-a10-ssrf
+message: Possible SSRF via curl_exec() on user-configured handle
+fix: Validate the target URL host against an allowlist
+pattern: curl_exec($VAR)
+metadata:
+  owasp: A10:2021-SSRF
+  cwe: CWE-918
+  confidence: MEDIUM

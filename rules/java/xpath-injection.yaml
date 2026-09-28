@@ -1,0 +1,13 @@
+id: java-xpath-injection
+languages: [java]
+severity: WARNING
+category: security:owasp-a3-injection
+message: Possible XPath injection via evaluate() with user-controlled expression
+fix: Parameterize XPath expressions or validate input against an allowlist
+pattern-either:
+  - pattern: evaluate($VAR)
+  - pattern: evaluate($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-643
+  confidence: MEDIUM

@@ -1,0 +1,26 @@
+- id: "csharp-hardcoded-aws-key"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded AWS access key ID"
+  fix: "Read credentials from the environment/STS"
+  pattern-either:
+    - pattern: "\"AKIA$REST\""
+    - pattern: "'AKIA$REST'"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9]{16,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "csharp-rsa-key-1024"
+  languages: ["csharp"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "RSA key generated at 1024 bits"
+  fix: "Generate RSA keys with at least 2048 bits"
+  pattern: "RSACryptoServiceProvider(1024"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"

@@ -1,0 +1,13 @@
+id: js-readfile-user
+languages: [javascript]
+severity: WARNING
+category: security:owasp-a1-injection
+message: Possible path traversal via fs read on user-controlled path
+fix: Resolve against a base directory and validate
+pattern-either:
+  - pattern: readFileSync($VAR)
+  - pattern: readFile($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-22
+  confidence: MEDIUM

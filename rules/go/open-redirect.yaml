@@ -1,0 +1,11 @@
+id: go-open-redirect
+languages: [go]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via http.Redirect to user input
+fix: Allowlist redirect targets
+pattern: http.Redirect($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

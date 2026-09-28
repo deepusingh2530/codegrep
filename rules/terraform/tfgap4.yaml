@@ -1,0 +1,46 @@
+- id: "tf-azure-client-secret"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Azure client_secret assigned as a literal"
+  fix: "Reference the secret from Key Vault or an environment variable"
+  pattern-either:
+    - pattern: "client_secret = \""
+    - pattern: "client_secret=\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "tf-tls-private-key-literal"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "TLS private key assigned as a literal (lands in state)"
+  fix: "Load the key from a file() reference or a secret manager"
+  pattern: "private_key = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "tf-redis-auth-token"
+  languages: ["terraform"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Redis auth token assigned as a literal"
+  fix: "Reference the token from a variable backed by a secret store"
+  pattern: "auth_token = \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "tf-ecr-tag-mutability"
+  languages: ["terraform"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "ECR repository allows mutable image tags (supply-chain tampering)"
+  fix: "Set image_tag_mutability = \"IMMUTABLE\""
+  pattern: "image_tag_mutability = \"MUTABLE\""
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-345"
+    "confidence": "MEDIUM"

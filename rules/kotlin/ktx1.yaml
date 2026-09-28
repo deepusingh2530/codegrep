@@ -1,0 +1,129 @@
+- id: "kotlin-weak-sha1"
+  languages: ["kotlin"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Weak hash algorithm SHA1 requested"
+  fix: "Use SHA-256 or stronger; bcrypt for passwords"
+  pattern: "\"SHA1\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "kotlin-processbuilder"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "ProcessBuilder runs an OS command built from request input"
+  fix: "Avoid ProcessBuilder on untrusted data; use fixed arguments"
+  pattern: "ProcessBuilder($CMD)"
+  metavariable-regex:
+    "CMD": "request\\.|intent\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "kotlin-eval-dynamic"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Script engine eval() runs input or concatenated code"
+  fix: "Never eval dynamic input; use fixed logic"
+  pattern: "eval ($CODE)"
+  metavariable-regex:
+    "CODE": "request\\.|\\+"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "kotlin-object-input-stream"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Java native deserialization of untrusted data"
+  fix: "Use a format with explicit types (JSON) and validate input"
+  pattern: "ObjectInputStream($SRC)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "kotlin-add-js-interface"
+  languages: ["kotlin"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "WebView exposes a JavaScript bridge (attack surface)"
+  fix: "Remove addJavascriptInterface or guard it behind strict origin checks"
+  pattern: "addJavascriptInterface("
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-749"
+    "confidence": "MEDIUM"
+- id: "kotlin-java-random"
+  languages: ["kotlin"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "java.util.Random is predictable (not for tokens/keys)"
+  fix: "Use SecureRandom for tokens, nonces, and keys"
+  pattern: "java.util.Random("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-330"
+    "confidence": "MEDIUM"
+- id: "kotlin-keystore-password"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Keystore opened with a hard-coded password"
+  fix: "Load the keystore password from the environment or Android Keystore"
+  pattern: ".load($IN, \""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "MEDIUM"
+- id: "kotlin-weak-ecb"
+  languages: ["kotlin"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Cipher requested in ECB mode (leaks plaintext structure)"
+  fix: "Use AES/GCM/NoPadding with a random IV"
+  pattern: "ECB"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "kotlin-xxe-builder"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "DocumentBuilderFactory used without disabling DTDs (XXE)"
+  fix: "Set FEATURE_SECURE_PROCESSING and disallow doctype declarations"
+  pattern: "DocumentBuilderFactory.newInstance()"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-611"
+    "confidence": "HIGH"
+- id: "kotlin-okhttp-ssrf"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "OkHttp request URL comes from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern: "Request.Builder().url($URL)"
+  metavariable-regex:
+    "URL": "request\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "kotlin-file-traversal"
+  languages: ["kotlin"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File path built from intent/request input (traversal)"
+  fix: "Resolve under a fixed root and reject '..' components"
+  pattern: "File($P)"
+  metavariable-regex:
+    "P": "intent\\.|request\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"

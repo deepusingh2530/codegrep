@@ -1,0 +1,14 @@
+id: java-weak-hash
+languages: [java]
+severity: WARNING
+category: security:weak-crypto
+message: Weak hash algorithm (MD5/SHA-1/DES) requested
+fix: Use SHA-256 or stronger; bcrypt for passwords
+pattern-either:
+  - pattern: '"MD5"'
+  - pattern: '"SHA1"'
+  - pattern: '"DES"'
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-327
+  confidence: MEDIUM

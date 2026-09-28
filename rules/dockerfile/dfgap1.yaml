@@ -1,0 +1,152 @@
+- id: "docker-env-secret"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Secret baked into ENV in the image layer"
+  fix: "Pass secrets at runtime or use BuildKit secret mounts"
+  pattern: "ENV $VAL"
+  metavariable-regex:
+    "VAL": "(?m)^[A-Z0-9_]*(SECRET|PASSWORD|TOKEN|API_KEY)[A-Z0-9_]*="
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "docker-build-arg-secret"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Secret passed as a --build-arg (persists in image history)"
+  fix: "Use BuildKit --secret mounts instead of build args"
+  pattern: "--build-arg $A"
+  metavariable-regex:
+    "A": "(?m)^[A-Z0-9_]*(SECRET|PASSWORD|TOKEN|API_KEY)[A-Z0-9_]*="
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "docker-insecure-registry"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Docker daemon configured to allow an insecure registry"
+  fix: "Serve the registry over TLS and remove the insecure-registry flag"
+  pattern: "insecure-registr"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "docker-apt-allow-unauthenticated"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "apt installs packages without authentication"
+  fix: "Remove --allow-unauthenticated and verify repository signatures"
+  pattern: "--allow-unauthenticated"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-494"
+    "confidence": "HIGH"
+- id: "docker-pip-trusted-host"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "pip --trusted-host disables TLS verification for the index"
+  fix: "Trust the internal CA instead of passing --trusted-host"
+  pattern: "--trusted-host"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "docker-yum-gpgcheck-off"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "yum repository configured with gpgcheck=0"
+  fix: "Enable gpgcheck=1 and import the repository signing key"
+  pattern: "gpgcheck=0"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-494"
+    "confidence": "HIGH"
+- id: "docker-yum-nogpgcheck"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "yum install skips signature verification"
+  fix: "Remove --nogpgcheck so packages are verified"
+  pattern: "--nogpgcheck"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-494"
+    "confidence": "HIGH"
+- id: "docker-expose-insecure-port"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Image exposes a cleartext/legacy service port (FTP/telnet/RDP)"
+  fix: "Remove the EXPOSE line or replace the service with a TLS equivalent"
+  pattern-either:
+    - pattern: "EXPOSE 21"
+    - pattern: "EXPOSE 23"
+    - pattern: "EXPOSE 3389"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-319"
+    "confidence": "MEDIUM"
+- id: "docker-git-cleartext"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "git clone fetches source over cleartext http"
+  fix: "Clone over https or ssh"
+  pattern: "git clone http://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "docker-wget-cleartext"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "wget downloads a dependency over cleartext http"
+  fix: "Download over https and verify a checksum or signature"
+  pattern: "wget http://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "docker-curl-cleartext"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:owasp-a2-crypto"
+  message: "curl downloads over cleartext http"
+  fix: "Download over https and verify a checksum or signature"
+  pattern: "curl http://"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+- id: "docker-allow-downgrades"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "apt is allowed to downgrade packages during the build"
+  fix: "Remove --allow-downgrades to prevent version rollback attacks"
+  pattern: "--allow-downgrades"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-494"
+    "confidence": "MEDIUM"
+- id: "docker-npm-strict-ssl-off"
+  languages: ["dockerfile"]
+  severity: "ERROR"
+  category: "security:owasp-a2-crypto"
+  message: "npm TLS certificate verification disabled during the build"
+  fix: "Remove the strict-ssl override and fix the certificate trust instead"
+  pattern-either:
+    - pattern: "--strict-ssl=false"
+    - pattern: "strict-ssl false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"

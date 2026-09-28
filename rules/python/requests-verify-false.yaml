@@ -1,0 +1,15 @@
+id: py-requests-verify-false
+languages: [python]
+severity: WARNING
+category: security:misconfig
+message: TLS certificate verification disabled in requests call
+fix: Remove verify=False so certificates are validated
+pattern-either:
+  - pattern: requests.get($VAR, verify=False)
+  - pattern: requests.get($VAR, verify=False, ...)
+  - pattern: requests.post($VAR, verify=False)
+  - pattern: requests.post($VAR, verify=False, ...)
+metadata:
+  owasp: A02:2021-Crypto-Failures
+  cwe: CWE-295
+  confidence: MEDIUM

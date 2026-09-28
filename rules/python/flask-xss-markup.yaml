@@ -1,0 +1,11 @@
+id: flask-xss-markup
+languages: [python]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via Markup() on untrusted data
+fix: Avoid Markup on user input; rely on autoescaping
+pattern: Markup($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

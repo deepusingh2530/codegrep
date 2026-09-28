@@ -1,0 +1,13 @@
+id: go-command-injection
+languages: [go]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via exec.Command with variable input
+fix: Allowlist commands and avoid shell -c with user input
+pattern-either:
+  - pattern: exec.Command($VAR)
+  - pattern: exec.Command($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: MEDIUM

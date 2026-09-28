@@ -1,0 +1,11 @@
+[package]
+name = "cg-matcher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }
+cg-ir = { path = "../cg-ir" }
+cg-parser = { path = "../cg-parser" }
+regex = "1"

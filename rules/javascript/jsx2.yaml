@@ -1,0 +1,125 @@
+- id: "js-lodash-template"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "lodash template compiled from untrusted input (SSTI)"
+  fix: "Use fixed templates; never compile user data"
+  pattern: "_.template($T)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "js-ejs-render"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "ejs.render compiled from untrusted input (SSTI)"
+  fix: "Use fixed templates; never render user templates"
+  pattern: "ejs.render($T)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "js-pug-render"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "pug.render compiled from untrusted input (SSTI)"
+  fix: "Use fixed templates; never render user templates"
+  pattern: "pug.render($T)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "js-nunjucks-renderstring"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "nunjucks.renderString compiles untrusted input (SSTI)"
+  fix: "Use fixed templates; never render user templates"
+  pattern: "renderString($T)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "js-cookie-httponly-false"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cookie created without the HttpOnly flag"
+  fix: "Set httpOnly: true for session cookies"
+  pattern: "httpOnly: false"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-1004"
+    "confidence": "MEDIUM"
+- id: "js-express-static-dir"
+  languages: ["javascript"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "express.static serves a directory (may expose files)"
+  fix: "Serve only intended assets with explicit routes"
+  pattern: "express.static($DIR)"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-548"
+    "confidence": "LOW"
+- id: "js-aes-ecb-iv"
+  languages: ["javascript"]
+  severity: "ERROR"
+  category: "security:weak-crypto"
+  message: "AES-ECB cipher requested (insecure mode)"
+  fix: "Use AES-GCM or AES-CBC with a random IV"
+  pattern: "\"aes-256-ecb\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "js-axios-ssrf"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a10-ssrf"
+  message: "axios.get fetches a user-controlled URL (SSRF)"
+  fix: "Allowlist destinations and validate scheme/host"
+  pattern: "axios.get($URL)"
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "js-create-write-stream"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "createWriteStream to a possibly user-controlled path"
+  fix: "Validate the path against a base directory"
+  pattern: "createWriteStream($P)"
+  metavariable-regex:
+    "P": "^[^\"']"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-settimeout-string"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "setTimeout invoked with a string (evaluated as code)"
+  fix: "Pass a function reference instead of a string"
+  pattern: "setTimeout($CODE)"
+  metavariable-regex:
+    "CODE": "^[^A-Za-z_]"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "MEDIUM"
+- id: "js-insertadjacenthtml"
+  languages: ["javascript"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "insertAdjacentHTML with untrusted input (XSS)"
+  fix: "Use textContent or sanitize the HTML first"
+  pattern: "insertAdjacentHTML($POS)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"

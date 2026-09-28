@@ -1,0 +1,203 @@
+- id: "scala-processbuilder"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "ProcessBuilder runs an OS command built from request input"
+  fix: "Avoid ProcessBuilder on untrusted data; use fixed arguments"
+  pattern: "new ProcessBuilder($CMD)"
+  metavariable-regex:
+    "CMD": "request\\.|req\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "scala-object-input-stream"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "ObjectInputStream deserializes untrusted data"
+  fix: "Avoid Java serialization for untrusted data; use JSON with fixed schemas"
+  pattern: "new ObjectInputStream($SRC)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "scala-file-path-traversal"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:path-traversal"
+  message: "File opened from dynamic path (possible path traversal)"
+  fix: "Resolve the path against a fixed root and reject traversal"
+  pattern: "new File($PATH)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "scala-anorm-sql-interpolated"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Anorm sql interpolator executes SQL with embedded values"
+  fix: "Use Anorm parameters: sql\"... WHERE id = {id}\".on('id -> v)"
+  pattern-either:
+    - pattern: "sql\""
+    - pattern: "sqlu\""
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "scala-url-ssrf"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "URL constructed from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern: "new URL($U)"
+  metavariable-regex:
+    "U": "request\\.|req\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "scala-xxe-document-builder"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "DocumentBuilderFactory created without disabling external entities"
+  fix: "setFeature disallow-doctype-decl and external-general/parameter-entities false"
+  pattern: "DocumentBuilderFactory.newInstance()"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "scala-xxe-sax-factory"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "SAXParserFactory created without disabling external entities"
+  fix: "setFeature disallow-doctype-decl and external-general/parameter-entities false"
+  pattern: "SAXParserFactory.newInstance()"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "scala-xxe-xml-input-factory"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:xxe"
+  message: "XMLInputFactory created without disabling external entities"
+  fix: "Set IS_SUPPORTING_EXTERNAL_ENTITIES and SUPPORT_DTD to false"
+  pattern: "XMLInputFactory.newInstance()"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "scala-xml-loadstring"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:xxe"
+  message: "scala-xml loadString parses XML (entity expansion / XXE risk)"
+  fix: "Reject DOCTYPE input or parse with a hardened XML parser"
+  pattern: "XML.loadString($XML)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-611"
+    "confidence": "MEDIUM"
+- id: "scala-crlf-header-injection"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "HTTP header value taken from request input (response splitting)"
+  fix: "Validate header values and strip CR/LF before writing"
+  pattern-either:
+    - pattern: "setHeader($H, $V)"
+    - pattern: "addHeader($H, $V)"
+  metavariable-regex:
+    "V": "request\\.|req\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-93"
+    "confidence": "MEDIUM"
+- id: "scala-open-redirect"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:open-redirect"
+  message: "Redirect target taken from request input (open redirect)"
+  fix: "Map the parameter to an allowlist of local destinations"
+  pattern-either:
+    - pattern: "Redirect($URL)"
+    - pattern: "redirect($URL)"
+  metavariable-regex:
+    "URL": "request\\.|req\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "HIGH"
+- id: "scala-weak-cipher"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Weak cipher algorithm requested (DES/RC4/ECB)"
+  fix: "Use AES-256-GCM with a random nonce"
+  pattern-either:
+    - pattern: "\"DES"
+    - pattern: "\"RC4"
+    - pattern: "ECB"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "scala-log-injection"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Untrusted request data written straight to logs (log injection)"
+  fix: "Sanitize or structure-log the value instead of interpolating raw input"
+  pattern-either:
+    - pattern: "logger.info($MSG)"
+    - pattern: "logger.error($MSG)"
+  metavariable-regex:
+    "MSG": "request|params"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-117"
+    "confidence": "MEDIUM"
+- id: "scala-file-write-user"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File write path taken from request input (path traversal)"
+  fix: "Resolve the path under a fixed upload root and reject traversal"
+  pattern-either:
+    - pattern: "new FileOutputStream($PATH)"
+    - pattern: "Files.write($PATH, $DATA)"
+  metavariable-regex:
+    "PATH": "request\\.|req\\."
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "HIGH"
+- id: "scala-jndi-lookup-user"
+  languages: ["scala"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "JNDI lookup name comes from request input (injection)"
+  fix: "Restrict lookups to a fixed naming context; never pass request data to lookup()"
+  pattern: "lookup($NAME)"
+  metavariable-regex:
+    "NAME": "request\\.|req\\.|\\$\\{"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-74"
+    "confidence": "MEDIUM"
+- id: "scala-xss-raw-html"
+  languages: ["scala"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "HtmlFormat.raw injects unescaped HTML (XSS)"
+  fix: "Escape the value or sanitize HTML before rendering"
+  pattern: "HtmlFormat.raw($HTML)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "MEDIUM"

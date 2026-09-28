@@ -1,0 +1,11 @@
+id: ts-eval-injection
+languages: [typescript]
+severity: ERROR
+category: security:code-execution
+message: Avoid eval() with untrusted input
+fix: Use JSON.parse or a safe evaluator
+pattern: eval($...ARGS)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

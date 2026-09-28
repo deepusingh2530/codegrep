@@ -1,0 +1,76 @@
+- id: "java-jndi-lookup-user"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "JNDI lookup name comes from request input (injection)"
+  fix: "Restrict lookups to a fixed naming context; never pass request data to lookup()"
+  pattern: "lookup($NAME)"
+  metavariable-regex:
+    "NAME": "request\\.|req\\.|\\$\\{"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-74"
+    "confidence": "MEDIUM"
+- id: "java-url-user-input"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "URL constructed from request input (SSRF)"
+  fix: "Allowlist destination hosts or map the parameter to known endpoints"
+  pattern: "new URL($U)"
+  metavariable-regex:
+    "U": "request\\.|req\\."
+  metadata:
+    "owasp": "A10:2021-SSRF"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "java-crlf-header-injection"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "HTTP header value taken from request input (response splitting)"
+  fix: "Validate header values and strip CR/LF before writing"
+  pattern-either:
+    - pattern: "addHeader($H, $V)"
+    - pattern: "setHeader($H, $V)"
+  metavariable-regex:
+    "V": "request\\.|req\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-93"
+    "confidence": "MEDIUM"
+- id: "java-jackson-default-typing"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Jackson default typing enabled (polymorphic deserialization RCE)"
+  fix: "Remove default typing; allowlist concrete types with @JsonSubTypes"
+  pattern-either:
+    - pattern: "enableDefaultTyping("
+    - pattern: "activateDefaultTyping("
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-snakeyaml-load"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "SnakeYAML load() deserializes untrusted data"
+  fix: "Use SafeConstructor or parse with a schema-limited loader"
+  pattern: "Yaml().load($DATA)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "MEDIUM"
+- id: "java-groovy-eval"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "GroovyShell.evaluate runs untrusted script text (code injection)"
+  fix: "Do not evaluate dynamic scripts; use a sandboxed template engine"
+  pattern: "GroovyShell().evaluate($X)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"

@@ -1,0 +1,11 @@
+id: js-new-function
+languages: [javascript]
+severity: ERROR
+category: security:code-execution
+message: Possible code injection via new Function() on user input
+fix: Avoid the Function constructor with dynamic code
+pattern: new Function($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-95
+  confidence: HIGH

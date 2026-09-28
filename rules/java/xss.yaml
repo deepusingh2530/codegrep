@@ -1,0 +1,13 @@
+id: java-xss
+languages: [java]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via writing untrusted data to response
+fix: Encode output (OWASP Encoder) before writing to response
+pattern-either:
+  - pattern: getWriter().write($VAR)
+  - pattern: print($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

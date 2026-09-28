@@ -1,0 +1,11 @@
+id: py-open-redirect
+languages: [python]
+severity: WARNING
+category: security:open-redirect
+message: Possible open redirect via redirect() to user input
+fix: Allowlist redirect targets
+pattern: redirect($VAR, ...)
+metadata:
+  owasp: A01:2021-Broken-Access-Control
+  cwe: CWE-601
+  confidence: MEDIUM

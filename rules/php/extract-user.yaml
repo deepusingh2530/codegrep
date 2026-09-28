@@ -1,0 +1,11 @@
+id: php-extract-user
+languages: [php]
+severity: WARNING
+category: security:misconfig
+message: extract() on user data overwrites variables unpredictably
+fix: Avoid extract() on untrusted arrays or use EXTR_SKIP with allowlist
+pattern: extract($VAR)
+metadata:
+  owasp: "A08:2021-Integrity-Failure"
+  cwe: CWE-621
+  confidence: MEDIUM

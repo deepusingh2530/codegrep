@@ -1,0 +1,44 @@
+- id: "docker-user-root"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Container switches back to root user"
+  fix: "Run as a non-root USER"
+  pattern: "USER root"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-250"
+    "confidence": "MEDIUM"
+- id: "docker-curl-pipe-shell"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:code-execution"
+  message: "Pipes a remote script directly into a shell during build"
+  fix: "Download, verify a checksum/signature, then execute"
+  pattern: "| sh"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-494"
+    "confidence": "MEDIUM"
+- id: "docker-add-remote-url"
+  languages: ["dockerfile"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "ADD fetches from a remote URL without checksum verification"
+  fix: "Use curl with a checksum, or COPY local verified files"
+  pattern: "ADD http"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-494"
+    "confidence": "LOW"
+- id: "docker-passwordless-sudo"
+  languages: ["dockerfile"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Configures passwordless sudo for a user"
+  fix: "Remove NOPASSWD sudo rules from images"
+  pattern: "NOPASSWD"
+  metadata:
+    "owasp": "A06:2021-Vulnerable-Components"
+    "cwe": "CWE-269"
+    "confidence": "MEDIUM"

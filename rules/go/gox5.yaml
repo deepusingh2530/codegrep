@@ -1,0 +1,30 @@
+- id: "go-hardcoded-openai-key"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded OpenAI API key"
+  fix: "Read the key from the environment"
+  pattern-either:
+    - pattern: "\"sk-$REST\""
+    - pattern: "`sk-$REST`"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9_-]{16,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "go-hardcoded-pypi-token"
+  languages: ["go"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded PyPI upload token"
+  fix: "Read the token from the environment"
+  pattern-either:
+    - pattern: "\"pypi-$REST\""
+    - pattern: "`pypi-$REST`"
+  metavariable-regex:
+    "REST": "^[A-Za-z0-9_+=.-]{20,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"

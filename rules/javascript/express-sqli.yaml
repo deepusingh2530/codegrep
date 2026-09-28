@@ -1,0 +1,13 @@
+id: express-sqli
+languages: [javascript]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via connection.query() with concatenated SQL
+fix: Use parameterized queries (? placeholders)
+pattern-either:
+  - pattern: connection.query($VAR)
+  - pattern: connection.query($VAR, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: MEDIUM

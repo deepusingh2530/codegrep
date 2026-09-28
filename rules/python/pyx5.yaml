@@ -1,0 +1,288 @@
+- id: "py-hmac-weak-digest"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "HMAC built with MD5 or SHA1 (weak digest)"
+  fix: "Use hashlib.sha256 or stronger as the digest"
+  pattern: "hmac.new($KEY, $MSG, $DIG)"
+  metavariable-regex:
+    "DIG": "(?i)md5|sha1"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "py-asyncio-exec"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "asyncio exec subprocess runs a dynamic command"
+  fix: "Use a fixed argv list without shell expansion"
+  pattern: "asyncio.create_subprocess_exec("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "py-os-spawn"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "os.spawnv runs a dynamic executable path"
+  fix: "Use a fixed executable and argv list"
+  pattern: "os.spawnv("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "py-paramiko-auto-add"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "SSH host keys auto-accepted (MITM risk)"
+  fix: "Use RejectPolicy and pin known_hosts entries"
+  pattern: "AutoAddPolicy("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "py-crypto-blowfish"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Blowfish cipher in use (deprecated)"
+  fix: "Use AES-GCM"
+  pattern: "Blowfish.new("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "HIGH"
+- id: "py-rsa-pkcs1-signer"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "RSA PKCS#1 v1.5 signature/encryption in use"
+  fix: "Use PSS padding for signatures or OAEP for encryption"
+  pattern: "PKCS1_v1_5"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-780"
+    "confidence": "HIGH"
+- id: "py-docker-socket"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Docker socket access from application code (container escape risk)"
+  fix: "Do not expose /var/run/docker.sock to application processes"
+  pattern: "/var/run/docker.sock"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-668"
+    "confidence": "MEDIUM"
+- id: "py-hardcoded-aws-secret-key"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded AWS secret access key"
+  fix: "Load the key from an environment secret and rotate it"
+  pattern-either:
+    - pattern: "aws_secret_access_key = \""
+    - pattern: "aws_secret_access_key = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-twilio-token"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:secrets"
+  message: "Hardcoded Twilio auth token"
+  fix: "Load the token from an environment secret and rotate it"
+  pattern-either:
+    - pattern: "auth_token = \""
+    - pattern: "auth_token = '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-azure-storage-key"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Azure Storage account key embedded in connection string"
+  fix: "Load the connection string from an environment secret"
+  pattern: "AccountKey="
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-jwt-hardcoded-key"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "JWT signed with a literal secret key"
+  fix: "Load the signing key from an environment secret"
+  pattern-either:
+    - pattern: "jwt.encode($P, \""
+    - pattern: "jwt.encode($P, '"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-fernet-hardcoded-key"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Fernet encryption key hardcoded"
+  fix: "Load the key from an environment secret and rotate it"
+  pattern-either:
+    - pattern: "Fernet(\""
+    - pattern: "Fernet(b\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-connect-password-literal"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Literal password passed to a network connect call"
+  fix: "Read the password from an environment secret"
+  pattern-either:
+    - pattern: "password=\""
+    - pattern: "password='"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-hardcoded-basic-auth"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Hardcoded HTTP Basic Authorization credentials"
+  fix: "Build the header from environment secrets at runtime"
+  pattern: "Basic $B64\""
+  metavariable-regex:
+    "B64": "^[A-Za-z0-9+/=]{8,}$"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "py-cgi-handler"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "CGIHTTPRequestHandler enables arbitrary CGI execution"
+  fix: "Use a production WSGI server instead of the CGI handler"
+  pattern: "CGIHTTPRequestHandler"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-676"
+    "confidence": "MEDIUM"
+- id: "py-format-user-input"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "str.format driven by request input (format-string abuse)"
+  fix: "Render only fixed templates with escaped values"
+  pattern: ".format($F)"
+  metavariable-regex:
+    "F": "request\\.|GET\\.|POST\\.|args\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-134"
+    "confidence": "MEDIUM"
+- id: "py-django-email-crlf"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:owasp-a1-injection"
+  message: "Email subject from request input (CRLF header injection)"
+  fix: "Use a fixed subject and strip CR/LF from dynamic parts"
+  pattern: "send_mail($SUBJ, ...)"
+  metavariable-regex:
+    "SUBJ": "request\\.|GET\\.|POST\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-93"
+    "confidence": "MEDIUM"
+- id: "py-s3-public-acl"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "S3 object written with a public-read ACL"
+  fix: "Keep objects private and grant access through signed URLs"
+  pattern-either:
+    - pattern: "ACL='public-read'"
+    - pattern: "ACL=\"public-read\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "py-gcp-iam-allusers"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "IAM binding grants access to allUsers"
+  fix: "Bind to specific identities or service accounts"
+  pattern: "allUsers"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "MEDIUM"
+- id: "py-umask-zero"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Process umask set to 0 (world-writable files)"
+  fix: "Use os.umask(0o077) or stricter"
+  pattern: "os.umask(0)"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-732"
+    "confidence": "HIGH"
+- id: "py-drf-no-auth"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "DRF view explicitly disables authentication/permissions"
+  fix: "Use IsAuthenticated or an explicit permission class"
+  pattern-either:
+    - pattern: "authentication_classes = []"
+    - pattern: "authentication_classes = ()"
+    - pattern: "permission_classes = []"
+    - pattern: "permission_classes = ()"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-306"
+    "confidence": "MEDIUM"
+- id: "py-ssl-wrap-socket"
+  languages: ["python"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Deprecated ssl.wrap_socket without verification options"
+  fix: "Use ssl.create_default_context()"
+  pattern: "ssl.wrap_socket("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-295"
+    "confidence": "MEDIUM"
+- id: "py-importlib-user"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Module imported from a dynamic name (code loading)"
+  fix: "Map the input to a fixed allowlist of modules"
+  pattern: "importlib.import_module("
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-470"
+    "confidence": "HIGH"
+- id: "py-django-pickle-serializer"
+  languages: ["python"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Django session serializer uses pickle (RCE if tampered)"
+  fix: "Use the JSONSerializer"
+  pattern: "PickleSerializer"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"

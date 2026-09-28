@@ -1,0 +1,11 @@
+id: ts-xss-innerhtml
+languages: [typescript]
+severity: WARNING
+category: security:owasp-a3-xss
+message: Possible XSS via innerHTML in TypeScript
+fix: Use textContent or a sanitizer
+pattern: $VAR.innerHTML = $VAL
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-79
+  confidence: MEDIUM

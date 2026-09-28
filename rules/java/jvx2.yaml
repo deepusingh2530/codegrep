@@ -1,0 +1,55 @@
+- id: "java-ognl-eval"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "OGNL expression evaluated from input (expression injection)"
+  fix: "Never evaluate untrusted expressions"
+  pattern: "Ognl.getValue($EXPR)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-917"
+    "confidence": "HIGH"
+- id: "java-spel-eval"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Spring SpEL expression parsed from input (expression injection)"
+  fix: "Never parse untrusted expressions"
+  pattern: "parseExpression($EXPR)"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-917"
+    "confidence": "HIGH"
+- id: "java-object-input-stream"
+  languages: ["java"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "ObjectInputStream deserializes untrusted data"
+  fix: "Use a type allowlist or a safe data format"
+  pattern: "new ObjectInputStream($IS)"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "java-cors-allow-all"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Cross-Origin resource shared with any origin (CORS wildcard)"
+  fix: "Restrict allowed origins to trusted domains"
+  pattern: "origins = \"*\""
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-942"
+    "confidence": "MEDIUM"
+- id: "java-spring-actuator-env"
+  languages: ["java"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "Actuator environment endpoint may expose configuration secrets"
+  fix: "Disable or secure actuator endpoints in production"
+  pattern: "env.enabled = true"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-200"
+    "confidence": "MEDIUM"

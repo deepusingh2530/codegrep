@@ -1,0 +1,11 @@
+id: rails-sqli-find-by-sql
+languages: [ruby]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible SQL injection via find_by_sql with interpolated query
+fix: Use parameterized ActiveRecord queries
+pattern: find_by_sql($VAR)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-89
+  confidence: HIGH

@@ -1,0 +1,15 @@
+id: py-subprocess-shell
+languages: [python]
+severity: ERROR
+category: security:owasp-a1-injection
+message: Possible command injection via subprocess with shell=True
+fix: Use argument lists without shell=True
+pattern-either:
+  - pattern: subprocess.run($VAR, shell=True)
+  - pattern: subprocess.run($VAR, shell=True, ...)
+  - pattern: subprocess.call($VAR, shell=True)
+  - pattern: subprocess.call($VAR, shell=True, ...)
+metadata:
+  owasp: A03:2021-Injection
+  cwe: CWE-78
+  confidence: HIGH
