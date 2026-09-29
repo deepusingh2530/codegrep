@@ -5,7 +5,7 @@
 - Taint: `taint: {sources:[{patterns}], sinks:[{patterns}], sanitizers:[{patterns}]}` intra-procedural v0.1.
 - Output: `--json` / `--sarif` compatible with GitHub code scanning.
 
-## CLI flag mapping (0.7.0)
+## CLI flag mapping
 
 | Common SAST CLI convention | codegrep |
 | --- | --- |

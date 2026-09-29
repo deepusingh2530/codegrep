@@ -2,6 +2,10 @@
 name = "cg-rules"
 version = "0.1.0"
 edition = "2021"
+authors = ["Deepu Singh <dksingh1130@gmail.com>"]
+license = "MIT"
+description = "YAML rule schema, loading and indexing for codegrep"
+repository = "https://github.com/deepusingh2530/codegrep"
 
 [dependencies]
 serde = { workspace = true }

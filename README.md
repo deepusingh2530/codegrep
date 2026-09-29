@@ -131,11 +131,48 @@ This repository's own [CI](.github/workflows/ci.yml) runs unit tests,
 `clippy -D warnings`, the rule-corpus gate (**1183 rules / 2152 fixtures**),
 a demo scan, a clean self-scan of `crates/`, and uploads a SARIF artifact.
 
+## Use as a library
+
+`codegrep` is also a Rust library crate — embed scanning in your own tool
+(e.g. a PR scanner) without shelling out:
+
+```toml
+[dependencies]
+codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
+```
+
+```rust
+use codegrep::{scan, sarif_from, ScanOptions};
+
+fn main() -> anyhow::Result<()> {
+    let report = scan(&ScanOptions {
+        path: "src".into(),
+        rules: "codegrep/rules".into(), // a checkout of this repo
+        min_severity: Some("warning".into()),
+        ..Default::default()
+    })?;
+    for f in &report.findings {
+        eprintln!("{}:{} [{}] {}", f.path, f.line, f.severity, f.rule_id);
+    }
+    println!("{}", sarif_from(&report.findings)); // SARIF for upload
+    Ok(())
+}
+```
+
+Rules ship as YAML in this repository's [`rules/`](rules) directory — point
+`ScanOptions::rules` (or `config`) at a local checkout (git submodule, clone,
+or vendored copy); the scanner itself is fully offline. Runnable version:
+[`crates/codegrep/examples/scan.rs`](crates/codegrep/examples/scan.rs).
+
+```sh
+cargo run -p codegrep --example scan -- ./testdata ./rules
+```
+
 ## Architecture
 
 | Crate | Role |
 | --- | --- |
-| [`crates/codegrep`](crates/codegrep) | CLI: `scan`, `rule test`, cache, SARIF/JSON output |
+| [`crates/codegrep`](crates/codegrep) | Library API + CLI: `scan`, `rule test`, cache, SARIF/JSON output |
 | [`crates/cg-rules`](crates/cg-rules) | YAML rule loading, validation, literal pre-filter index |
 | [`crates/cg-matcher`](crates/cg-matcher) | Structural matcher: `$VAR`, `...`, regex/comparison checks |
 | [`crates/cg-parser`](crates/cg-parser) | Language detection + tree-sitter parsing |

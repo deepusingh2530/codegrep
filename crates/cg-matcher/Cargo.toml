@@ -2,6 +2,10 @@
 name = "cg-matcher"
 version = "0.1.0"
 edition = "2021"
+authors = ["Deepu Singh <dksingh1130@gmail.com>"]
+license = "MIT"
+description = "Pattern matching engine (regex, metavariables, metavariable-regex) for codegrep"
+repository = "https://github.com/deepusingh2530/codegrep"
 
 [dependencies]
 anyhow = { workspace = true }

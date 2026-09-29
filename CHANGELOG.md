@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.8.0
+- Library crate: `codegrep` now exposes a `src/lib.rs` API so other
+  projects can embed scanning directly (git dependency, no CLI
+  subprocess): `scan(&ScanOptions) -> ScanReport`, `sarif_from()`,
+  `load_rule_set()`, `findings_for_rule()`, glob/severity/path-filter
+  helpers, and re-exports of the `cg-*` crates. `main.rs` is now a thin
+  clap wrapper (sidecars + output formatting + exit codes).
+- New types: `ScanOptions` (path, rules, config, include/exclude,
+  min_severity, baseline/diff_only, cache, jobs), `ScanReport`
+  (findings, files_scanned, rules_loaded, elapsed_ms, cache_hits).
+- `examples/scan.rs` embedding demo + integration tests
+  (`tests/lib_api.rs`): scan, filters, SARIF, error handling.
+- Package metadata (description/license/authors/repository) on the
+  `cg-*` workspace crates.
+- 31 tests green (4 lib unit + 4 lib integration + doc test + 23
+  workspace), clippy `-D warnings` clean, fixtures 2152 green.
+
 ## 0.7.0
 - Standard SAST CLI for daily use: repeatable `--config` (rule file or
   directory; remote/registry URLs refused with a clear offline-first
