@@ -19,7 +19,7 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Scan a path for findings
-    Scan(ScanArgs),
+    Scan(Box<ScanArgs>),
     /// Rule utilities
     Rule {
         #[command(subcommand)]
@@ -84,6 +84,21 @@ struct ScanArgs {
     /// Strict offline: no network, no external sidecars (secrets/sca wrappers refused)
     #[arg(long, default_value_t = false)]
     offline: bool,
+    /// Rule file or directory (repeatable, semgrep-style; supersedes --rules)
+    #[arg(long = "config", value_name = "PATH")]
+    config: Vec<String>,
+    /// Drop paths matching this glob or substring (repeatable): `vendor/**`, `tests`
+    #[arg(long = "exclude", value_name = "GLOB")]
+    exclude: Vec<String>,
+    /// Only report paths matching this glob or substring (repeatable)
+    #[arg(long = "include", value_name = "GLOB")]
+    include: Vec<String>,
+    /// Only report findings at or above this severity: error|warning|info
+    #[arg(long, value_name = "LEVEL")]
+    min_severity: Option<String>,
+    /// Exit 1 when findings remain (CI gating, semgrep --error)
+    #[arg(long, default_value_t = false)]
+    error: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -99,13 +114,21 @@ struct Finding {
     snippet: String,
 }
 
+fn sarif_level(sev: &str) -> &'static str {
+    match sev {
+        "ERROR" => "error",
+        "WARNING" => "warning",
+        _ => "note",
+    }
+}
+
 fn sarif_from(findings: &[Finding]) -> serde_json::Value {
     let results: Vec<_> = findings
         .iter()
         .map(|f| {
             serde_json::json!({
                 "ruleId": f.rule_id,
-                "level": match f.severity.as_str() { "ERROR" => "error", "WARNING" => "warning", _ => "note" },
+                "level": sarif_level(&f.severity),
                 "message": {"text": f.message},
                 "locations": [{"physicalLocation": {
                     "artifactLocation": {"uri": f.path},
@@ -114,10 +137,35 @@ fn sarif_from(findings: &[Finding]) -> serde_json::Value {
             })
         })
         .collect();
+    // driver.rules metadata: required by GitHub code scanning for rule display
+    // and used by other SARIF consumers to map levels/tags.
+    let mut rules: Vec<serde_json::Value> = vec![];
+    let mut seen: HashSet<&str> = HashSet::new();
+    for f in findings {
+        if seen.insert(f.rule_id.as_str()) {
+            rules.push(serde_json::json!({
+                "id": f.rule_id,
+                "name": f.rule_id,
+                "shortDescription": {"text": f.message},
+                "defaultConfiguration": {"level": sarif_level(&f.severity)},
+                "properties": {
+                    "security-severity": match f.severity.as_str() {
+                        "ERROR" => "8.0",
+                        "WARNING" => "5.0",
+                        _ => "3.0",
+                    }
+                }
+            }));
+        }
+    }
     serde_json::json!({
         "version": "2.1.0",
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
-        "runs": [{"tool": {"driver": {"name": "codegrep", "version": env!("CARGO_PKG_VERSION")}}, "results": results}]
+        "runs": [{"tool": {"driver": {
+            "name": "codegrep",
+            "version": env!("CARGO_PKG_VERSION"),
+            "rules": rules
+        }}, "results": results}]
     })
 }
 
@@ -155,6 +203,149 @@ fn diff_changed_lines(baseline: &str) -> HashMap<String, HashSet<usize>> {
         }
     }
     map
+}
+
+/// Severity ranking for `--min-severity`. Rules use ERROR | WARNING | INFO.
+fn severity_rank(s: &str) -> u8 {
+    match s.trim().to_ascii_uppercase().as_str() {
+        "ERROR" | "HIGH" | "CRITICAL" => 3,
+        "WARNING" | "WARN" | "MEDIUM" => 2,
+        _ => 1, // INFO / NOTE / LOW
+    }
+}
+
+fn parse_min_severity(s: &str) -> Result<u8> {
+    match s.trim().to_ascii_lowercase().as_str() {
+        "error" | "high" | "critical" => Ok(3),
+        "warning" | "warn" | "medium" => Ok(2),
+        "info" | "note" | "low" => Ok(1),
+        other => anyhow::bail!(
+            "codegrep: unknown --min-severity {other:?} (expected error|warning|info)"
+        ),
+    }
+}
+
+/// Glob match with `*` (within a path segment), `**` (any incl. `/`), `?` (one char, no `/`).
+fn glob_match(pattern: &str, text: &str) -> bool {
+    let p: Vec<char> = pattern.chars().collect();
+    let t: Vec<char> = text.chars().collect();
+    glob_rec(&p, 0, &t, 0)
+}
+
+fn glob_rec(p: &[char], pi: usize, t: &[char], ti: usize) -> bool {
+    let mut pi = pi;
+    let mut ti = ti;
+    while pi < p.len() {
+        match p[pi] {
+            '*' if pi + 1 < p.len() && p[pi + 1] == '*' => {
+                // `**` consumes anything (incl. `/`). `**/` may also match zero dirs.
+                let rest = pi + 2;
+                if rest < p.len() && p[rest] == '/' && glob_rec(p, rest + 1, t, ti) {
+                    return true;
+                }
+                if rest >= p.len() {
+                    return true;
+                }
+                let mut k = ti;
+                loop {
+                    if glob_rec(p, rest, t, k) {
+                        return true;
+                    }
+                    if k >= t.len() {
+                        return false;
+                    }
+                    k += 1;
+                }
+            }
+            '*' => {
+                let rest = pi + 1;
+                if rest >= p.len() {
+                    // Trailing `*`: rest of this segment (never crosses `/`).
+                    return !t[ti..].contains(&'/');
+                }
+                let mut k = ti;
+                loop {
+                    if glob_rec(p, rest, t, k) {
+                        return true;
+                    }
+                    if k >= t.len() || t[k] == '/' {
+                        return false;
+                    }
+                    k += 1;
+                }
+            }
+            '?' => {
+                if ti >= t.len() || t[ti] == '/' {
+                    return false;
+                }
+                pi += 1;
+                ti += 1;
+            }
+            c => {
+                if ti >= t.len() || t[ti] != c {
+                    return false;
+                }
+                pi += 1;
+                ti += 1;
+            }
+        }
+    }
+    ti == t.len()
+}
+
+/// Candidate spellings a path filter is matched against (absolute + root-relative).
+fn path_candidates<'a>(path_s: &'a str, root: &str) -> Vec<&'a str> {
+    let mut v = vec![path_s];
+    let rel = path_s
+        .strip_prefix(root)
+        .or_else(|| {
+            if root == "." {
+                path_s.strip_prefix("./")
+            } else {
+                None
+            }
+        })
+        .map(|r| r.trim_start_matches('/'));
+    if let Some(r) = rel {
+        if r != path_s && !r.is_empty() {
+            v.push(r);
+        }
+    }
+    v
+}
+
+fn pattern_hits(pattern: &str, candidates: &[&str]) -> bool {
+    let is_glob = pattern.contains('*') || pattern.contains('?');
+    if !is_glob {
+        return candidates.iter().any(|c| c.contains(pattern));
+    }
+    if candidates.iter().any(|c| glob_match(pattern, c)) {
+        return true;
+    }
+    // Globs also match at any directory suffix: `vendor/**` hits `src/vendor/x`.
+    candidates.iter().any(|c| {
+        let mut s = *c;
+        while let Some(idx) = s.find('/') {
+            s = &s[idx + 1..];
+            if glob_match(pattern, s) {
+                return true;
+            }
+        }
+        false
+    })
+}
+
+/// Semgrep-style path filters: any `--exclude` match drops; with `--include`
+/// given, at least one match is required to keep.
+fn path_allowed(path_s: &str, root: &str, include: &[String], exclude: &[String]) -> bool {
+    let cands = path_candidates(path_s, root);
+    if exclude.iter().any(|p| pattern_hits(p, &cands)) {
+        return false;
+    }
+    if !include.is_empty() && !include.iter().any(|p| pattern_hits(p, &cands)) {
+        return false;
+    }
+    true
 }
 
 fn discover_files(root: &str) -> Vec<PathBuf> {
@@ -296,6 +487,9 @@ fn run_scan(args: ScanArgs) -> Result<()> {
             args.only
         );
     }
+    if let Some(ms) = args.min_severity.as_deref() {
+        parse_min_severity(ms)?;
+    }
     if args.jobs > 0 {
         rayon::ThreadPoolBuilder::new()
             .num_threads(args.jobs)
@@ -308,14 +502,42 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         "sca" => return run_sca(&args.path),
         other => anyhow::bail!("codegrep: unknown --only {other} (expected sast|secrets|sca|all)"),
     }
-    let rules: Vec<cg_rules::Rule> = if std::path::Path::new(&args.rules).exists() {
+    let rules: Vec<cg_rules::Rule> = if !args.config.is_empty() {
+        let mut out: Vec<cg_rules::Rule> = vec![];
+        for c in &args.config {
+            if c.starts_with("http://")
+                || c.starts_with("https://")
+                || c.starts_with("git@")
+                || c.starts_with("p/")
+                || c.ends_with(".git")
+                || c == "auto"
+            {
+                anyhow::bail!(
+                    "codegrep: remote/registry configs are not supported (--config {c}). \
+                     codegrep is offline-first: point --config at a local rule file or directory."
+                );
+            }
+            let p = std::path::Path::new(c);
+            if p.is_file() {
+                out.extend(cg_rules::load_rules_file(c).with_context(|| format!("loading {c}"))?);
+            } else if p.is_dir() {
+                out.extend(cg_rules::load_rules_dir(c).with_context(|| format!("loading {c}"))?);
+            } else {
+                anyhow::bail!("codegrep: --config {c}: no such file or directory");
+            }
+        }
+        out
+    } else if std::path::Path::new(&args.rules).exists() {
         cg_rules::load_rules_dir(&args.rules)
             .with_context(|| format!("loading rules from {}", args.rules))?
     } else {
         vec![]
     };
     if rules.is_empty() {
-        eprintln!("codegrep: no rules found in '{}' — scanning with 0 rules", args.rules);
+        eprintln!(
+            "codegrep: no rules found in '{}' — scanning with 0 rules",
+            args.rules
+        );
     }
     let index = cg_rules::RuleIndex::build(&rules);
 
@@ -342,7 +564,10 @@ fn run_scan(args: ScanArgs) -> Result<()> {
     };
     let cache_hits = std::sync::atomic::AtomicUsize::new(0);
 
-    let files = discover_files(&args.path);
+    let files: Vec<PathBuf> = discover_files(&args.path)
+        .into_iter()
+        .filter(|p| path_allowed(&p.to_string_lossy(), &args.path, &args.include, &args.exclude))
+        .collect();
     let scanned = files.len();
 
     // Per-file result carries (path, content_hash, findings, was_cached) for cache write-back.
@@ -506,6 +731,10 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         }
     }
     uniq.sort_by_key(|a| (a.path.clone(), a.line));
+    if let Some(ms) = args.min_severity.as_deref() {
+        let min = parse_min_severity(ms)?;
+        uniq.retain(|f| severity_rank(&f.severity) >= min);
+    }
 
     let elapsed = t0.elapsed();
     if args.metrics {
@@ -558,11 +787,17 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         }
     }
 
-    if let Some(o) = args.output {
-        std::fs::write(&o, body).with_context(|| format!("writing {o}"))?;
+    if let Some(o) = &args.output {
+        std::fs::write(o, body).with_context(|| format!("writing {o}"))?;
         eprintln!("codegrep: wrote {} finding(s) to {o}", uniq.len());
     } else {
         println!("{body}");
+    }
+    if args.error && !uniq.is_empty() {
+        if !args.json && !args.sarif && args.output.is_none() {
+            eprintln!("codegrep: exiting 1 (--error, {} finding(s))", uniq.len());
+        }
+        std::process::exit(1);
     }
     Ok(())
 }
@@ -627,7 +862,7 @@ fn findings_for_rule(rule: &cg_rules::Rule, text: &str, lang: &str) -> Vec<(usiz
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
-        Commands::Scan(a) => run_scan(a),
+        Commands::Scan(a) => run_scan(*a),
         Commands::Rule { cmd } => match cmd {
             RuleCmd::Test { path } => {
                 let rules = cg_rules::load_rules_dir(&path)
@@ -716,5 +951,64 @@ fn main() -> Result<()> {
             );
             Ok(())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn glob_segment_rules() {
+        assert!(glob_match("src/*.rs", "src/main.rs"));
+        assert!(!glob_match("src/*.rs", "src/a/main.rs"));
+        assert!(glob_match("vendor/**", "vendor/a/b.js"));
+        assert!(glob_match("**/*.min.js", "src/app.min.js"));
+        assert!(glob_match("a/**/b", "a/b"));
+        assert!(glob_match("a/**/b", "a/x/y/b"));
+        assert!(glob_match("*", "foo"));
+        assert!(!glob_match("*", "foo/bar"));
+        assert!(glob_match("run?.py", "run1.py"));
+        assert!(!glob_match("run?.py", "run12.py"));
+        assert!(glob_match("**/node_modules/**", "app/node_modules/x.js"));
+    }
+
+    #[test]
+    fn path_filter_exclude_include() {
+        let ex = vec!["vendor/**".to_string(), ".min.js".to_string()];
+        assert!(!path_allowed("./src/vendor/x.js", ".", &[], &ex));
+        assert!(!path_allowed("src/app.min.js", ".", &[], &ex));
+        assert!(path_allowed("src/app.js", ".", &[], &ex));
+
+        let ex_sub = vec!["tests".to_string()];
+        assert!(!path_allowed("pkg/tests/fixture.py", ".", &[], &ex_sub));
+        assert!(path_allowed("pkg/src/fixture.py", ".", &[], &ex_sub));
+
+        let inc = vec!["src/**".to_string()];
+        assert!(path_allowed("src/app.js", ".", &inc, &[]));
+        assert!(!path_allowed("lib/app.js", ".", &inc, &[]));
+
+        // root-relative candidates
+        assert!(path_allowed(
+            "testdata/py/vuln.py",
+            "testdata",
+            &["py/**".to_string()],
+            &[]
+        ));
+        assert!(!path_allowed(
+            "testdata/ruby/vuln.rb",
+            "testdata",
+            &[],
+            &["ruby/**".to_string()]
+        ));
+    }
+
+    #[test]
+    fn severity_ordering() {
+        assert!(severity_rank("ERROR") > severity_rank("WARNING"));
+        assert!(severity_rank("WARNING") > severity_rank("INFO"));
+        assert_eq!(parse_min_severity("error").unwrap(), 3);
+        assert_eq!(parse_min_severity("info").unwrap(), 1);
+        assert!(parse_min_severity("bogus").is_err());
     }
 }

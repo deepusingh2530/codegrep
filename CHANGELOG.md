@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.0
+- Semgrep-parity CLI for daily use: repeatable `--config` (rule file or
+  directory; remote/registry URLs refused with a clear offline-first
+  error), `--exclude`/`--include` path filters (segment-aware globs
+  `*`/`**`/`?` plus substring matching, directory-suffix aware),
+  `--min-severity error|warning|info` floor, and `--error` to exit 1
+  for CI gating.
+- SARIF: `runs[0].tool.driver.rules` metadata (default level +
+  `security-severity`) so GitHub code scanning ingests rule info.
+- 25 unit tests (glob matcher, path-filter semantics, severity
+  ordering); fixtures 2152 green; clippy `-D warnings` clean.
+- Migration doc: semgrep ↔ codegrep CLI flag mapping table.
+
 ## 0.6.0
 - 1183 MIT-original rules (+1022): bulk authoring toward Semgrep-registry
   rule-count parity (original rules only; no Semgrep code or rules read),

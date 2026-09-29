@@ -18,6 +18,20 @@ cargo build --release -p codegrep
 ./target/release/codegrep scan --help
 ```
 
+Semgrep-style filters for real repos and CI:
+
+```sh
+# repeatable --config accepts rule files or dirs (remote/registry URLs refused: offline-first)
+./target/release/codegrep scan . --config rules/python --config my-rules/api.yaml
+
+# path filters (glob `*`/`**`/`?` or plain substring) + severity floor
+./target/release/codegrep scan . --exclude 'vendor/**' --exclude '*.min.js' \
+  --include 'src/**' --min-severity warning
+
+# CI gate: exit 1 when findings remain; SARIF for code scanning
+./target/release/codegrep scan . --error --sarif -o results.sarif
+```
+
 Cache is on by default (`--no-cache` to disable, `--cache-dir` to override).
 `--offline` enforces no-network SAST (secrets/sca sidecars refused offline).
 AI triage/autofix is a separate BYOK side-plane:
