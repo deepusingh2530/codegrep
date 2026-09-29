@@ -11,10 +11,15 @@ crate_version() {
   grep -m1 '^version = ' "crates/$1/Cargo.toml" | cut -d'"' -f2
 }
 
+# Ask the registry (not the local workspace) whether the version is live.
+published() {
+  cargo search "$1" 2>/dev/null | grep -q "^$1 = \"$2\""
+}
+
 wait_indexed() {
   local c="$1" v="$2"
   for _ in $(seq 1 30); do
-    if cargo info "$c" 2>/dev/null | grep -q "Version: $v"; then
+    if published "$c" "$v"; then
       return 0
     fi
     sleep 10
@@ -25,7 +30,7 @@ wait_indexed() {
 
 for c in "${order[@]}"; do
   v="$(crate_version "$c")"
-  if cargo info "$c" 2>/dev/null | grep -q "Version: $v"; then
+  if published "$c" "$v"; then
     echo "==> $c $v already published, skipping"
     continue
   fi
