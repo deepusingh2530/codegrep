@@ -8,6 +8,11 @@ the `codegrep` command-line tool and a library API for embedding.
 - **MIT**: safe to link, ship, and audit.
 - **Corpus**: 1183 rules across 19 languages with 2152 accuracy fixtures.
 
+```toml
+[dependencies]
+codegrep = "0.8.0"
+```
+
 ```rust
 use codegrep::{scan, sarif_from, ScanOptions};
 
@@ -22,7 +27,7 @@ println!("{}", sarif_from(&report.findings));
 CLI:
 
 ```sh
-cargo install --git https://github.com/deepusingh2530/codegrep codegrep
+cargo install codegrep
 codegrep scan . --min-severity error --error --sarif -o results.sarif
 ```
 

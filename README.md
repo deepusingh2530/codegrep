@@ -33,6 +33,12 @@ gate CI on.
 
 ## Installation
 
+### From crates.io (recommended)
+
+```sh
+cargo install codegrep
+```
+
 ### From source (Rust 1.90+)
 
 ```sh
@@ -138,7 +144,8 @@ a demo scan, a clean self-scan of `crates/`, and uploads a SARIF artifact.
 
 ```toml
 [dependencies]
-codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
+codegrep = "0.8.0"
+# or track main: codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
 ```
 
 ```rust

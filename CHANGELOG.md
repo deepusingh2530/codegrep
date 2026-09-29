@@ -14,6 +14,9 @@
   (`tests/lib_api.rs`): scan, filters, SARIF, error handling.
 - Package metadata (description/license/authors/repository) on the
   `cg-*` workspace crates.
+- Published to crates.io: `codegrep 0.8.0` plus `cg-parser`, `cg-rules`,
+  `cg-ir`, `cg-taint`, `cg-matcher` (0.1.0) — install with
+  `cargo install codegrep`; library as `codegrep = "0.8.0"`.
 - 31 tests green (4 lib unit + 4 lib integration + doc test + 23
   workspace), clippy `-D warnings` clean, fixtures 2152 green.
 
