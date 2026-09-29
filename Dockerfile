@@ -1,5 +1,5 @@
 # codegrep — single-binary SAST scanner (release image)
-FROM rust:1.75-slim AS build
+FROM rust:slim AS build
 WORKDIR /src
 COPY . .
 RUN cargo build --release -p codegrep

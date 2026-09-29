@@ -7,8 +7,24 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with: { components: clippy }
-      - run: cargo test --workspace
-      - run: cargo clippy --workspace -- -D warnings
-      - run: cargo build --release -p codegrep
-      - run: ./target/release/codegrep rule test rules/
-      - run: ./target/release/codegrep scan ./testdata --rules ./rules --metrics
+      - name: Unit + integration tests
+        run: cargo test --workspace
+      - name: Lint (deny warnings)
+        run: cargo clippy --workspace -- -D warnings
+      - name: Build release binary
+        run: cargo build --release -p codegrep
+      - name: Rule corpus gate (1183 rules, 2152 fixtures)
+        run: ./target/release/codegrep rule test rules/
+      - name: Demo scan (testdata)
+        run: ./target/release/codegrep scan ./testdata --rules ./rules --metrics
+      - name: Self-scan gate (source must be clean)
+        run: ./target/release/codegrep scan ./crates --min-severity warning --error
+      - name: SARIF report (testdata findings)
+        if: always()
+        run: ./target/release/codegrep scan ./testdata --sarif -o results.sarif
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-sarif
+          path: results.sarif
