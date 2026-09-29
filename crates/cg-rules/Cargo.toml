@@ -7,7 +7,7 @@ license = "MIT"
 description = "YAML rule schema, loading and indexing for codegrep"
 repository = "https://github.com/deepusingh2530/codegrep"
 keywords = ["static-analysis", "security", "parser"]
-categories = ["development-tools::analysis-tools"]
+categories = ["development-tools"]
 
 [dependencies]
 serde = { workspace = true }

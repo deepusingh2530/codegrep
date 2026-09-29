@@ -7,7 +7,7 @@ license = "MIT"
 description = "Fast offline multi-language SAST scanner with 1183 MIT-original rules"
 repository = "https://github.com/deepusingh2530/codegrep"
 keywords = ["sast", "security", "static-analysis", "sarif", "scanner"]
-categories = ["command-line-utilities", "development-tools::analysis-tools"]
+categories = ["command-line-utilities", "security", "development-tools"]
 readme = "README.md"
 
 [lib]
