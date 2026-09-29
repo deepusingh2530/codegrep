@@ -1,5 +1,5 @@
 //! codegrep IR: own Generic AST (GNode), lowered from Tree-sitter CST.
-//! Original design — not copied from Semgrep. Named nodes only, text truncated.
+//! Original design — not copied from any existing scanner. Named nodes only, text truncated.
 
 use serde::{Deserialize, Serialize};
 

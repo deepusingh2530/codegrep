@@ -1,4 +1,4 @@
-# codegrep — Master Prompt (MIT-licensed Semgrep-beater SAST)
+# codegrep — Master Prompt (MIT-licensed offline SAST)
 
 > Paste this entire file as the system prompt into Opencode / Claude Code / Codex before starting any work on `codegrep`. It is the source of truth for architecture, constraints, and execution order.
 
@@ -6,13 +6,13 @@
 
 **Name:** codegrep
 **Binary:** `codegrep`
-**Goal:** Multi-language SAST scanner that scans code repositories **faster than Semgrep**, with deterministic results offline.
+**Goal:** Multi-language SAST scanner that scans code repositories **faster than incumbent SAST tools**, with deterministic results offline.
 **AI policy:** AI is enhancement-only, never in scan hot path. Core scan must work fully offline with no API keys. AI lives in async side-plane for triage, explainer, auto-fix, rule synthesis.
-**License safety:** 100% commercially safe. Do NOT copy Semgrep engine code (LGPL-2.1) or Semgrep rule registry (Semgrep Rules License v1.0). Write all engine code and rules from scratch. Allowed: Tree-sitter (MIT), ast-grep ideas (MIT, ideas only, no copy), Gitleaks (MIT), OSV-Scanner (Apache-2.0), Trivy (Apache-2.0), ESLint/Bandit concepts (MIT/Apache-2.0, ideas only).
+**License safety:** 100% commercially safe. Do NOT copy any third-party scanner engine code (several are LGPL-2.1 or commercial) or rule-registry content (registry licenses are typically non-MIT). Write all engine code and rules from scratch. Allowed: Tree-sitter (MIT), ast-grep ideas (MIT, ideas only, no copy), Gitleaks (MIT), OSV-Scanner (Apache-2.0), Trivy (Apache-2.0), ESLint/Bandit concepts (MIT/Apache-2.0, ideas only).
 
-## 2. Success criteria to beat Semgrep
+## 2. Success criteria to beat incumbents
 
-1. **Speed cold:** 3-10x faster than `semgrep --metrics=off` on 500k LOC monorepo, 8-core machine.
+1. **Speed cold:** 3-10x faster than a leading open-source CLI SAST scanner (same rules, metrics off) on 500k LOC monorepo, 8-core machine.
 2. **Speed PR:** `<10s` for PR with <500 changed lines via diff-only + cache. 1M LOC cold `<2min`.
 3. **Languages v1:** Python, JavaScript, TypeScript, Go, Java, Ruby, PHP, C# (8 langs). Design for 30+ later.
 4. **Accuracy:** <15% FP after AI triage on labeled 200-finding set. Every rule has pass/fail tests.
@@ -50,7 +50,7 @@ AI side-plane (separate process, optional): triage FP filter, explainer, verifie
 - Libs: `tree-sitter, rayon, ignore, serde/serde_yaml/serde_json, aho-corasick, memmap2, blake3, gitoxide, clap`
 - Grammars: `tree-sitter-python, javascript, typescript, go, java, ruby, php, c-sharp`
 - Dashboard (separate service, later): TypeScript Next.js + Postgres + S3. Never block scanner on server.
-- Bench: `criterion + hyperfine` vs semgrep + ast-grep. Fail CI on >10% regression.
+- Bench: `criterion + hyperfine` vs incumbent scanners + ast-grep. Fail CI on >10% regression.
 
 ## 5. Repo layout to scaffold
 
@@ -73,7 +73,7 @@ codegrep/
     github-action/action.yml
     pre-commit-hooks.yaml
   platform/                 # dashboard (phase 3)
-  docs/migration-semgrep.md
+  docs/cli-migration.md
 ```
 
 CLI examples (must all work):
@@ -83,7 +83,7 @@ CLI examples (must all work):
 `codegrep rule test rules/`
 `codegrep autofix --verify`
 
-## 6. Rule format (Semgrep-inspired, renamed, original content only)
+## 6. Rule format (industry-standard YAML shape, renamed, original content only)
 
 ```yaml
 id: py-sql-injection
@@ -131,11 +131,11 @@ Intra-procedural CFG (if/for/while/try/return) + fixed-point taint for py/js. Te
 Add java/ruby/php/csharp adapters + OWASP packs: sqli,xss,cmdi,ssrf,pathtraversal,open-redirect,xxe,ssti,deser,secrets,weak-crypto. 15 rules/lang with tests.
 
 **Phase 8 — Harden + benchmark release:**
-Fuzz matcher, flamegraph profile, per-file timeout, `--offline/--strict`, SBOM, public bench page, `semgrep->codegrep` rule converter script.
+Fuzz matcher, flamegraph profile, per-file timeout, `--offline/--strict`, SBOM, public bench page, rule-format converter script (common YAML SAST formats → codegrep).
 
 ## 8. Global constraints for every code change
 
-- No Semgrep code/rules copy. All original.
+- No third-party code/rules copy. All original.
 - Deterministic offline core. No network, no LLM in `scan` hot path.
 - Every feature: implementation + unit tests + bench impact note.
 - Respect `.gitignore`, handle syntax errors gracefully, never panic on user code.

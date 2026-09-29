@@ -1,5 +1,5 @@
 //! codegrep rules: YAML loader + validator + literal indexer (Aho-Corasick).
-//! Rule format is Semgrep-inspired but original; content is MIT-licensed own rules.
+//! Single-doc YAML rule format of our own design; content is MIT-licensed own rules.
 
 use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};

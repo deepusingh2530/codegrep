@@ -1,7 +1,7 @@
 # Rule Generator — AI prompt pack for codegrep rules (MIT-original output)
 
 > License safety (non-negotiable): the model must produce ORIGINAL patterns.
-> Never reproduce Semgrep registry rules or any third-party rule content.
+> Never reproduce any third-party registry rules or rule content.
 > Input specs describe vulnerability CLASSES (facts: sink APIs, CWEs) — output
 > patterns are written from scratch for the codegrep engine below.
 

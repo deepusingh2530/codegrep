@@ -84,7 +84,7 @@ struct ScanArgs {
     /// Strict offline: no network, no external sidecars (secrets/sca wrappers refused)
     #[arg(long, default_value_t = false)]
     offline: bool,
-    /// Rule file or directory (repeatable, semgrep-style; supersedes --rules)
+    /// Rule file or directory (repeatable; supersedes --rules)
     #[arg(long = "config", value_name = "PATH")]
     config: Vec<String>,
     /// Drop paths matching this glob or substring (repeatable): `vendor/**`, `tests`
@@ -96,7 +96,7 @@ struct ScanArgs {
     /// Only report findings at or above this severity: error|warning|info
     #[arg(long, value_name = "LEVEL")]
     min_severity: Option<String>,
-    /// Exit 1 when findings remain (CI gating, semgrep --error)
+    /// Exit 1 when findings remain (CI gating)
     #[arg(long, default_value_t = false)]
     error: bool,
 }
@@ -335,7 +335,7 @@ fn pattern_hits(pattern: &str, candidates: &[&str]) -> bool {
     })
 }
 
-/// Semgrep-style path filters: any `--exclude` match drops; with `--include`
+/// Path filters: any `--exclude` match drops; with `--include`
 /// given, at least one match is required to keep.
 fn path_allowed(path_s: &str, root: &str, include: &[String], exclude: &[String]) -> bool {
     let cands = path_candidates(path_s, root);

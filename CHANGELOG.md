@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.7.0
-- Semgrep-parity CLI for daily use: repeatable `--config` (rule file or
+- Standard SAST CLI for daily use: repeatable `--config` (rule file or
   directory; remote/registry URLs refused with a clear offline-first
   error), `--exclude`/`--include` path filters (segment-aware globs
   `*`/`**`/`?` plus substring matching, directory-suffix aware),
@@ -11,11 +11,11 @@
   `security-severity`) so GitHub code scanning ingests rule info.
 - 25 unit tests (glob matcher, path-filter semantics, severity
   ordering); fixtures 2152 green; clippy `-D warnings` clean.
-- Migration doc: semgrep ↔ codegrep CLI flag mapping table.
+- Migration doc: CLI flag mapping table.
 
 ## 0.6.0
-- 1183 MIT-original rules (+1022): bulk authoring toward Semgrep-registry
-  rule-count parity (original rules only; no Semgrep code or rules read),
+- 1183 MIT-original rules (+1022): bulk authoring toward registry-scale
+  rule-count parity (original rules only; no third-party rule-registry content read),
   plus a CWE gap batch (file upload CWE-434, missing auth CWE-306, JWT
   auth CWE-287, log injection CWE-117, LDAP CWE-90, CRLF CWE-93, LFI
   CWE-98, credential protection CWE-522, int overflow CWE-190, dangerous

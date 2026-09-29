@@ -7,7 +7,7 @@
 
 **Fast, fully-offline multi-language SAST scanner.** 1183 MIT-original rules
 (OWASP Top 10, framework-specific vulnerabilities, secrets, taint) with a
-semgrep-style CLI, parallel scanning, an incremental content-hash cache, and
+scriptable CLI, parallel scanning, an incremental content-hash cache, and
 SARIF/JSON output. No network, no telemetry — deterministic results you can
 gate CI on.
 
@@ -18,13 +18,13 @@ gate CI on.
 - **1183 original rules across 19 languages** — OWASP Top 10, Django/Flask/
   Express/Spring/Rails/Laravel hardening, secrets patterns, and intra-
   procedural taint with call summaries. Every rule has pass/fail fixtures.
-- **Semgrep-style CLI** — `--config`, `--exclude`/`--include`,
+- **Familiar SAST CLI** — `--config`, `--exclude`/`--include`,
   `--min-severity`, `--error` exit-code gating, `--baseline`/`--diff-only`
-  diff-aware scans. Migration notes in [`docs/migration-semgrep.md`](docs/migration-semgrep.md).
+  diff-aware scans. Migration notes in [`docs/cli-migration.md`](docs/cli-migration.md).
 - **Fast** — Aho-Corasick pre-filter skips non-candidate files, rayon scans
   in parallel, content-hash cache makes repeat scans incremental.
-  Measured 28-140x faster than Semgrep 1.136 in head-to-head benchmarks
-  ([`docs/semgrep-comparison.md`](docs/semgrep-comparison.md)).
+  Measured 28-140x faster than a widely-used Python-based SAST scanner in head-to-head benchmarks
+  ([`docs/benchmarks.md`](docs/benchmarks.md)).
 - **CI-ready output** — SARIF 2.1.0 (with rule metadata and
   `security-severity`) for GitHub code scanning, JSON for tooling, human
   table for terminals.
@@ -159,8 +159,8 @@ also be synthesized locally with `python3 scripts/rule-gen.py`
 
 ## Documentation
 
-- [Semgrep migration guide + CLI flag mapping](docs/migration-semgrep.md)
-- [Measured benchmark vs Semgrep](docs/semgrep-comparison.md)
+- [Migration guide + CLI flag mapping](docs/cli-migration.md)
+- [Measured performance benchmarks](docs/benchmarks.md)
 - [Coverage policy (what we deliberately do not flag)](docs/coverage-policy.md)
 - [Master prompt (architecture source of truth)](MASTER_PROMPT.md)
 
@@ -172,7 +172,8 @@ python3 ai-triage/triage.py --mode triage --input findings.json
 
 ## License
 
-[MIT](LICENSE) — engine and rules are original MIT code. No Semgrep code or
-rules are used (their registry carries a non-MIT license). Parsing via
+[MIT](LICENSE) — engine and rules are original MIT code. No third-party
+scanner code or rule-registry content is used (those registries carry
+non-MIT licenses). Parsing via
 Tree-sitter (MIT); secrets/SCA delegate to external `gitleaks` (MIT) /
 `osv-scanner` (Apache-2.0) processes — never linked.
