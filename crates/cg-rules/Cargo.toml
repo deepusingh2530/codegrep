@@ -6,6 +6,8 @@ authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"
 description = "YAML rule schema, loading and indexing for codegrep"
 repository = "https://github.com/deepusingh2530/codegrep"
+keywords = ["static-analysis", "security", "parser"]
+categories = ["development-tools::analysis-tools"]
 
 [dependencies]
 serde = { workspace = true }

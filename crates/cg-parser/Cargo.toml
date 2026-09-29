@@ -6,6 +6,8 @@ authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"
 description = "Tree-sitter language bindings and language detection for codegrep"
 repository = "https://github.com/deepusingh2530/codegrep"
+keywords = ["static-analysis", "security", "parser"]
+categories = ["development-tools::analysis-tools"]
 
 [dependencies]
 tree-sitter = { workspace = true }

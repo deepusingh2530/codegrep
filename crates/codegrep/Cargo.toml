@@ -6,6 +6,9 @@ authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"
 description = "Fast offline multi-language SAST scanner with 1183 MIT-original rules"
 repository = "https://github.com/deepusingh2530/codegrep"
+keywords = ["sast", "security", "static-analysis", "sarif", "scanner"]
+categories = ["command-line-utilities", "development-tools::analysis-tools"]
+readme = "README.md"
 
 [lib]
 name = "codegrep"
@@ -22,9 +25,7 @@ serde_json = { workspace = true }
 anyhow = { workspace = true }
 rayon = { workspace = true }
 ignore = { workspace = true }
-aho-corasick = { workspace = true }
-cg-parser = { path = "../cg-parser" }
-cg-ir = { path = "../cg-ir" }
-cg-matcher = { path = "../cg-matcher" }
-cg-taint = { path = "../cg-taint" }
-cg-rules = { path = "../cg-rules" }
+cg-parser = { path = "../cg-parser", version = "0.1.0" }
+cg-matcher = { path = "../cg-matcher", version = "0.1.0" }
+cg-taint = { path = "../cg-taint", version = "0.1.0" }
+cg-rules = { path = "../cg-rules", version = "0.1.0" }
