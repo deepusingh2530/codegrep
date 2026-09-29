@@ -1,5 +1,8 @@
 # codegrep — single-binary SAST scanner (release image)
-FROM rust:slim AS build
+# Both stages must share the same distro line: the runtime image's glibc
+# must be >= the one the binary linked against (rust:slim alone tracks
+# newer Debian releases than debian:bookworm-slim).
+FROM rust:slim-bookworm AS build
 WORKDIR /src
 COPY . .
 RUN cargo build --release -p codegrep
