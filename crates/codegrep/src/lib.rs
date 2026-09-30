@@ -30,6 +30,8 @@ pub use cg_matcher;
 pub use cg_parser;
 pub use cg_rules::{self, Rule};
 pub use cg_taint;
+pub mod suppress;
+pub use suppress::Suppression;
 
 /// A single scan finding.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -72,6 +74,9 @@ pub struct ScanOptions {
     pub cache_dir: Option<String>,
     /// Rayon worker threads (0 = auto).
     pub jobs: usize,
+    /// Suppression files (repeatable). When empty, the scan root is
+    /// auto-checked for `.codegrep-suppressions.yml`/`.yaml`.
+    pub suppress: Vec<String>,
 }
 
 impl Default for ScanOptions {
@@ -88,6 +93,7 @@ impl Default for ScanOptions {
             no_cache: false,
             cache_dir: None,
             jobs: 0,
+            suppress: vec![],
         }
     }
 }
@@ -110,6 +116,9 @@ pub struct ScanReport {
     /// Warnings from loading user-supplied rules (portable-schema skips,
     /// dropped languages, ignored fixes). Empty for codegrep's own rules.
     pub warnings: Vec<String>,
+    /// Findings dropped by suppression files or inline `codegrep-ignore`
+    /// comments during this scan.
+    pub suppressed: usize,
 }
 
 /// SARIF 2.1.0 document for the given findings (GitHub code scanning
@@ -230,8 +239,41 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
             .build_global()
             .ok();
     }
-    let (rules, warnings) = load_rule_set_report(&opts.rules, &opts.config)?;
+    let (rules, mut warnings) = load_rule_set_report(&opts.rules, &opts.config)?;
     let index = cg_rules::RuleIndex::build(&rules);
+
+    // Suppression files: explicit list wins; otherwise auto-discover the
+    // conventional file at the scan root (directories only).
+    let mut suppressions: Vec<Suppression> = Vec::new();
+    if opts.suppress.is_empty() {
+        let root = std::path::Path::new(&opts.path);
+        if root.is_dir() {
+            for name in [".codegrep-suppressions.yml", ".codegrep-suppressions.yaml"] {
+                let p = root.join(name);
+                if p.is_file() {
+                    suppressions = suppress::load_suppressions(&p.to_string_lossy())?;
+                    break;
+                }
+            }
+        }
+    } else {
+        for s in &opts.suppress {
+            suppressions.extend(suppress::load_suppressions(s)?);
+        }
+    }
+    let today = suppress::today_ymd();
+    suppressions.retain(|s| {
+        if s.is_expired(today) {
+            warnings.push(format!(
+                "suppression for rule {} expired {} — no longer applies",
+                s.rule,
+                s.expires.as_deref().unwrap_or("?")
+            ));
+            false
+        } else {
+            true
+        }
+    });
 
     let diff_map = if opts.diff_only {
         opts.baseline
@@ -255,6 +297,7 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
         load_cache(&cache_dir)
     };
     let cache_hits = std::sync::atomic::AtomicUsize::new(0);
+    let inline_suppressed = std::sync::atomic::AtomicUsize::new(0);
 
     let files: Vec<PathBuf> = discover_files(&opts.path)
         .into_iter()
@@ -283,6 +326,10 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
                                         && set.contains(&f.line)
                                 })
                             });
+                        }
+                        let (out, n) = suppress::apply_inline(&text, out);
+                        if n > 0 {
+                            inline_suppressed.fetch_add(n, std::sync::atomic::Ordering::Relaxed);
                         }
                         return Some((path_s, chash, out, true));
                     }
@@ -382,6 +429,10 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
                     snippet,
                 });
             }
+            let (out, n) = suppress::apply_inline(&text, out);
+            if n > 0 {
+                inline_suppressed.fetch_add(n, std::sync::atomic::Ordering::Relaxed);
+            }
             if out.is_empty() {
                 Some((path_s, chash, vec![], false))
             } else {
@@ -437,6 +488,18 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
         let min = parse_min_severity(ms)?;
         uniq.retain(|f| severity_rank(&f.severity) >= min);
     }
+    // Suppression files: every specified field must match (AND).
+    let mut suppressed_files = 0usize;
+    if !suppressions.is_empty() {
+        uniq.retain(|f| {
+            if suppressions.iter().any(|s| s.applies(f, &opts.path)) {
+                suppressed_files += 1;
+                false
+            } else {
+                true
+            }
+        });
+    }
 
     Ok(ScanReport {
         findings: uniq,
@@ -446,6 +509,8 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
         cache_hits: cache_hits.load(std::sync::atomic::Ordering::Relaxed),
         cache_on: !opts.no_cache,
         warnings,
+        suppressed: suppressed_files
+            + inline_suppressed.load(std::sync::atomic::Ordering::Relaxed),
     })
 }
 

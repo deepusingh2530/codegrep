@@ -94,6 +94,10 @@ struct ScanArgs {
     /// Only report findings at or above this severity: error|warning|info
     #[arg(long, value_name = "LEVEL")]
     min_severity: Option<String>,
+    /// Suppression file (repeatable; replaces auto-discovered
+    /// .codegrep-suppressions.yml at the scan root)
+    #[arg(long = "suppress", value_name = "FILE")]
+    suppress: Vec<String>,
     /// Exit 1 when findings remain (CI gating)
     #[arg(long, default_value_t = false)]
     error: bool,
@@ -188,6 +192,7 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         no_cache: args.no_cache,
         cache_dir: args.cache_dir.clone(),
         jobs: args.jobs,
+        suppress: args.suppress.clone(),
     })?;
     if report.rules_loaded == 0 {
         eprintln!(
@@ -198,14 +203,21 @@ fn run_scan(args: ScanArgs) -> Result<()> {
     for w in &report.warnings {
         eprintln!("codegrep: {w}");
     }
+    if report.suppressed > 0 {
+        eprintln!(
+            "codegrep: {} finding(s) suppressed (see --suppress / inline codegrep-ignore)",
+            report.suppressed
+        );
+    }
     let uniq = &report.findings;
 
     if args.metrics {
         eprintln!(
-            "codegrep metrics: files={} rules={} findings={} elapsed_ms={} cache_hits={} cache={}",
+            "codegrep metrics: files={} rules={} findings={} suppressed={} elapsed_ms={} cache_hits={} cache={}",
             report.files_scanned,
             report.rules_loaded,
             uniq.len(),
+            report.suppressed,
             report.elapsed_ms,
             report.cache_hits,
             if args.no_cache { "off" } else { "on" },

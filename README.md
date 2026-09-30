@@ -80,6 +80,7 @@ codegrep scan --help
 | `--error` | Exit 1 when findings remain (CI gating) |
 | `--json` / `--sarif` | Machine-readable output (`-o` writes to a file) |
 | `--baseline <ref>` + `--diff-only` | Diff-aware scan of changed lines only |
+| `--suppress <file>` | FP suppression file, repeatable (auto-discovers `.codegrep-suppressions.yml` at the scan root) |
 | `--only sast\|secrets\|sca\|all` | SAST core or gitleaks/osv-scanner sidecars |
 | `--offline` | Strict no-network mode (sidecars refused) |
 | `--metrics`, `--jobs <N>`, `--no-cache`, `--cache-dir` | Observability and performance controls |
@@ -106,6 +107,29 @@ Eight languages are parsed with tree-sitter (Python, JavaScript, TypeScript,
 Go, Java, Ruby, PHP, C#); the rest are scanned structurally at the text
 level. Coverage decisions are documented in
 [`docs/coverage-policy.md`](docs/coverage-policy.md).
+
+## False-positive management
+
+Silence accepted findings two ways — a checked-in suppression file (every
+entry requires a `reason`; optional owner/expiry with loud re-enable on
+expiry) or inline comments at the finding:
+
+```yaml
+# .codegrep-suppressions.yml — auto-discovered at the scan root
+- rule: py-eval-exec
+  path: "testdata/**"
+  reason: sandboxed eval in the test harness
+  expires: 2027-06-30
+```
+
+```python
+eval(user)   # codegrep-ignore(py-eval-exec)   # same line, rule-scoped
+# codegrep-ignore-next-line                    # annotate the line above
+```
+
+Suppressed counts are always surfaced (`--metrics` / `ScanReport.suppressed`)
+— nothing is hidden without a trace. Details:
+[`docs/suppressions.md`](docs/suppressions.md).
 
 ## CI/CD integration
 
@@ -213,6 +237,7 @@ also be synthesized locally with `python3 scripts/rule-gen.py`
 - [Measured performance benchmarks](docs/benchmarks.md)
 - [Coverage policy (what we deliberately do not flag)](docs/coverage-policy.md)
 - [Importing rules (portable pattern schema)](docs/rule-import.md)
+- [False-positive management (suppressions)](docs/suppressions.md)
 - [Master prompt (architecture source of truth)](MASTER_PROMPT.md)
 
 AI triage/autofix is a separate BYOK side-plane that never blocks `scan`:
