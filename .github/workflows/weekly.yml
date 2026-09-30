@@ -1,0 +1,89 @@
+name: weekly
+# Weekly release cadence: patch deps + CVE watch + rule gate + auto-release.
+#   - scheduled: Mondays 06:00 UTC (gates -> audit -> CVE report -> bump -> publish)
+#   - manual: workflow_dispatch; publish=false runs a dry-run (gates + report only)
+# Publishing requires the CARGO_REGISTRY_TOKEN repo secret; without it the job
+# still releases the commit/tag but skips crates.io with a warning.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to crates.io after gates (uncheck for dry-run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: weekly
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Pull dependency security patches
+        run: cargo update
+
+      - name: Rustsec audit (codegrep's own dependencies)
+        run: |
+          cargo install cargo-audit --locked --quiet
+          cargo audit
+
+      - name: Gates (tests, clippy, rule fixtures)
+        run: |
+          cargo test --workspace
+          cargo clippy --workspace --all-targets -- -D warnings
+          cargo build -q --release
+          ./target/release/codegrep rule test rules/ | tail -1
+
+      - name: CVE watch (NVD -> rule coverage report)
+        run: |
+          python3 -m pip install --quiet --user pyyaml
+          python3 scripts/cve_watch.py --days 7 --out docs/cve-coverage.md
+          cat docs/cve-coverage.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Bump, tag, publish
+        if: github.event_name == 'schedule' || inputs.publish == true
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          NEW="$(./scripts/bump.sh)"
+          git add -A
+          git commit -m "chore(release): weekly sync v$NEW"
+          git push origin HEAD:main
+          git tag "v$NEW"
+          git push origin "v$NEW"
+          echo "released v$NEW (tag push by GITHUB_TOKEN does not re-trigger release.yml; publishing here)"
+          if [ -z "${CARGO_REGISTRY_TOKEN:-}" ]; then
+            echo "::warning::CARGO_REGISTRY_TOKEN secret not set — crates.io publish skipped"
+          else
+            ./scripts/publish.sh
+          fi
+
+      - name: Open or refresh blocker issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TITLE="[automation] weekly sync blocked"
+          URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY="$(printf 'Weekly sync failed: %s\n\nCommon causes: rustsec advisory without a compatible fix (run `cargo update` / bump deps), failing tests after `cargo update`, or a gate regression. Merge a fix, then re-run the `weekly` workflow.' "$URL")"
+          existing="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --json number,title \
+            -q ".[] | select(.title == \"${TITLE}\") | .number" | head -1)"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body "$BODY"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+          fi

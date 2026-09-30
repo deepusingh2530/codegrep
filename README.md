@@ -203,6 +203,7 @@ also be synthesized locally with `python3 scripts/rule-gen.py`
 
 ## Documentation
 
+- [Weekly release cadence & CVE watch](docs/release-cadence.md)
 - [Migration guide + CLI flag mapping](docs/cli-migration.md)
 - [Measured performance benchmarks](docs/benchmarks.md)
 - [Coverage policy (what we deliberately do not flag)](docs/coverage-policy.md)
