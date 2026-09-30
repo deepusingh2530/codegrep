@@ -33,7 +33,7 @@ pre-filter means cost barely moves with rule count. Remote-registry config
 | Pattern operators | metavars, ellipsis, regex, comparison, inside/not-inside, join, deep matching | `$VAR`, `$...ARGS`, `...`, regex, comparison, coarse `inside` | ~60% |
 | Taint | cross-file/cross-function (paid tier), framework-aware | intra-file scopes + call summaries | ~25% |
 | Offline scan | yes (OSS) | yes + strict `--offline` | 100% |
-| Outputs | SARIF/JSON + GitLab, JUnit, EMACS, Vim... | SARIF 2.1.0 + JSON + table | ~60% |
+| Outputs | SARIF/JSON + GitLab, JUnit, EMACS, Vim... | SARIF 2.1.0 + JUnit XML + JSON + table | ~70% |
 | Workflow | pre-commit, CI/diff-aware, LSP/IDE, PR comments, fingerprints, dashboard | CLI, CI job template, `--diff-only`, cache, dedup | ~40% |
 | Secrets/SCA | built-in (paid tier + reachability) | own secret patterns + gitleaks/osv-scanner wrappers | ~30% |
 | AI | managed autofix/triage | BYOK triage + verified autofix, offline fallback | ~20%, self-hosted |

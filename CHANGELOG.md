@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.11.0
+- **JUnit XML output**: `codegrep scan --junit` emits a JUnit report
+  (one `<testsuite>` per file, one failed `<testcase>` per finding with
+  severity in `type`, message in `message`, snippet + fix in the body)
+  for direct ingestion by CI test tabs (Jenkins, GitLab, etc.).
+  Findings with XML metacharacters are escaped; an empty scan emits a
+  single passing placeholder so strict consumers still get a valid
+  document.
+- New API: `codegrep::junit_from(&[Finding]) -> String` alongside
+  `sarif_from`.
+- CI: JUnit artifact generated + uploaded next to the SARIF artifact.
+- Docs: README usage/flags/library example, `docs/cli-migration.md`,
+  `docs/benchmarks.md` outputs parity row.
+- 53 tests green (2 junit unit + 1 integration among them),
+  clippy `-D warnings` clean, fixtures 2152 green, testdata baseline
+  26 findings unchanged, self-scan clean.
+
 ## 0.10.0
 - False-positive management:
   - **Suppression files** with a required `reason` (auditable, PR-reviewable),

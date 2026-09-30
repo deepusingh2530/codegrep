@@ -65,6 +65,7 @@ docker run --rm -v "$PWD:/src" -w /src codegrep scan /src --rules /rules
 ```sh
 codegrep scan .                                    # findings, human-readable
 codegrep scan . --config rules/ --sarif -o out.sarif
+codegrep scan . --junit -o results.xml             # JUnit XML for CI test tabs
 codegrep scan . --exclude 'vendor/**' --min-severity error --error
 codegrep scan . --baseline main --diff-only        # only lines changed vs main
 codegrep scan . --only secrets                     # gitleaks sidecar (if installed)
@@ -78,7 +79,7 @@ codegrep scan --help
 | `--exclude` / `--include <glob>` | Path filters: globs (`*`, `**`, `?`) or plain substrings |
 | `--min-severity <level>` | Findings floor: `error` \| `warning` \| `info` |
 | `--error` | Exit 1 when findings remain (CI gating) |
-| `--json` / `--sarif` | Machine-readable output (`-o` writes to a file) |
+| `--json` / `--sarif` / `--junit` | Machine-readable output: JSON, SARIF 2.1.0, or JUnit XML (`-o` writes to a file) |
 | `--baseline <ref>` + `--diff-only` | Diff-aware scan of changed lines only |
 | `--suppress <file>` | FP suppression file, repeatable (auto-discovers `.codegrep-suppressions.yml` at the scan root) |
 | `--only sast\|secrets\|sca\|all` | SAST core or gitleaks/osv-scanner sidecars |
@@ -159,7 +160,7 @@ jobs:
 
 This repository's own [CI](.github/workflows/ci.yml) runs unit tests,
 `clippy -D warnings`, the rule-corpus gate (**1183 rules / 2152 fixtures**),
-a demo scan, a clean self-scan of `crates/`, and uploads a SARIF artifact.
+a demo scan, a clean self-scan of `crates/`, and uploads SARIF + JUnit artifacts.
 
 ## Use as a library
 
@@ -168,7 +169,7 @@ a demo scan, a clean self-scan of `crates/`, and uploads a SARIF artifact.
 
 ```toml
 [dependencies]
-codegrep = "0.10.0"
+codegrep = "0.11.0"
 # or track main: codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
 ```
 
@@ -186,6 +187,7 @@ fn main() -> anyhow::Result<()> {
         eprintln!("{}:{} [{}] {}", f.path, f.line, f.severity, f.rule_id);
     }
     println!("{}", sarif_from(&report.findings)); // SARIF for upload
+    // …or codegrep::junit_from(&report.findings) for CI test reports
     Ok(())
 }
 ```

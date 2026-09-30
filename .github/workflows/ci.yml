@@ -30,6 +30,15 @@ jobs:
         with:
           name: results-sarif
           path: results.sarif
+      - name: JUnit report (testdata findings)
+        if: always()
+        run: ./target/release/codegrep scan ./testdata --junit -o results.xml
+      - name: Upload JUnit artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: results-junit
+          path: results.xml
 
   deny:
     runs-on: ubuntu-latest

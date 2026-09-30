@@ -176,6 +176,93 @@ fn sarif_level(sev: &str) -> &'static str {
     }
 }
 
+/// Escape text for XML element content and attribute values.
+fn xml_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&apos;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+/// JUnit XML report for the given findings: one `<testsuite>` per file,
+/// one failed `<testcase>` per finding (severity in `type`, message in
+/// `message`, snippet + fix in the element body). An empty scan emits a
+/// single passing placeholder testcase so strict JUnit consumers
+/// (Jenkins, GitLab test tabs) still receive a valid document.
+pub fn junit_from(findings: &[Finding]) -> String {
+    use std::fmt::Write;
+    // Group by path, first-seen order (findings arrive sorted by path/line).
+    let mut groups: Vec<(String, Vec<&Finding>)> = Vec::new();
+    let mut seen: HashMap<&str, usize> = HashMap::new();
+    for f in findings {
+        match seen.get(f.path.as_str()) {
+            Some(&i) => groups[i].1.push(f),
+            None => {
+                seen.insert(&f.path, groups.len());
+                groups.push((f.path.clone(), vec![f]));
+            }
+        }
+    }
+    let placeholder = findings.is_empty();
+    let total = if placeholder { 1 } else { findings.len() };
+    let mut out = String::new();
+    out.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    let _ = writeln!(
+        out,
+        "<testsuites name=\"codegrep\" tests=\"{total}\" failures=\"{}\" errors=\"0\" time=\"0\">",
+        if placeholder { 0 } else { findings.len() }
+    );
+    if placeholder {
+        out.push_str("  <testsuite name=\"codegrep\" tests=\"1\" failures=\"0\" errors=\"0\" time=\"0\">\n");
+        out.push_str("    <testcase classname=\"codegrep\" name=\"no findings\" time=\"0\"/>\n");
+        out.push_str("  </testsuite>\n");
+    } else {
+        for (path, fs) in &groups {
+            let _ = writeln!(
+                out,
+                "  <testsuite name=\"{}\" tests=\"{}\" failures=\"{}\" errors=\"0\" time=\"0\">",
+                xml_escape(path),
+                fs.len(),
+                fs.len()
+            );
+            for f in fs {
+                let _ = writeln!(
+                    out,
+                    "    <testcase classname=\"{}\" name=\"{}:{}\" time=\"0\">",
+                    xml_escape(path),
+                    xml_escape(&f.rule_id),
+                    f.line
+                );
+                let mut body = String::new();
+                let _ = writeln!(body, "{}", xml_escape(&f.message));
+                let _ = writeln!(body, "{}", xml_escape(&f.snippet));
+                if let Some(fix) = &f.fix {
+                    let _ = writeln!(body, "fix: {}", xml_escape(fix));
+                }
+                let _ = writeln!(
+                    out,
+                    "      <failure type=\"{}\" message=\"{}\">{}</failure>",
+                    xml_escape(&f.severity),
+                    xml_escape(&f.message),
+                    body
+                );
+                out.push_str("    </testcase>\n");
+            }
+            out.push_str("  </testsuite>\n");
+        }
+    }
+    out.push_str("</testsuites>\n");
+    out
+}
+
 /// Load rules from `config` entries (files or dirs) or, when empty,
 /// from the `rules_dir`. Remote/registry locations are refused.
 pub fn load_rule_set(rules_dir: &str, config: &[String]) -> Result<Vec<Rule>> {
@@ -908,5 +995,55 @@ mod tests {
         assert_eq!(run["results"][0]["ruleId"], "t-rule");
         assert_eq!(run["tool"]["driver"]["rules"][0]["id"], "t-rule");
         assert_eq!(run["tool"]["driver"]["rules"][0]["defaultConfiguration"]["level"], "error");
+    }
+
+    fn sample(path: &str, rule: &str, line: usize, snippet: &str) -> Finding {
+        Finding {
+            rule_id: rule.into(),
+            severity: "ERROR".into(),
+            message: format!("msg <x> & \"y\" for {rule}"),
+            fix: Some("use safe(&v)".into()),
+            path: path.into(),
+            language: "python".into(),
+            line,
+            col: 0,
+            snippet: snippet.into(),
+        }
+    }
+
+    #[test]
+    fn junit_groups_by_file_and_escapes_xml() {
+        let xml = junit_from(&[
+            sample("a.py", "r1", 1, "x < 2"),
+            sample("a.py", "r2", 5, "y & z"),
+            sample("b.js", "r1", 9, "console.log('hi')"),
+        ]);
+        assert!(xml.starts_with("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        assert!(xml.contains("tests=\"3\" failures=\"3\""));
+        // two testsuites (a.py, b.js), three testcases
+        assert_eq!(xml.matches("<testsuite ").count(), 2);
+        assert_eq!(xml.matches("<testcase ").count(), 3);
+        assert_eq!(xml.matches("<failure ").count(), 3);
+        // raw XML metacharacters from findings must be escaped
+        assert!(!xml.contains("x < 2"));
+        assert!(xml.contains("x &lt; 2"));
+        assert!(xml.contains("y &amp; z"));
+        assert!(xml.contains("msg &lt;x&gt; &amp; &quot;y&quot;"));
+        // severity lands in type=, message in message=
+        assert!(xml.contains("type=\"ERROR\""));
+        assert!(xml.contains("name=\"a.py:r1\"") || xml.contains("classname=\"a.py\""));
+        assert!(xml.contains("fix: use safe(&amp;v)"));
+        assert!(xml.ends_with("</testsuites>\n"));
+    }
+
+    #[test]
+    fn junit_empty_scan_is_valid_placeholder() {
+        let xml = junit_from(&[]);
+        assert!(xml.contains("tests=\"1\" failures=\"0\""));
+        assert_eq!(xml.matches("<testsuite ").count(), 1);
+        assert_eq!(xml.matches("<testcase ").count(), 1);
+        assert_eq!(xml.matches("<failure ").count(), 0);
+        assert!(xml.contains("no findings"));
+        assert!(xml.contains("</testsuites>"));
     }
 }

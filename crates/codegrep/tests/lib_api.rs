@@ -1,7 +1,7 @@
 //! Library API smoke test: the crate must be usable as a dependency
 //! (as prsniffer-style embedders do), with no CLI involved.
 
-use codegrep::{sarif_from, scan, ScanOptions};
+use codegrep::{junit_from, sarif_from, scan, ScanOptions};
 
 #[test]
 fn scans_testdata_with_shipped_rules() {
@@ -76,6 +76,34 @@ fn sarif_document_is_producible_from_report() {
     assert_eq!(doc["runs"][0]["tool"]["driver"]["name"], "codegrep");
     let results = doc["runs"][0]["results"].as_array().unwrap();
     assert_eq!(results.len(), report.findings.len());
+}
+
+#[test]
+fn junit_report_covers_every_finding() {
+    let report = scan(&ScanOptions {
+        path: "../../testdata".into(),
+        rules: "../../rules".into(),
+        no_cache: true,
+        ..Default::default()
+    })
+    .expect("scan");
+    let xml = junit_from(&report.findings);
+    assert!(xml.starts_with("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+    assert_eq!(
+        xml.matches("<testcase ").count(),
+        report.findings.len(),
+        "one testcase per finding"
+    );
+    assert_eq!(xml.matches("<failure ").count(), report.findings.len());
+    for f in &report.findings {
+        assert!(
+            xml.contains(&format!("classname=\"{}\"", f.path)),
+            "testsuite for {} missing",
+            f.path
+        );
+    }
+    // Scan output must be parseable XML even with hostile snippets.
+    assert!(xml.ends_with("</testsuites>\n"));
 }
 
 #[test]

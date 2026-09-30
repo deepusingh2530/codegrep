@@ -49,6 +49,9 @@ struct ScanArgs {
     /// Emit SARIF 2.1.0 to stdout
     #[arg(long, default_value_t = false)]
     sarif: bool,
+    /// Emit JUnit XML to stdout (CI test-report ingestion)
+    #[arg(long, default_value_t = false)]
+    junit: bool,
     /// Write output to file instead of stdout
     #[arg(short, long)]
     output: Option<String>,
@@ -236,6 +239,8 @@ fn run_scan(args: ScanArgs) -> Result<()> {
 
     let body = if args.sarif {
         serde_json::to_string_pretty(&sarif_from(uniq))?
+    } else if args.junit {
+        codegrep::junit_from(uniq)
     } else if args.json || args.output.is_some() {
         serde_json::to_string_pretty(uniq)?
     } else {
@@ -269,7 +274,7 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         println!("{body}");
     }
     if args.error && !uniq.is_empty() {
-        if !args.json && !args.sarif && args.output.is_none() {
+        if !args.json && !args.sarif && !args.junit && args.output.is_none() {
             eprintln!("codegrep: exiting 1 (--error, {} finding(s))", uniq.len());
         }
         std::process::exit(1);
