@@ -144,7 +144,7 @@ a demo scan, a clean self-scan of `crates/`, and uploads a SARIF artifact.
 
 ```toml
 [dependencies]
-codegrep = "0.8.0"
+codegrep = "0.9.0"
 # or track main: codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
 ```
 

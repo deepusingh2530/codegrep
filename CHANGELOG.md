@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.9.0
+- Portable pattern-schema rule importer: `--config` (or
+  `ScanOptions::config`) now accepts rule files written in the common
+  open-source pattern schema — `patterns:` conjunctions,
+  `pattern-either`, `pattern-not`/`pattern-inside`,
+  `metavariable-regex`/`metavariable-comparison` objects,
+  `mode: taint` with `pattern-sources`/`-sinks`/`-sanitizers` — and
+  translates them into native rules at load time. Only user-supplied
+  files are parsed; no third-party rule content ships with codegrep.
+- Strict-by-design translation: constructs we cannot represent
+  faithfully (multiple AND-ed positives, `pattern-not-inside`,
+  `pattern-regex`, `focus-metavariable`, ...) skip that rule with a
+  reported reason instead of being silently weakened. Unsupported
+  languages drop from the language list (rule skipped if none remain).
+- New APIs: `load_rule_set_report()` /
+  `cg_rules::load_rules_file_report()` / `load_rules_dir_report()`
+  return warnings alongside rules; `ScanReport.warnings` surfaces them
+  from `scan()`. CLI prints them to stderr; `rule test` reports skips.
+- `cg-rules` bumped to 0.2.0 (new public `portable` module).
+- `docs/rule-import.md`: supported constructs, refusals, and known
+  approximations (line-scoped negation, coarse pattern-inside).
+- 40 tests green (7 portable unit + 2 importer e2e among them),
+  clippy `-D warnings` clean, fixtures 2152 green.
+
 ## 0.8.0
 - Library crate: `codegrep` now exposes a `src/lib.rs` API so other
   projects can embed scanning directly (git dependency, no CLI

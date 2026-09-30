@@ -1,6 +1,6 @@
 [package]
 name = "codegrep"
-version = "0.8.0"
+version = "0.9.0"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"
@@ -28,4 +28,4 @@ ignore = { workspace = true }
 cg-parser = { path = "../cg-parser", version = "0.1.0" }
 cg-matcher = { path = "../cg-matcher", version = "0.1.0" }
 cg-taint = { path = "../cg-taint", version = "0.1.0" }
-cg-rules = { path = "../cg-rules", version = "0.1.0" }
+cg-rules = { path = "../cg-rules", version = "0.2.0" }

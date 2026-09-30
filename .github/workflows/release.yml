@@ -22,7 +22,12 @@ jobs:
       - name: Publish to crates.io
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: ./scripts/publish.sh
+        run: |
+          if [ -z "${CARGO_REGISTRY_TOKEN:-}" ]; then
+            echo "::warning::CARGO_REGISTRY_TOKEN secret not set — crates.io publish skipped"
+          else
+            ./scripts/publish.sh
+          fi
 
   # Signed binaries + SBOM attached to the GitHub Release for the tag.
   artifacts:
