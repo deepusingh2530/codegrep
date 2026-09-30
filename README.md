@@ -290,8 +290,18 @@ with its own precision test. New rules can also be synthesized locally with
 `python3 scripts/rule-gen.py` (Ollama-local, validated — see
 [`prompts/rule-generator.md`](prompts/rule-generator.md)).
 
+## Contributing
+
+`main` is protected: every change lands through a pull request — no direct
+pushes, no force pushes, linear history, and CI must be green. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, the local gates, how to
+author a rule or add a language, and the two non-negotiables (original content
+only, offline stays offline). Security reports go through
+[SECURITY.md](SECURITY.md), not the issue tracker.
+
 ## Documentation
 
+- [Contributing guidelines (PR workflow, rule authoring)](CONTRIBUTING.md)
 - [Weekly release cadence & CVE watch](docs/release-cadence.md)
 - [Migration guide + CLI flag mapping](docs/cli-migration.md)
 - [Measured performance benchmarks](docs/benchmarks.md)

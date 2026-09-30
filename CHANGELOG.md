@@ -1,6 +1,19 @@
 # Changelog
 
 ## Unreleased
+- **Protected `main`: every change arrives through a pull request.** The
+  default branch is now governed by a ruleset — no direct pushes, no force
+  pushes, no branch deletion, linear history only, required `test` + `deny`
+  checks, and review threads must be resolved before merge. Merge commits are
+  disabled (squash/rebase only) and merged branches auto-delete. There is no
+  bypass list, so this applies to the maintainer too: work now happens on a
+  branch and lands via PR, which keeps the review trail intact.
+- Adds `CONTRIBUTING.md` (PR workflow, the six local gates, rule-authoring
+  and new-language checklists, severity discipline, original-content-only and
+  offline-stays-offline rules) and a PR template that asks for the
+  verification evidence rather than a description of the diff.
+- Documentation: README gains a Contributing section; `SECURITY.md` states who
+  can change the repository and which automation is allowed to write.
 - **Generic fallback: no file is silently skipped.** `discover_files` no
   longer filters by extension, and `scan()` resolves a file's language with
   `Language::from_path(..).unwrap_or(Language::Generic)`. Files whose

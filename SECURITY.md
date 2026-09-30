@@ -8,6 +8,17 @@
 | `main` (pre-release) | ✅ (best effort) |
 | older releases | ❌ (upgrade; weekly cadence) |
 
+## Who can change this repository
+
+Only the maintainer can merge, and nothing reaches `main` without a pull
+request: the default branch is protected by a ruleset that requires a PR,
+green `test` + `deny` checks, resolved review threads, and linear history —
+direct pushes, force pushes, and branch deletion are all rejected for every
+account, including the maintainer's. The only automated writers are
+Dependabot (dependency bumps) and the weekly release workflow (version bump,
+tag, publish); both are visible in the Actions tab and are covered by the same
+review expectations. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Reporting a vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
