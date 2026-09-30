@@ -76,6 +76,7 @@ jobs:
         with:
           path: .
           format: cyclonedx-json
+          output: "sbom-${{ matrix.name }}.cdx.json"
           artifact-name: "sbom-${{ matrix.name }}.cdx.json"
           upload-artifact: true
           upload-release-assets: false
@@ -93,7 +94,8 @@ jobs:
         run: |
           set -euo pipefail
           FILES=("codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz"
-                 "codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.sig.bundle")
+                 "codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.sig.bundle"
+                 "sbom-${{ matrix.name }}.cdx.json")
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else
