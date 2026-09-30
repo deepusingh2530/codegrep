@@ -76,7 +76,7 @@ jobs:
         with:
           path: .
           format: cyclonedx-json
-          output: "sbom-${{ matrix.name }}.cdx.json"
+          output-file: "sbom-${{ matrix.name }}.cdx.json"
           artifact-name: "sbom-${{ matrix.name }}.cdx.json"
           upload-artifact: true
           upload-release-assets: false
