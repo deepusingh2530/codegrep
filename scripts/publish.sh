@@ -12,8 +12,18 @@ crate_version() {
 }
 
 # Ask the registry (not the local workspace) whether the version is live.
+# Uses the sparse index CDN: `cargo search` gets rate-limited from cloud
+# runner IPs, which previously caused "already exists" publish failures.
+# (Note: never name a local `path` — it clobbers PATH in zsh/ksh.)
 published() {
-  cargo search "$1" 2>/dev/null | grep -q "^$1 = \"$2\""
+  local c="$1" v="$2" idx
+  case "${#c}" in
+    1) idx="1/$c" ;;
+    2) idx="2/$c" ;;
+    3) idx="3/${c:0:1}/$c" ;;
+    *) idx="${c:0:2}/${c:2:2}/$c" ;;
+  esac
+  curl -fsS "https://index.crates.io/$idx" 2>/dev/null | grep -q "\"vers\":\"$v\""
 }
 
 wait_indexed() {
@@ -35,7 +45,18 @@ for c in "${order[@]}"; do
     continue
   fi
   echo "==> publishing $c $v"
-  cargo publish -p "$c"
+  # Tolerate the index-lag race: if the upload says it already exists,
+  # another run beat us — that is success, not failure.
+  if ! pub_out="$(cargo publish -p "$c" 2>&1)"; then
+    if printf '%s\n' "$pub_out" | grep -q "already exists"; then
+      echo "==> $c $v is already on the index, continuing"
+    else
+      printf '%s\n' "$pub_out" >&2
+      exit 1
+    fi
+  else
+    printf '%s\n' "$pub_out"
+  fi
   if [ "$c" != "codegrep" ]; then
     wait_indexed "$c" "$v"
   fi
