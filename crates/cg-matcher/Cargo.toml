@@ -1,6 +1,6 @@
 [package]
 name = "cg-matcher"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"
@@ -12,6 +12,6 @@ categories = ["development-tools"]
 [dependencies]
 anyhow = { workspace = true }
 serde = { workspace = true }
-cg-ir = { path = "../cg-ir", version = "0.1.0" }
-cg-parser = { path = "../cg-parser", version = "0.1.0" }
+cg-ir = { path = "../cg-ir", version = "0.2.0" }
+cg-parser = { path = "../cg-parser", version = "0.2.0" }
 regex = "1"

@@ -28,8 +28,8 @@ content, and the translator is original MIT-licensed code.
 | `severity: CRITICAL/HIGH/MEDIUM/LOW` | `ERROR` / `WARNING` / `INFO` |
 | `metadata` (scalars) | copied through (used by CVE-watch, reports) |
 
-Unsupported languages are dropped from a rule's language list (e.g. C++ in a
-`[python, cpp]` rule keeps `python`); a rule with *no* supported language is
+Unsupported languages are dropped from a rule's language list (e.g. Rust in a
+`[python, rust]` rule keeps `python`); a rule with *no* supported language is
 skipped.
 
 ## What is refused (strictly)

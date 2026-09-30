@@ -1,8 +1,9 @@
 //! codegrep parser: Tree-sitter (MIT) based, error-tolerant, offline.
-//! Core 8 langs (Python, JavaScript, TypeScript, Go, Java, Ruby, PHP, C#) have
-//! tree-sitter grammars. Matching itself is regex-on-text, so additional
-//! languages (terraform, yaml, dockerfile, scala, c, ocaml, kotlin, bash, json,
-//! html) are supported via extension detection + text scan with no grammar.
+//! Core 10 langs (Python, JavaScript, TypeScript, Go, Java, Ruby, PHP, C#, C,
+//! C++) have tree-sitter grammars. Matching itself is regex-on-text, so
+//! additional languages (terraform, yaml, dockerfile, scala, ocaml, kotlin,
+//! bash, json, html) are supported via extension detection + text scan with
+//! no grammar.
 
 use anyhow::{anyhow, Result};
 
@@ -16,12 +17,13 @@ pub enum Language {
     Ruby,
     Php,
     CSharp,
+    C,
+    Cpp,
     // Text-scanned languages (no tree-sitter grammar; see module doc).
     Terraform,
     Yaml,
     Dockerfile,
     Scala,
-    C,
     Ocaml,
     Kotlin,
     Bash,
@@ -60,6 +62,14 @@ impl Language {
             Some(Self::Dockerfile)
         } else if path.ends_with(".scala") {
             Some(Self::Scala)
+        } else if path.ends_with(".cpp")
+            || path.ends_with(".cc")
+            || path.ends_with(".cxx")
+            || path.ends_with(".hpp")
+            || path.ends_with(".hh")
+            || path.ends_with(".hxx")
+        {
+            Some(Self::Cpp)
         } else if path.ends_with(".c") || path.ends_with(".h") {
             Some(Self::C)
         } else if path.ends_with(".ml") || path.ends_with(".mli") {
@@ -92,6 +102,7 @@ impl Language {
             Self::Dockerfile => "dockerfile",
             Self::Scala => "scala",
             Self::C => "c",
+            Self::Cpp => "cpp",
             Self::Ocaml => "ocaml",
             Self::Kotlin => "kotlin",
             Self::Bash => "bash",
@@ -112,11 +123,12 @@ impl Language {
             Self::Ruby => tree_sitter_ruby::LANGUAGE.into(),
             Self::Php => tree_sitter_php::LANGUAGE_PHP.into(),
             Self::CSharp => tree_sitter_c_sharp::LANGUAGE.into(),
+            Self::C => tree_sitter_c::LANGUAGE.into(),
+            Self::Cpp => tree_sitter_cpp::LANGUAGE.into(),
             Self::Terraform
             | Self::Yaml
             | Self::Dockerfile
             | Self::Scala
-            | Self::C
             | Self::Ocaml
             | Self::Kotlin
             | Self::Bash
@@ -226,8 +238,6 @@ mod tests {
             Some(Language::Dockerfile)
         );
         assert_eq!(Language::from_path("A.scala"), Some(Language::Scala));
-        assert_eq!(Language::from_path("a.c"), Some(Language::C));
-        assert_eq!(Language::from_path("a.h"), Some(Language::C));
         assert_eq!(Language::from_path("m.ml"), Some(Language::Ocaml));
         assert_eq!(Language::from_path("Main.kt"), Some(Language::Kotlin));
         assert_eq!(Language::from_path("run.sh"), Some(Language::Bash));
@@ -239,6 +249,24 @@ mod tests {
         // Text-scanned langs have no grammar (None); core langs do (Some).
         assert!(Language::Yaml.grammar().is_none());
         assert!(Language::Python.grammar().is_some());
+    }
+
+    #[test]
+    fn detects_c_family() {
+        assert_eq!(Language::from_path("a.c"), Some(Language::C));
+        assert_eq!(Language::from_path("a.h"), Some(Language::C));
+        assert_eq!(Language::from_path("a.cpp"), Some(Language::Cpp));
+        assert_eq!(Language::from_path("a.cc"), Some(Language::Cpp));
+        assert_eq!(Language::from_path("a.cxx"), Some(Language::Cpp));
+        assert_eq!(Language::from_path("a.hpp"), Some(Language::Cpp));
+        assert_eq!(Language::from_path("a.hh"), Some(Language::Cpp));
+        assert_eq!(Language::from_path("a.hxx"), Some(Language::Cpp));
+        // name() matches what rules declare in their `languages:` list.
+        assert_eq!(Language::C.name(), "c");
+        assert_eq!(Language::Cpp.name(), "cpp");
+        // Both C-family langs are grammar-backed now.
+        assert!(Language::C.grammar().is_some());
+        assert!(Language::Cpp.grammar().is_some());
     }
 
     #[test]
@@ -268,5 +296,22 @@ mod tests {
         )
         .unwrap();
         assert!(c.node_count > 5);
+    }
+
+    #[test]
+    fn parses_c_family() {
+        let c = parse_source(Language::C, "int main(void) { puts(buf); return 0; }\n").unwrap();
+        assert!(c.node_count > 5);
+        assert_eq!(c.root_kind, "translation_unit");
+        let cpp = parse_source(
+            Language::Cpp,
+            "class A { public: void m(const char *s) { puts(s); } };\n",
+        )
+        .unwrap();
+        assert!(cpp.node_count > 5);
+        assert_eq!(cpp.root_kind, "translation_unit");
+        // Error tolerance holds for C-family too.
+        let broken = parse_source(Language::Cpp, "void f( { gets(x);\n").unwrap();
+        assert!(broken.node_count > 0);
     }
 }

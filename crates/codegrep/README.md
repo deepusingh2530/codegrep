@@ -6,11 +6,11 @@ the `codegrep` command-line tool and a library API for embedding.
 
 - **Offline-first**: no network, no telemetry, deterministic results.
 - **MIT**: safe to link, ship, and audit.
-- **Corpus**: 1183 rules across 19 languages with 2152 accuracy fixtures.
+- **Corpus**: 1183 rules across 20 languages with 2152 accuracy fixtures.
 
 ```toml
 [dependencies]
-codegrep = "0.10.0"
+codegrep = "0.12.0"
 ```
 
 ```rust

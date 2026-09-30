@@ -108,6 +108,8 @@ fn map_languages(list: &[String]) -> (Vec<String>, Vec<String>) {
         ("csharp", "csharp"),
         ("c#", "csharp"),
         ("c", "c"),
+        ("cpp", "cpp"),
+        ("c++", "cpp"),
         ("kotlin", "kotlin"),
         ("scala", "scala"),
         ("ocaml", "ocaml"),
@@ -604,16 +606,16 @@ patterns:
         let v = parse(
             r#"
 id: portable-langs
-languages: [python, cpp]
+languages: [python, elixir]
 severity: ERROR
 message: m
 pattern: eval($X)
 "#,
         );
-        // cpp-only would fail; python+cpp keeps python with a warning.
+        // elixir-only would fail; python+elixir keeps python with a warning.
         let (r, warnings) = translate(&v).unwrap();
         assert_eq!(r.languages, vec!["python"]);
-        assert!(warnings[0].contains("cpp"));
+        assert!(warnings[0].contains("elixir"));
 
         let v2 = parse(
             r#"
@@ -625,6 +627,35 @@ pattern: eval($X)
 "#,
         );
         assert!(translate(&v2).unwrap_err().contains("no supported languages"));
+    }
+
+    #[test]
+    fn cpp_language_mapped() {
+        let v = parse(
+            r#"
+id: portable-cpp
+languages: [cpp]
+severity: ERROR
+message: m
+pattern: eval($X)
+"#,
+        );
+        let (r, warnings) = translate(&v).unwrap();
+        assert_eq!(r.languages, vec!["cpp"]);
+        assert!(warnings.is_empty());
+
+        let v2 = parse(
+            r#"
+id: portable-cpp-alt
+languages: [c++]
+severity: ERROR
+message: m
+pattern: eval($X)
+"#,
+        );
+        let (r2, warnings2) = translate(&v2).unwrap();
+        assert_eq!(r2.languages, vec!["cpp"]);
+        assert!(warnings2.is_empty());
     }
 
     #[test]

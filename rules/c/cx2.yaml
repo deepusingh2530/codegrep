@@ -1,5 +1,5 @@
 id: "c-insecure-temp-file"
-languages: ["c"]
+languages: ["c", "cpp"]
 severity: "WARNING"
 category: "security:misconfig"
 message: "Insecure temporary file API (racy/predictable name)"

@@ -1,6 +1,6 @@
 [package]
 name = "cg-parser"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"
@@ -19,4 +19,6 @@ tree-sitter-java = "0.23"
 tree-sitter-ruby = "0.23"
 tree-sitter-php = "0.24"
 tree-sitter-c-sharp = "0.23"
+tree-sitter-c = "0.24"
+tree-sitter-cpp = "0.23"
 anyhow = { workspace = true }

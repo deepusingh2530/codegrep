@@ -1,5 +1,5 @@
 - id: "c-malloc-size-overflow"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "Allocation size is a product of two variables (integer overflow can under-allocate)"
@@ -12,7 +12,7 @@
     "cwe": "CWE-190"
     "confidence": "MEDIUM"
 - id: "c-atoi-no-range-check"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "atoi/atol convert without overflow detection (silent wraparound)"
@@ -26,7 +26,7 @@
     "cwe": "CWE-190"
     "confidence": "MEDIUM"
 - id: "c-alloca-unbounded"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "alloca with a dynamic size can overflow the stack"
@@ -37,7 +37,7 @@
     "cwe": "CWE-676"
     "confidence": "MEDIUM"
 - id: "c-getpass-password"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "getpass is obsolete: static buffer, no reliable clearing"
@@ -48,7 +48,7 @@
     "cwe": "CWE-676"
     "confidence": "MEDIUM"
 - id: "c-wcscpy-unbounded"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "wcscpy copies without bounds checking"
@@ -59,7 +59,7 @@
     "cwe": "CWE-676"
     "confidence": "MEDIUM"
 - id: "c-strcat-unbounded"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "strcat appends without checking the destination capacity"
@@ -70,7 +70,7 @@
     "cwe": "CWE-120"
     "confidence": "HIGH"
 - id: "c-scanf-unbounded"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "ERROR"
   category: "security:owasp-a1-injection"
   message: "scanf %s with no field width writes an unbounded string"
@@ -84,7 +84,7 @@
     "cwe": "CWE-120"
     "confidence": "HIGH"
 - id: "c-off-by-one-loop"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "Loop uses <= while indexing an array (classic off-by-one out-of-bounds)"

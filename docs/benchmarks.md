@@ -28,7 +28,7 @@ pre-filter means cost barely moves with rule count. Remote-registry config
 
 | Dimension | Reference scanner (from public docs, Sep 2026) | codegrep | Estimate |
 |---|---|---|---|
-| Languages | 30+ GA | 19 recognized (8 with tree-sitter AST, 11 text-scanned) | ~40% |
+| Languages | 30+ GA | 20 recognized (10 with tree-sitter AST, 10 text-scanned) | ~40% |
 | Rule count | 2,000+ community + 20,000+ paid tier | 1183 original | ~5% by count; OWASP Top-10 + framework packs + secrets |
 | Pattern operators | metavars, ellipsis, regex, comparison, inside/not-inside, join, deep matching | `$VAR`, `$...ARGS`, `...`, regex, comparison, coarse `inside` | ~60% |
 | Taint | cross-file/cross-function (paid tier), framework-aware | intra-file scopes + call summaries | ~25% |

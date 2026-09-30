@@ -15,7 +15,7 @@ gate CI on.
 
 - **Offline by design** — rules ship in-repo; `--offline` hard-refuses any
   network or external sidecar. Nothing phones home, ever.
-- **1183 original rules across 19 languages** — OWASP Top 10, Django/Flask/
+- **1183 original rules across 20 languages** — OWASP Top 10, Django/Flask/
   Express/Spring/Rails/Laravel hardening, secrets patterns, and intra-
   procedural taint with call summaries. Every rule has pass/fail fixtures.
 - **Familiar SAST CLI** — `--config`, `--exclude`/`--include`,
@@ -94,7 +94,7 @@ non-zero when findings remain.
 | Language | Rules | | Language | Rules |
 | --- | ---: | --- | --- | ---: |
 | Bash | 9 | | JSON | 7 |
-| C | 16 | | Kotlin | 14 |
+| C / C++ | 16 | | Kotlin | 14 |
 | C# | 38 | | OCaml | 16 |
 | Dockerfile | 37 | | PHP | 45 |
 | Go | 72 | | Python | 271 |
@@ -104,9 +104,9 @@ non-zero when findings remain.
 | Terraform | 92 | | TypeScript | 46 |
 | YAML | 88 | | **Total** | **1183** |
 
-Eight languages are parsed with tree-sitter (Python, JavaScript, TypeScript,
-Go, Java, Ruby, PHP, C#); the rest are scanned structurally at the text
-level. Coverage decisions are documented in
+Ten languages are parsed with tree-sitter (Python, JavaScript, TypeScript,
+Go, Java, Ruby, PHP, C#, C, C++); the rest are scanned structurally at the
+text level. Coverage decisions are documented in
 [`docs/coverage-policy.md`](docs/coverage-policy.md).
 
 ## False-positive management
@@ -169,7 +169,7 @@ a demo scan, a clean self-scan of `crates/`, and uploads SARIF + JUnit artifacts
 
 ```toml
 [dependencies]
-codegrep = "0.11.0"
+codegrep = "0.12.0"
 # or track main: codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
 ```
 

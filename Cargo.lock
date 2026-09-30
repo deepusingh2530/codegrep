@@ -89,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "cg-ir"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cg-parser",
@@ -99,7 +99,7 @@ dependencies = [
 
 [[package]]
 name = "cg-matcher"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "cg-ir",
@@ -110,11 +110,13 @@ dependencies = [
 
 [[package]]
 name = "cg-parser"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "tree-sitter",
+ "tree-sitter-c",
  "tree-sitter-c-sharp",
+ "tree-sitter-cpp",
  "tree-sitter-go",
  "tree-sitter-java",
  "tree-sitter-javascript",
@@ -126,7 +128,7 @@ dependencies = [
 
 [[package]]
 name = "cg-rules"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "aho-corasick",
  "anyhow",
@@ -136,7 +138,7 @@ dependencies = [
 
 [[package]]
 name = "cg-taint"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "cg-ir",
@@ -185,7 +187,7 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "codegrep"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "anyhow",
  "cg-matcher",
@@ -512,10 +514,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-c"
+version = "0.24.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a9b2eb57a55fed6b00812912e730b7a275cf4fe98bfd6a5d76263d4438371728"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
 name = "tree-sitter-c-sharp"
 version = "0.23.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1aac67f1ad71de1d6d39708d34811081c26dfa495658de6c14c34200849357c"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-cpp"
+version = "0.23.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df2196ea9d47b4ab4a31b9297eaa5a5d19a0b121dceb9f118f6790ad0ab94743"
 dependencies = [
  "cc",
  "tree-sitter-language",

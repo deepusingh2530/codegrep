@@ -1,6 +1,6 @@
 [package]
 name = "cg-rules"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "MIT"

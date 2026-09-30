@@ -1,5 +1,5 @@
 - id: "c-strncpy-unbounded"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "strncpy may leave the destination without a terminator"
@@ -10,7 +10,7 @@
     "cwe": "CWE-170"
     "confidence": "MEDIUM"
 - id: "c-memcpy-strlen"
-  languages: ["c"]
+  languages: ["c", "cpp"]
   severity: "WARNING"
   category: "security:owasp-a1-injection"
   message: "memcpy sized by strlen (no room for the terminator / unchecked)"

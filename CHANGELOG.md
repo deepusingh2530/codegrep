@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.12.0
+- **C++ support**: `.cpp`/`.cc`/`.cxx`/`.hpp`/`.hh`/`.hxx` files are now
+  recognized (`Language::Cpp`, reported as `cpp`), and C/C++ both get
+  tree-sitter grammars (`tree-sitter-c`, `tree-sitter-cpp`) for
+  `parse_source`/`parse_file`/`lower` — matching itself stays
+  regex-on-text as always. `.c`/`.h` keep reporting `c` (they are also
+  grammar-backed now).
+- All 16 C rules ship `languages: ["c", "cpp"]`, so the same corpus
+  covers both; the portable importer maps `cpp`/`c++` → `cpp`
+  (previously dropped as unsupported).
+- New integration test `tests/cpp_scan.rs` scans `.c`/`.cpp`/`.hpp`
+  fixtures end-to-end through `scan()` and asserts per-extension
+  `language` + rule firing; unit tests cover C-family detection,
+  parsing, IR lowering, and portable `cpp` mapping.
+- Version cascade for the `Language` enum extension: `cg-parser` 0.2.0
+  (new public variant), `cg-ir` 0.2.0, `cg-matcher`/`cg-taint` 0.1.1
+  (dependency reqs), `cg-rules` 0.2.1 (importer mapping).
+- Docs: README (20 languages, ten tree-sitter languages, `C / C++`
+  table row), `docs/benchmarks.md`, `docs/rule-import.md` dropped-
+  language example.
+- 58 tests green, clippy `-D warnings` clean, fixtures 2152 green,
+  testdata baseline 26 findings unchanged, self-scan clean.
+
 ## 0.11.0
 - **JUnit XML output**: `codegrep scan --junit` emits a JUnit report
   (one `<testsuite>` per file, one failed `<testcase>` per finding with

@@ -123,4 +123,21 @@ mod tests {
         collect_callees(&g, &mut callees);
         assert!(callees.iter().any(|c| c.contains("execute")));
     }
+
+    #[test]
+    fn lowers_c_family_call() {
+        let c = lower(cg_parser::Language::C, "int main(void) { puts(buf); }\n").unwrap();
+        let mut callees = vec![];
+        collect_callees(&c, &mut callees);
+        assert!(callees.iter().any(|k| k.contains("puts")));
+
+        let cpp = lower(
+            cg_parser::Language::Cpp,
+            "class A { public: void m(const char *s) { strcpy(dst, s); } };\n",
+        )
+        .unwrap();
+        let mut callees2 = vec![];
+        collect_callees(&cpp, &mut callees2);
+        assert!(callees2.iter().any(|k| k.contains("strcpy")));
+    }
 }
