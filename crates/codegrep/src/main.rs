@@ -195,6 +195,9 @@ fn run_scan(args: ScanArgs) -> Result<()> {
             args.rules
         );
     }
+    for w in &report.warnings {
+        eprintln!("codegrep: {w}");
+    }
     let uniq = &report.findings;
 
     if args.metrics {
@@ -268,8 +271,11 @@ fn main() -> Result<()> {
         Commands::Scan(a) => run_scan(*a),
         Commands::Rule { cmd } => match cmd {
             RuleCmd::Test { path } => {
-                let rules = cg_rules::load_rules_dir(&path)
+                let (rules, warnings) = cg_rules::load_rules_dir_report(&path)
                     .with_context(|| format!("loading rules from {path}"))?;
+                for w in &warnings {
+                    eprintln!("codegrep: {w}");
+                }
                 println!("codegrep: {} rule(s) valid in {}", rules.len(), path);
                 for r in &rules {
                     println!("  ✓ {} [{}] langs={:?}", r.id, r.severity, r.languages);

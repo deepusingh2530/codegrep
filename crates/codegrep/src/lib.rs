@@ -107,6 +107,9 @@ pub struct ScanReport {
     pub cache_hits: usize,
     /// Whether the persistent cache was enabled.
     pub cache_on: bool,
+    /// Warnings from loading user-supplied rules (portable-schema skips,
+    /// dropped languages, ignored fixes). Empty for codegrep's own rules.
+    pub warnings: Vec<String>,
 }
 
 /// SARIF 2.1.0 document for the given findings (GitHub code scanning
@@ -167,8 +170,15 @@ fn sarif_level(sev: &str) -> &'static str {
 /// Load rules from `config` entries (files or dirs) or, when empty,
 /// from the `rules_dir`. Remote/registry locations are refused.
 pub fn load_rule_set(rules_dir: &str, config: &[String]) -> Result<Vec<Rule>> {
+    Ok(load_rule_set_report(rules_dir, config)?.0)
+}
+
+/// Like [`load_rule_set`], additionally returning warnings about
+/// user-supplied portable-schema rules that were skipped or adjusted on load.
+pub fn load_rule_set_report(rules_dir: &str, config: &[String]) -> Result<(Vec<Rule>, Vec<String>)> {
     if !config.is_empty() {
         let mut out: Vec<Rule> = vec![];
+        let mut warnings: Vec<String> = vec![];
         for c in config {
             if c.starts_with("http://")
                 || c.starts_with("https://")
@@ -184,20 +194,26 @@ pub fn load_rule_set(rules_dir: &str, config: &[String]) -> Result<Vec<Rule>> {
             }
             let p = std::path::Path::new(c);
             if p.is_file() {
-                out.extend(cg_rules::load_rules_file(c).with_context(|| format!("loading {c}"))?);
+                let (rules, w) = cg_rules::load_rules_file_report(c)
+                    .with_context(|| format!("loading {c}"))?;
+                out.extend(rules);
+                warnings.extend(w);
             } else if p.is_dir() {
-                out.extend(cg_rules::load_rules_dir(c).with_context(|| format!("loading {c}"))?);
+                let (rules, w) = cg_rules::load_rules_dir_report(c)
+                    .with_context(|| format!("loading {c}"))?;
+                out.extend(rules);
+                warnings.extend(w);
             } else {
                 anyhow::bail!("codegrep: --config {c}: no such file or directory");
             }
         }
-        return Ok(out);
+        return Ok((out, warnings));
     }
     if std::path::Path::new(rules_dir).exists() {
-        cg_rules::load_rules_dir(rules_dir)
+        cg_rules::load_rules_dir_report(rules_dir)
             .with_context(|| format!("loading rules from {rules_dir}"))
     } else {
-        Ok(vec![])
+        Ok((vec![], vec![]))
     }
 }
 
@@ -214,7 +230,7 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
             .build_global()
             .ok();
     }
-    let rules = load_rule_set(&opts.rules, &opts.config)?;
+    let (rules, warnings) = load_rule_set_report(&opts.rules, &opts.config)?;
     let index = cg_rules::RuleIndex::build(&rules);
 
     let diff_map = if opts.diff_only {
@@ -429,6 +445,7 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
         elapsed_ms: t0.elapsed().as_millis(),
         cache_hits: cache_hits.load(std::sync::atomic::Ordering::Relaxed),
         cache_on: !opts.no_cache,
+        warnings,
     })
 }
 

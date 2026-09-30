@@ -1,7 +1,11 @@
 //! codegrep rules: YAML loader + validator + literal indexer (Aho-Corasick).
 //! Single-doc YAML rule format of our own design; content is MIT-licensed own rules.
+//! User-supplied portable-schema rule files are detected and translated on load
+//! (see [`portable`]); only files passed in by the user are ever parsed this way.
 
 use anyhow::{anyhow, Context, Result};
+
+pub mod portable;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -143,22 +147,98 @@ pub fn extract_literals(pattern: &str) -> Vec<String> {
     lits
 }
 
+/// Load a single rule file (native schema or portable schema).
 pub fn load_rules_file(path: &str) -> Result<Vec<Rule>> {
-    let text = std::fs::read_to_string(path)?;
-    // Support both single-rule and list-of-rules documents.
-    if let Ok(rule) = serde_yaml::from_str::<Rule>(&text) {
-        rule.validate()?;
-        return Ok(vec![rule]);
-    }
-    let rules: Vec<Rule> = serde_yaml::from_str(&text)?;
-    for r in &rules {
-        r.validate()?;
-    }
-    Ok(rules)
+    Ok(load_rules_file_report(path)?.0)
 }
 
-pub fn load_rules_dir(dir: &str) -> Result<Vec<Rule>> {
+/// Like [`load_rules_file`] but also returns human-readable warnings for
+/// portable-schema rules that were skipped (unsupported construct / no
+/// supported languages) or adjusted (dropped language, ignored fix-regex).
+pub fn load_rules_file_report(path: &str) -> Result<(Vec<Rule>, Vec<String>)> {
+    let text = std::fs::read_to_string(path)?;
+    load_rules_str_report(&text, path)
+}
+
+/// Parse rule YAML text (single rule, list of rules) into rules + warnings.
+/// `src` is used only for warning/error context (typically the file path).
+///
+/// Strategy: when no portable-schema markers are present, use the typed
+/// native parse (preserves raw scalar text for patterns like `0o777`,
+/// which a `Value` round-trip would turn into an integer). Documents that
+/// *do* carry portable markers are handled item-by-item: portable items are
+/// translated, native-shaped items are still parsed as `Rule`.
+pub fn load_rules_str_report(text: &str, src: &str) -> Result<(Vec<Rule>, Vec<String>)> {
+    let value: serde_yaml::Value =
+        serde_yaml::from_str(text).with_context(|| format!("parsing {src}"))?;
+    let items: Vec<serde_yaml::Value> = match &value {
+        serde_yaml::Value::Sequence(s) => s.clone(),
+        other => vec![other.clone()],
+    };
+    let portable_any = items.iter().any(portable::looks_portable);
+
+    if !portable_any {
+        // Preserve the exact native behavior (single-rule, then list).
+        if let Ok(rule) = serde_yaml::from_str::<Rule>(text) {
+            rule.validate().with_context(|| src.to_string())?;
+            return Ok((vec![rule], vec![]));
+        }
+        let rules: Vec<Rule> =
+            serde_yaml::from_str(text).with_context(|| format!("loading {src}"))?;
+        for r in &rules {
+            r.validate().with_context(|| src.to_string())?;
+        }
+        return Ok((rules, vec![]));
+    }
+
     let mut out = vec![];
+    let mut warnings = vec![];
+    for (i, item) in items.iter().enumerate() {
+        let item_id = item
+            .get("id")
+            .and_then(|v| v.as_str())
+            .map(str::to_string)
+            .unwrap_or_else(|| format!("<item {}>", i + 1));
+        if portable::looks_portable(item) {
+            match portable::translate(item) {
+                Ok((rule, w)) => {
+                    out.push(rule);
+                    warnings.extend(w.into_iter().map(|x| format!("{src}: {x}")));
+                }
+                Err(reason) => {
+                    // translate() errors usually begin with "rule {id}: ...";
+                    // avoid repeating the id in the warning line.
+                    let reason = reason
+                        .strip_prefix(&format!("rule {item_id}: "))
+                        .unwrap_or(&reason);
+                    warnings.push(format!("{src}: rule {item_id} skipped: {reason}"));
+                }
+            }
+        } else {
+            match serde_yaml::from_value::<Rule>(item.clone()) {
+                Ok(rule) => {
+                    rule.validate()
+                        .with_context(|| format!("rule {item_id} in {src}"))?;
+                    out.push(rule);
+                }
+                Err(e) => {
+                    warnings.push(format!("{src}: rule {item_id} skipped: {e}"));
+                }
+            }
+        }
+    }
+    Ok((out, warnings))
+}
+
+/// Load every `.yaml`/`.yml` rule file under `dir` (recursively).
+pub fn load_rules_dir(dir: &str) -> Result<Vec<Rule>> {
+    Ok(load_rules_dir_report(dir)?.0)
+}
+
+/// Like [`load_rules_dir`], surfacing per-rule skip/adjust warnings.
+pub fn load_rules_dir_report(dir: &str) -> Result<(Vec<Rule>, Vec<String>)> {
+    let mut out = vec![];
+    let mut warnings = vec![];
     let mut stack = vec![std::path::PathBuf::from(dir)];
     while let Some(d) = stack.pop() {
         let rd = std::fs::read_dir(&d)?;
@@ -173,15 +253,14 @@ pub fn load_rules_dir(dir: &str) -> Result<Vec<Rule>> {
                 }
                 stack.push(p);
             } else if p.extension().map(|e| e == "yaml" || e == "yml").unwrap_or(false) {
-                for r in load_rules_file(p.to_str().unwrap()).with_context(|| {
-                    format!("loading {}", p.display())
-                })? {
-                    out.push(r);
-                }
+                let (rules, w) = load_rules_file_report(p.to_str().unwrap())
+                    .with_context(|| format!("loading {}", p.display()))?;
+                out.extend(rules);
+                warnings.extend(w);
             }
         }
     }
-    Ok(out)
+    Ok((out, warnings))
 }
 
 /// Rule index for speed: literal -> rule ids. Matcher consults per-file lowercase text.

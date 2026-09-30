@@ -175,6 +175,11 @@ or vendored copy); the scanner itself is fully offline. Runnable version:
 cargo run -p codegrep --example scan -- ./testdata ./rules
 ```
 
+Already have rule files written for another scanner's pattern schema? Point
+`--config` / `ScanOptions::config` at them — they are detected and translated
+on load (strictly: unsupported constructs are skipped with a reported reason,
+never silently weakened). See [`docs/rule-import.md`](docs/rule-import.md).
+
 ## Architecture
 
 | Crate | Role |
@@ -207,6 +212,7 @@ also be synthesized locally with `python3 scripts/rule-gen.py`
 - [Migration guide + CLI flag mapping](docs/cli-migration.md)
 - [Measured performance benchmarks](docs/benchmarks.md)
 - [Coverage policy (what we deliberately do not flag)](docs/coverage-policy.md)
+- [Importing rules (portable pattern schema)](docs/rule-import.md)
 - [Master prompt (architecture source of truth)](MASTER_PROMPT.md)
 
 AI triage/autofix is a separate BYOK side-plane that never blocks `scan`:
