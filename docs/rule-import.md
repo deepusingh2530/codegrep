@@ -5,7 +5,7 @@ by common open-source static analyzers: `patterns:` conjunctions,
 `pattern-either`, `pattern-not`, `metavariable-regex`,
 `mode: taint` with `pattern-sources` / `pattern-sinks` / `pattern-sanitizers`,
 and so on. Point `--config` (or `ScanOptions.rules`) at **your own local rule
-files** and they load alongside codegrep's built-in MIT-licensed corpus.
+files** and they load alongside codegrep's built-in corpus.
 
 ```bash
 # scan a repo with third-party rule files you already have locally
@@ -13,7 +13,7 @@ codegrep scan . --config ./my-rules/
 ```
 
 Only files you pass in are ever parsed this way; codegrep ships none of their
-content, and the translator is original MIT-licensed code.
+content, and the translator is original code shipped with the project.
 
 ## What translates
 

@@ -1,4 +1,4 @@
-# Rule Generator — AI prompt pack for codegrep rules (MIT-original output)
+# Rule Generator — AI prompt pack for codegrep rules (original output)
 
 > License safety (non-negotiable): the model must produce ORIGINAL patterns.
 > Never reproduce any third-party registry rules or rule content.

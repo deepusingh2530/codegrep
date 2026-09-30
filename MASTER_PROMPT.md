@@ -1,4 +1,4 @@
-# codegrep — Master Prompt (MIT-licensed offline SAST)
+# codegrep — Master Prompt (noncommercial-licensed offline SAST)
 
 > Paste this entire file as the system prompt into Opencode / Claude Code / Codex before starting any work on `codegrep`. It is the source of truth for architecture, constraints, and execution order.
 
@@ -8,7 +8,7 @@
 **Binary:** `codegrep`
 **Goal:** Multi-language SAST scanner that scans code repositories **faster than incumbent SAST tools**, with deterministic results offline.
 **AI policy:** AI is enhancement-only, never in scan hot path. Core scan must work fully offline with no API keys. AI lives in async side-plane for triage, explainer, auto-fix, rule synthesis.
-**License safety:** 100% commercially safe. Do NOT copy any third-party scanner engine code (several are LGPL-2.1 or commercial) or rule-registry content (registry licenses are typically non-MIT). Write all engine code and rules from scratch. Allowed: Tree-sitter (MIT), ast-grep ideas (MIT, ideas only, no copy), Gitleaks (MIT), OSV-Scanner (Apache-2.0), Trivy (Apache-2.0), ESLint/Bandit concepts (MIT/Apache-2.0, ideas only).
+**License safety:** 100% original code, so nothing here carries a third party's license terms. The project itself is PolyForm Noncommercial 1.0.0 (see LICENSE) — free for noncommercial use, commercial use needs a separate license. Do NOT copy any third-party scanner engine code (several are LGPL-2.1 or commercial) or rule-registry content (registry licenses are incompatible with this project's terms). Write all engine code and rules from scratch. Allowed: Tree-sitter (MIT), ast-grep ideas (MIT, ideas only, no copy), Gitleaks (MIT), OSV-Scanner (Apache-2.0), Trivy (Apache-2.0), ESLint/Bandit concepts (MIT/Apache-2.0, ideas only).
 
 ## 2. Success criteria to beat incumbents
 
@@ -67,7 +67,7 @@ codegrep/
     taint/                  # dataflow engine
     rules/                  # YAML loader + validator + literal indexer
     bench/                  # criterion benches + corpora
-  rules/                    # MIT own rules: rules/<lang>/<category>.yaml + tests/pass|fail
+  rules/                    # own original rules: rules/<lang>/<category>.yaml + tests/pass|fail
   testdata/                 # hello-world per lang + vulnerable samples
   integrations/
     github-action/action.yml

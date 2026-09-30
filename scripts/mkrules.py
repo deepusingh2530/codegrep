@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate codegrep rules + pass/fail fixtures from a compact JSON spec table.
 
-This is original tooling for writing MIT-licensed rules from scratch. It does NOT
+This is original tooling for writing project-licensed rules from scratch. It does NOT
 read or copy any third-party rule content.
 
 Usage:

@@ -1,6 +1,27 @@
 # Changelog
 
 ## Unreleased
+- **Licensing change: MIT → PolyForm Noncommercial 1.0.0** (breaking for
+  commercial users, by design). The first release after `0.12.0` is licensed
+  under PolyForm Noncommercial: personal, research, educational, charity,
+  public-research, and government use is permitted; **commercial use is not**,
+  and a commercial license can be requested from the maintainer. `0.12.0` and
+  earlier were published under MIT and remain MIT permanently — an MIT grant,
+  once given, cannot be revoked — so this is a forward-only boundary, recorded
+  in `docs/licensing.md` and preserved verbatim in `LICENSE-MIT`.
+  Distribution is unchanged: crates.io and GitHub Release binaries continue to
+  ship, now carrying `license = "PolyForm-Noncommercial-1.0.0"` (a valid SPDX
+  identifier) in all six crate manifests.
+- Contributing terms updated accordingly: contributions are licensed to the
+  project, which may relicense the whole codebase at the maintainer's
+  discretion. Earlier contributions stay MIT for their authors.
+- Dependency and sidecar licenses are unaffected (Tree-sitter MIT, Rust deps
+  MIT/Apache-2.0 still enforced by `cargo deny check`, `gitleaks` MIT,
+  `osv-scanner`/`trivy` Apache-2.0 as separate processes).
+- Docs: new `docs/licensing.md`; README badge, tagline, comparison table, and
+  License section; crate README; `CONTRIBUTING.md`; `MASTER_PROMPT.md`;
+  `docs/rule-import.md`; `docs/benchmarks.md`; `assets/README.md` — no
+  remaining claim that the project is MIT-licensed.
 - **Protected `main`: every change arrives through a pull request.** The
   default branch is now governed by a ruleset — no direct pushes, no force
   pushes, no branch deletion, linear history only, required `test` + `deny`

@@ -1,13 +1,15 @@
 # codegrep
 
-Fast, fully-offline multi-language SAST scanner — a curated, MIT-original
+Fast, fully-offline multi-language SAST scanner — a curated, original
 rule corpus, a scriptable CLI, taint analysis and SARIF output. This crate
 exposes both the `codegrep` command-line tool and a library API for embedding.
 
 - **Offline-first**: no network, no telemetry, deterministic results.
-- **MIT**: safe to link, ship, and audit.
+- **Auditable**: original code and rules only — nothing copied from a third-party scanner or rule registry.
 - **Corpus**: 27 recognized languages, a generic fallback so unrecognized
   files are still scanned, and a pass/fail accuracy fixture for every rule.
+- **Licensed** under PolyForm Noncommercial 1.0.0: free for noncommercial use;
+  commercial use requires a separate license. Versions 0.12.0 and earlier are MIT.
 
 ```toml
 [dependencies]
@@ -39,4 +41,7 @@ clone, or vendored copy). Full documentation:
 
 ## License
 
-MIT. See [LICENSE](https://github.com/deepusingh2530/codegrep/blob/main/LICENSE).
+[PolyForm Noncommercial 1.0.0](https://github.com/deepusingh2530/codegrep/blob/main/LICENSE)
+— free for noncommercial use; commercial use requires a separate license from
+the maintainer. Versions `0.12.0` and earlier are MIT. See
+[docs/licensing.md](https://github.com/deepusingh2530/codegrep/blob/main/docs/licensing.md).

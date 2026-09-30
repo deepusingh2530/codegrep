@@ -10,7 +10,8 @@
 #                a unified diff ONLY when the original finding is gone
 #                (verified autofix — unverified suggestions are discarded).
 #
-# No third-party packages: urllib only. No third-party scanner code. MIT.
+# No third-party packages: urllib only. No third-party scanner code.
+# Licensed with the project: see LICENSE (PolyForm Noncommercial 1.0.0).
 #
 #   codegrep scan ./repo --json -o findings.json
 #   python3 ai-triage/triage.py --mode triage --input findings.json

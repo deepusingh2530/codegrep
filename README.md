@@ -5,16 +5,16 @@
 <p align="center">
   <a href="https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml"><img src="https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://crates.io/crates/codegrep"><img src="https://img.shields.io/crates/v/codegrep.svg" alt="crates.io"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licensed"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-orange" alt="PolyForm Noncommercial 1.0.0"></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.90%2B-orange?logo=rust&logoColor=white" alt="Rust 1.90+"></a>
 </p>
 
 <p align="center">
-  <b>Fast, fully-offline multi-language SAST scanner.</b> A curated,
-  MIT-original rule corpus (OWASP Top 10, framework-specific vulnerabilities,
-  secrets, taint) with a scriptable CLI, parallel scanning, an incremental
-  content-hash cache, and SARIF/JSON output. No network, no telemetry —
-  deterministic results you can gate CI on.
+  <b>Fast, fully-offline multi-language SAST scanner.</b> A curated, original
+  rule corpus (OWASP Top 10, framework-specific vulnerabilities, secrets, taint)
+  with a scriptable CLI, parallel scanning, an incremental content-hash cache,
+  and SARIF/JSON output. No network, no telemetry — deterministic results you
+  can gate CI on.
 </p>
 
 ## Highlights
@@ -49,7 +49,7 @@ different, adjacent problem, or solve SAST with much more machinery.
 
 | Tool | Primary job | Detection model | Scope (own rules) | Offline scan | License / price |
 | --- | --- | --- | --- | --- | --- |
-| **codegrep** | SAST gate for CI | original pattern + taint rules, MIT-licensed | 27 languages recognized, generic fallback; 10 with tree-sitter AST | yes, strict `--offline` | MIT, free |
+| **codegrep** | SAST gate for CI | original pattern + taint rules, no third-party rule content | 27 languages recognized, generic fallback; 10 with tree-sitter AST | yes, strict `--offline` | PolyForm Noncommercial — free for noncommercial use, commercial license on request |
 | Python-based SAST baseline (the one in [`docs/benchmarks.md`](docs/benchmarks.md)) | SAST engine + rule registry | pattern + taint, registry-driven | 30+ languages, 2k community / 20k+ paid rules | OSS tier yes | OSS + commercial tier |
 | Bandit | Python-only SAST | AST + bytecode dataflow | Python only | yes | Apache-2.0, free |
 | Gitleaks | Secret scanning | regex + entropy over any text | language-agnostic | yes | MIT, free |
@@ -77,8 +77,11 @@ Practical differences that decide a toolchain:
 
 <sub>Comparison reflects each tool's public documentation and license files as
 of Sep 2026; codegrep's own numbers are measured locally (see
-[`docs/benchmarks.md`](docs/benchmarks.md)). Every rule is MIT-original — no
-third-party rule content is used.</sub>
+[`docs/benchmarks.md`](docs/benchmarks.md)). Every rule is original — no
+third-party rule content is used. codegrep is
+[PolyForm Noncommercial 1.0.0](LICENSE) (versions 0.12.0 and earlier are
+[MIT](LICENSE-MIT)), so it is free for noncommercial use and needs a
+commercial license for business use.</sub>
 
 ## Installation
 
@@ -302,6 +305,7 @@ only, offline stays offline). Security reports go through
 ## Documentation
 
 - [Contributing guidelines (PR workflow, rule authoring)](CONTRIBUTING.md)
+- [Licensing (noncommercial terms, version boundary, commercial licensing)](docs/licensing.md)
 - [Weekly release cadence & CVE watch](docs/release-cadence.md)
 - [Migration guide + CLI flag mapping](docs/cli-migration.md)
 - [Measured performance benchmarks](docs/benchmarks.md)
@@ -318,8 +322,19 @@ python3 ai-triage/triage.py --mode triage --input findings.json
 
 ## License
 
-[MIT](LICENSE) — engine and rules are original MIT code. No third-party
-scanner code or rule-registry content is used (those registries carry
-non-MIT licenses). Parsing via
-Tree-sitter (MIT); secrets/SCA delegate to external `gitleaks` (MIT) /
-`osv-scanner` (Apache-2.0) processes — never linked.
+**[PolyForm Noncommercial 1.0.0](LICENSE)** — free for personal, research,
+educational, and other noncommercial use, including charities, schools, public
+research bodies, and government. **Commercial use is not permitted** under these
+terms; ask for a [commercial license](docs/licensing.md) if you need one.
+Versions `0.12.0` and earlier were released under
+[MIT](LICENSE-MIT) and remain so permanently.
+
+> Required Notice: Copyright (c) 2026 Deepu Singh (https://github.com/deepusingh2530/codegrep)
+
+The engine and every rule are original work — no third-party scanner code or
+rule-registry content is used (those registries carry non-MIT licenses).
+Dependencies and sidecars keep their own licenses and are never linked:
+Tree-sitter (MIT); secrets via `gitleaks` (MIT) and SCA via
+`osv-scanner`/`trivy` (Apache-2.0), as separate processes. Full details,
+including the version boundary and how to request a commercial license, are in
+[`docs/licensing.md`](docs/licensing.md).

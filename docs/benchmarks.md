@@ -4,8 +4,8 @@ Baseline: a widely-used Python-based open-source SAST scanner, version
 1.136.0 (installed locally), Apple ARM64. Test rules were 5 trivially-
 equivalent patterns written for the comparison only (`os.system(...)`,
 `eval(...)` x2, `exec.Command(...)`, `Runtime...exec(...)`). Nothing taken
-from any third-party rule registry (registry licenses are generally not
-MIT-safe to copy).
+from any third-party rule registry (those registries' licenses are not
+compatible with this project's terms).
 
 ## Head-to-head numbers (measured, not estimated)
 
@@ -29,7 +29,7 @@ pre-filter means cost barely moves with rule count. Remote-registry config
 | Dimension | Reference scanner (from public docs, Sep 2026) | codegrep | Estimate |
 |---|---|---|---|
 | Languages | 30+ GA | 27 recognized (10 with tree-sitter AST, 17 text-scanned incl. generic fallback) | ~90% |
-| Rule count | 2,000+ community + 20,000+ paid tier | smaller curated corpus, 100% MIT-original | lower by count; OWASP Top-10 + framework packs + secrets, every rule with pass/fail fixtures |
+| Rule count | 2,000+ community + 20,000+ paid tier | smaller curated corpus, 100% original | lower by count; OWASP Top-10 + framework packs + secrets, every rule with pass/fail fixtures |
 | Pattern operators | metavars, ellipsis, regex, comparison, inside/not-inside, join, deep matching | `$VAR`, `$...ARGS`, `...`, regex, comparison, coarse `inside` | ~60% |
 | Taint | cross-file/cross-function (paid tier), framework-aware | intra-file scopes + call summaries | ~25% |
 | Offline scan | yes (OSS) | yes + strict `--offline` | 100% |
