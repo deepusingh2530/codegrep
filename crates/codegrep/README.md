@@ -10,7 +10,7 @@ the `codegrep` command-line tool and a library API for embedding.
 
 ```toml
 [dependencies]
-codegrep = "0.9.0"
+codegrep = "0.10.0"
 ```
 
 ```rust

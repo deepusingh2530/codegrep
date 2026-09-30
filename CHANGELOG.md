@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.10.0
+- False-positive management:
+  - **Suppression files** with a required `reason` (auditable, PR-reviewable),
+    optional `path`/`line`/`owner`/`expires` (YYYY-MM-DD). Auto-discovered
+    `.codegrep-suppressions.yml` at the scan root, or explicit
+    `--suppress FILE` (repeatable). Expired entries stop applying and warn;
+    unknown keys (`exires:` typos) fail the scan instead of silently
+    no-opping.
+  - **Inline comments**: `# codegrep-ignore` (same line only), scoped
+    `# codegrep-ignore(rule-a, rule-b)`, and `# codegrep-ignore-next-line`.
+    Comment marker + word-boundary required so string literals don't count.
+  - Visibility: `ScanReport.suppressed`, `--metrics` `suppressed=N`, and a
+    stderr note — findings are never hidden without a trace.
+- New: `ScanOptions.suppress`, `codegrep::Suppression`, `suppress` module
+  (loader, expiry, inline matching); `serde_yaml` dependency added.
+- `docs/suppressions.md` + README section.
+- 50 tests green (6 unit + 5 FP e2e among them), clippy `-D warnings` clean,
+  fixtures 2152 green, testdata baseline 26 findings unchanged.
+
 ## 0.9.0
 - Portable pattern-schema rule importer: `--config` (or
   `ScanOptions::config`) now accepts rule files written in the common
