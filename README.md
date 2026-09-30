@@ -1,23 +1,33 @@
-# codegrep
+<p align="center">
+  <img src="assets/logo.svg" alt="codegrep" width="320">
+</p>
 
-[![CI](https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml/badge.svg)](https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Rules](https://img.shields.io/badge/rules-1183-orange.svg)](#supported-languages)
-[![Rust](https://img.shields.io/badge/rust-1.90%2B-orange?logo=rust&logoColor=white)](https://www.rust-lang.org)
+<p align="center">
+  <a href="https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml"><img src="https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://crates.io/crates/codegrep"><img src="https://img.shields.io/crates/v/codegrep.svg" alt="crates.io"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licensed"></a>
+  <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.90%2B-orange?logo=rust&logoColor=white" alt="Rust 1.90+"></a>
+</p>
 
-**Fast, fully-offline multi-language SAST scanner.** 1183 MIT-original rules
-(OWASP Top 10, framework-specific vulnerabilities, secrets, taint) with a
-scriptable CLI, parallel scanning, an incremental content-hash cache, and
-SARIF/JSON output. No network, no telemetry — deterministic results you can
-gate CI on.
+<p align="center">
+  <b>Fast, fully-offline multi-language SAST scanner.</b> A curated,
+  MIT-original rule corpus (OWASP Top 10, framework-specific vulnerabilities,
+  secrets, taint) with a scriptable CLI, parallel scanning, an incremental
+  content-hash cache, and SARIF/JSON output. No network, no telemetry —
+  deterministic results you can gate CI on.
+</p>
 
 ## Highlights
 
 - **Offline by design** — rules ship in-repo; `--offline` hard-refuses any
   network or external sidecar. Nothing phones home, ever.
-- **1183 original rules across 20 languages** — OWASP Top 10, Django/Flask/
-  Express/Spring/Rails/Laravel hardening, secrets patterns, and intra-
-  procedural taint with call summaries. Every rule has pass/fail fixtures.
+- **Curated, original rules across 27 languages** — OWASP Top 10,
+  Django/Flask/Express/Spring/Rails/Laravel hardening, secrets patterns, and
+  intra-procedural taint with call summaries. Every rule has pass/fail
+  fixtures.
+- **Nothing is skipped silently** — files with unrecognized extensions are
+  still scanned as the `generic` pseudolanguage (secrets + polyglot rules);
+  27 languages recognized, 10 with tree-sitter AST.
 - **Familiar SAST CLI** — `--config`, `--exclude`/`--include`,
   `--min-severity`, `--error` exit-code gating, `--baseline`/`--diff-only`
   diff-aware scans. Migration notes in [`docs/cli-migration.md`](docs/cli-migration.md).
@@ -30,6 +40,45 @@ gate CI on.
   table for terminals.
 - **AI is optional and separate** — triage/autofix runs as a BYOK side-plane
   outside the scan hot path; the scanner never needs an API key.
+
+## How codegrep compares
+
+codegrep is one thing done well: pattern/taint SAST that runs offline in one
+small binary with a rule corpus you can read. Most tools below solve a
+different, adjacent problem, or solve SAST with much more machinery.
+
+| Tool | Primary job | Detection model | Scope (own rules) | Offline scan | License / price |
+| --- | --- | --- | --- | --- | --- |
+| **codegrep** | SAST gate for CI | original pattern + taint rules, MIT-licensed | 27 languages recognized, generic fallback; 10 with tree-sitter AST | yes, strict `--offline` | MIT, free |
+| Python-based SAST baseline (the one in [`docs/benchmarks.md`](docs/benchmarks.md)) | SAST engine + rule registry | pattern + taint, registry-driven | 30+ languages, 2k community / 20k+ paid rules | OSS tier yes | OSS + commercial tier |
+| Bandit | Python-only SAST | AST + bytecode dataflow | Python only | yes | Apache-2.0, free |
+| Gitleaks | Secret scanning | regex + entropy over any text | language-agnostic | yes | MIT, free |
+| Trivy | Dependency/IaC/misconfig scanning | advisory DB + config checks | SBOM, deps, IaC, containers | DB cache; registry pulls need network | Apache-2.0, free |
+| CodeQL | Deep semantic SAST | compiled dataflow (QL) | ~10 languages, C-family, JVM, .NET, Go, JS/TS, Python, Ruby, Rust, Swift | DB builds locally, but query/library packs download | OSS CLI, free for public repos on GitHub |
+| SonarQube | Quality-gate platform | rule analyzers + custom rules | 20+ analyzers, SAST among many | needs a running server | Community Build free, commercial for orgs |
+
+Practical differences that decide a toolchain:
+
+- **Single binary, zero setup** — `cargo install codegrep` and scan. No
+  container, no server, no registry account, no per-language install. Measured
+  28-140x faster than the reference Python-based scanner in our benchmarks.
+- **Corpus is auditable** — every rule is a small YAML file in
+  [`rules/`](rules) with a fail-fixture and a pass-fixture, so a "finding" is
+  always traceable to a reviewable pattern plus two tests.
+- **Secrets/SCA are composable, not fused** — `--only secrets|sca` shells out
+  to Gitleaks (MIT) and OSV-Scanner/Trivy (Apache-2.0) when you want their
+  databases; the core scanner never links or embeds them.
+- **Switching costs are low** — rule files written for the common portable
+  pattern schema are translated on load ([`docs/rule-import.md`](docs/rule-import.md)),
+  and CI wiring is a stock SARIF upload.
+- **Where codegrep is deliberately behind** — cross-file/cross-function taint,
+  IDE/LSP integration, and platform features (dashboards, PR comments) live in
+  other tools today; the roadmap is in [`MASTER_PROMPT.md`](MASTER_PROMPT.md).
+
+<sub>Comparison reflects each tool's public documentation and license files as
+of Sep 2026; codegrep's own numbers are measured locally (see
+[`docs/benchmarks.md`](docs/benchmarks.md)). Every rule is MIT-original — no
+third-party rule content is used.</sub>
 
 ## Installation
 
@@ -91,23 +140,30 @@ non-zero when findings remain.
 
 ## Supported languages
 
-| Language | Rules | | Language | Rules |
-| --- | ---: | --- | --- | ---: |
-| Bash | 9 | | JSON | 7 |
-| C / C++ | 16 | | Kotlin | 14 |
-| C# | 38 | | OCaml | 16 |
-| Dockerfile | 37 | | PHP | 45 |
-| Go | 72 | | Python | 271 |
-| HTML | 6 | | Ruby | 110 |
-| Java | 110 | | Scala | 28 |
-| JavaScript | 173 | | Secrets (generic) | 5 |
-| Terraform | 92 | | TypeScript | 46 |
-| YAML | 88 | | **Total** | **1183** |
+| Language | Parsing | | Language | Parsing |
+| --- | --- | --- | --- | --- |
+| Bash | text | | PHP | tree-sitter |
+| C / C++ | tree-sitter | | PowerShell | text |
+| C# | tree-sitter | | Python | tree-sitter |
+| Dart | text | | Ruby | tree-sitter |
+| Dockerfile | text | | Rust | text |
+| Elixir | text | | Scala | text |
+| Go | tree-sitter | | SQL | text |
+| HTML | text | | Swift | text |
+| Java | tree-sitter | | Terraform | text |
+| JavaScript | tree-sitter | | TypeScript | tree-sitter |
+| JSON | text | | YAML | text |
+| Kotlin | text | | Secrets (generic) | text |
+| Lua | text | | | |
+| OCaml | text | | | |
 
 Ten languages are parsed with tree-sitter (Python, JavaScript, TypeScript,
-Go, Java, Ruby, PHP, C#, C, C++); the rest are scanned structurally at the
-text level. Coverage decisions are documented in
-[`docs/coverage-policy.md`](docs/coverage-policy.md).
+Go, Java, Ruby, PHP, C#, C, C++); 16 more are scanned structurally at the
+text level (Terraform, YAML, Dockerfile, Scala, OCaml, Kotlin, Bash, JSON,
+HTML, Rust, Swift, Dart, Elixir, Lua, PowerShell, SQL). Files with
+unrecognized extensions are still scanned as the `generic` pseudolanguage, so
+no discovered file is ever skipped without being read. Coverage decisions are
+documented in [`docs/coverage-policy.md`](docs/coverage-policy.md).
 
 ## False-positive management
 
@@ -159,8 +215,9 @@ jobs:
 ```
 
 This repository's own [CI](.github/workflows/ci.yml) runs unit tests,
-`clippy -D warnings`, the rule-corpus gate (**1183 rules / 2152 fixtures**),
-a demo scan, a clean self-scan of `crates/`, and uploads SARIF + JUnit artifacts.
+`clippy -D warnings`, the rule-corpus gate (every rule validated against its
+fail/pass fixtures), a demo scan, a clean self-scan of `crates/`, and uploads
+SARIF + JUnit artifacts.
 
 ## Use as a library
 
@@ -228,9 +285,10 @@ python3 scripts/mkrules.py scripts/specs/gap-sec-NN.json
 ```
 
 Fixtures live in `rules/tests/<rule-id>/` as `fail*` (must trigger) and
-`pass*` (must stay clean) files — CI runs all 2152 of them. New rules can
-also be synthesized locally with `python3 scripts/rule-gen.py`
-(Ollama-local, validated — see [`prompts/rule-generator.md`](prompts/rule-generator.md)).
+`pass*` (must stay clean) files — CI runs all of them, so a new rule ships
+with its own precision test. New rules can also be synthesized locally with
+`python3 scripts/rule-gen.py` (Ollama-local, validated — see
+[`prompts/rule-generator.md`](prompts/rule-generator.md)).
 
 ## Documentation
 

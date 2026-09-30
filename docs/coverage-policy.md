@@ -1,13 +1,21 @@
 # Rule coverage policy
 
-Every language codegrep supports carries at least one rule in each of these
-categories, verified by `rules/tests/<id>/{fail,pass}` fixtures via
-`codegrep rule test`:
+The rule corpus is organized around these categories, and every rule ships
+with `rules/tests/<id>/{fail,pass}` fixtures verified by `codegrep rule test`:
 
 - code-execution, deserialization, misconfig, open-redirect
 - owasp-a1-injection (SQL/LDAP/NoSQL/XPath/command), owasp-a10-ssrf,
   owasp-a2-crypto, owasp-a3-injection (SSTI/template), owasp-a3-xss,
   weak-crypto
+
+A language carries the categories its APIs actually expose — SQL string
+sinks for languages with a database driver, `os`/`Process`/`System` sinks for
+languages with a process API, and so on. Deeply-used languages (Python,
+JavaScript, Java, Go, PHP, Ruby) get the full 10-16 rule-per-category packs;
+newly-added languages ship 6-12 focused rules first and grow weekly, driven by
+the CVE gap table in [`cve-coverage.md`](cve-coverage.md) and real-world
+findings. Adding a language is a scanning decision; how fast its pack grows
+is a coverage-cadence decision.
 
 Three deliberate exceptions (documented here so they read as decisions, not gaps):
 
@@ -20,7 +28,11 @@ Three deliberate exceptions (documented here so they read as decisions, not gaps
    `languages: [generic]` (AWS/GitHub/Slack tokens, private keys, password
    assignments). Secret shapes are language-independent; duplicating them per
    language would multiply maintenance without new signal. The `generic`
-   pseudolanguage applies to every discovered file.
+   pseudolanguage applies to every discovered file — and files whose
+   extension codegrep doesn't recognize (`.env`, `.pem`, `.toml`, `.conf`, …)
+   are scanned *as* `generic` rather than skipped, up to a 10 MB read cap.
+   So the blast radius of `find`/`grep`-style blind spots is gone: 27
+   languages are recognized, every other file still gets the polyglot pass.
 3. **Structural absence / memory-lifetime findings** — CWE-416 (use after
    free), CWE-415 (double free), CWE-125 (OOB read), CWE-476 (NULL deref)
    and CWE-362 (race/TOCTOU) need either block-range scoping or repeated

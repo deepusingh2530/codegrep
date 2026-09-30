@@ -1,0 +1,1 @@
+launchUrl(Uri.parse(destination));

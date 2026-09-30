@@ -1,0 +1,143 @@
+- id: "rust-command-user-input"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Process spawned with a program name taken from user-controlled data"
+  fix: "Use a fixed program path and pass user data as arguments"
+  pattern-either:
+    - pattern: "Command::new($CMD)"
+    - pattern: "Command::arg($CMD)"
+  metavariable-regex:
+    "CMD": "[Uu]ser|[Ii]nput|argv|args|params|env::var"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "rust-untrusted-deserialization"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "Binary deserialization of untrusted network data"
+  fix: "Validate message framing/lengths and authenticate peers before decoding"
+  pattern-either:
+    - pattern: "bincode::from_slice($D)"
+    - pattern: "bincode::deserialize($D)"
+    - pattern: "postcard::from_bytes($D)"
+  metavariable-regex:
+    "D": "[Rr]esponse|[Nn]etwork|[Rr]equest|[Uu]ntrusted|[Ss]ocket|[Ss]erver"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "rust-accept-invalid-certs"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "TLS certificate verification disabled on an HTTPS client"
+  fix: "Drop the override; pin or properly trust the server certificate chain"
+  pattern-either:
+    - pattern: "danger_accept_invalid_certs(true)"
+    - pattern: "danger_accept_invalid_hostnames(true)"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "rust-open-redirect-user-input"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:open-redirect"
+  message: "Redirect target taken from user-controlled data (open redirect)"
+  fix: "Resolve the target against an allowlist of local paths"
+  pattern: "Redirect::to($URL)"
+  metavariable-regex:
+    "URL": "[Qq]uery|[Rr]equest|[Ii]nput|[Uu]ser|[Pp]aram|[Nn]ext|[Ff]rom"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "HIGH"
+- id: "rust-sql-string-interpolation"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built with string interpolation/concatenation (SQL injection)"
+  fix: "Use bound parameters (e.g. stmt.execute([param])) instead of formatting SQL"
+  pattern-either:
+    - pattern: "conn.execute($Q)"
+    - pattern: "db.execute($Q)"
+    - pattern: "sqlx::query($Q)"
+  metavariable-regex:
+    "Q": "format!|push_str|concat!|\\+"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "rust-ssrf-user-input"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "HTTP request URL taken from user-controlled data (SSRF)"
+  fix: "Validate the URL against an allowlist of hosts/schemes"
+  pattern: "reqwest::get($URL)"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest|[Nn]ext|[Ff]rom|args"
+  metadata:
+    "owasp": "A10:2021-Server-Side-Request-Forgery"
+    "cwe": "CWE-918"
+    "confidence": "HIGH"
+- id: "rust-user-controlled-template"
+  languages: ["rust"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "Template rendered from user-controlled content (SSTI)"
+  fix: "Render fixed template names; pass user data as context values only"
+  pattern-either:
+    - pattern: "one_off($T,"
+    - pattern: "render_template($T,"
+  metavariable-regex:
+    "T": "format!|[Uu]ser|[Ii]nput|[Rr]equest|[Qq]uery|[Pp]aram"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"
+- id: "rust-html-user-input"
+  languages: ["rust"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "HTML response built from user-controlled data (XSS)"
+  fix: "Escape the value (askama/maud auto-escape) or template it"
+  pattern: "Html($X)"
+  metavariable-regex:
+    "X": "format!|[Uu]ser|[Ii]nput|[Rr]equest|[Qq]uery|[Pp]aram"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "HIGH"
+- id: "rust-weak-md5-sha1"
+  languages: ["rust"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 hash used (broken for security purposes)"
+  fix: "Use SHA-256+ for integrity, bcrypt/scrypt/argon2 for passwords"
+  pattern-either:
+    - pattern: "Md5::new("
+    - pattern: "md5::compute($D)"
+    - pattern: "Sha1::new("
+    - pattern: "sha1::digest($D)"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "rust-weak-cipher"
+  languages: ["rust"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Obsolete cipher (DES/3DES/RC4) in use"
+  fix: "Use AES-GCM or ChaCha20-Poly1305"
+  pattern-either:
+    - pattern: "DES::new($K)"
+    - pattern: "TDES::new($K)"
+    - pattern: "Rc4::new("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"

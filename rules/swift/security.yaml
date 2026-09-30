@@ -1,0 +1,121 @@
+- id: "swift-command-user-input"
+  languages: ["swift"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Process launched with a program/path taken from user-controlled data"
+  fix: "Use a fixed executable path and pass user data as arguments"
+  pattern-either:
+    - pattern: "executableURL = $P"
+    - pattern: "launchPath = $P"
+  metavariable-regex:
+    "P": "[Uu]ser|[Ii]nput|[Aa]rgs|[Pp]arams?|[Qq]uery"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "swift-accept-invalid-certs"
+  languages: ["swift"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "TLS certificate verification disabled on a URLSession"
+  fix: "Trust the server certificate chain; do not skip validation"
+  pattern-either:
+    - pattern: "allowInvalidCertificates(true)"
+    - pattern: "validatesDomainName(false)"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "swift-untrusted-deserialization"
+  languages: ["swift"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "NSKeyedUnarchiver decoding of untrusted network data"
+  fix: "Validate/authenticate the payload and use secure coding with allowed classes"
+  pattern: "NSKeyedUnarchiver.unarchiveObject(with: $D)"
+  metavariable-regex:
+    "D": "[Rr]esponse|[Nn]etwork|[Rr]equest|[Uu]ntrusted|[Ss]ocket|[Bb]ody"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "swift-open-redirect-user-input"
+  languages: ["swift"]
+  severity: "ERROR"
+  category: "security:open-redirect"
+  message: "URL opened from user-controlled data (open redirect)"
+  fix: "Resolve the target against an allowlist of local URLs"
+  pattern: "UIApplication.shared.open($URL"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Nn]ext|[Ff]rom"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "HIGH"
+- id: "swift-sql-string-interpolation"
+  languages: ["swift"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built with string interpolation/formatting (SQL injection)"
+  fix: "Use bound parameters instead of formatting SQL strings"
+  pattern-either:
+    - pattern: "execute($Q)"
+    - pattern: "executeQuery($Q)"
+  metavariable-regex:
+    "Q": "[Ff]ormat|[Uu]ser|[Ii]nput|[Pp]aram|[Qq]uery|\\+"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "swift-ssrf-user-input"
+  languages: ["swift"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "HTTP request URL taken from user-controlled data (SSRF)"
+  fix: "Validate the URL against an allowlist of hosts/schemes"
+  pattern: "URLSession.shared.data(from: $URL)"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest|[Nn]ext"
+  metadata:
+    "owasp": "A10:2021-Server-Side-Request-Forgery"
+    "cwe": "CWE-918"
+    "confidence": "HIGH"
+- id: "swift-html-user-input"
+  languages: ["swift"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "HTML string loaded from user-controlled data (XSS)"
+  fix: "Escape user content or render it through a templating engine"
+  pattern: "loadHTMLString($H,"
+  metavariable-regex:
+    "H": "[Ff]ormat|[Uu]ser|[Ii]nput|[Rr]equest|[Qq]uery|[Pp]aram"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "HIGH"
+- id: "swift-weak-md5-sha1"
+  languages: ["swift"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 hash used (broken for security purposes)"
+  fix: "Use SHA-256+ for integrity, bcrypt/scrypt/argon2 for passwords"
+  pattern-either:
+    - pattern: "CC_MD5("
+    - pattern: "CC_SHA1("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "swift-weak-random"
+  languages: ["swift"]
+  severity: "WARNING"
+  category: "security:weak-random"
+  message: "Predictable C PRNG used where a secure random source is required"
+  fix: "Use SecRandomCopyBytes / SystemRandomNumberGenerator for security values"
+  pattern-either:
+    - pattern: "srand("
+    - pattern: "random()"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-338"
+    "confidence": "MEDIUM"

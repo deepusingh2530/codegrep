@@ -1,0 +1,1 @@
+-- xp_cmdshell is disabled on this server

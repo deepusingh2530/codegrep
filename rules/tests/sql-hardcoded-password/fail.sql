@@ -1,0 +1,1 @@
+CREATE USER bob IDENTIFIED BY 'hunter2';

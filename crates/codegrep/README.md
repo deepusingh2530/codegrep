@@ -1,12 +1,13 @@
 # codegrep
 
-Fast, fully-offline multi-language SAST scanner — 1183 MIT-original rules,
-a scriptable CLI, taint analysis and SARIF output. This crate exposes both
-the `codegrep` command-line tool and a library API for embedding.
+Fast, fully-offline multi-language SAST scanner — a curated, MIT-original
+rule corpus, a scriptable CLI, taint analysis and SARIF output. This crate
+exposes both the `codegrep` command-line tool and a library API for embedding.
 
 - **Offline-first**: no network, no telemetry, deterministic results.
 - **MIT**: safe to link, ship, and audit.
-- **Corpus**: 1183 rules across 20 languages with 2152 accuracy fixtures.
+- **Corpus**: 27 recognized languages, a generic fallback so unrecognized
+  files are still scanned, and a pass/fail accuracy fixture for every rule.
 
 ```toml
 [dependencies]

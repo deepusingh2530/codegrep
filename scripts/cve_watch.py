@@ -166,7 +166,7 @@ def build_report(cves: list[dict], by_cwe: dict[str, set[str]], total: int,
         f"| Distinct CWEs observed | {len(observed)} |",
         f"| Covered by ≥1 rule | {len(covered)} |",
         f"| **Coverage gaps** | **{len(gaps)}** |",
-        f"| Rule corpus | {total} rules ({with_cwe} carry CWE metadata) |",
+        f"| Rule corpus | {total} rules, {with_cwe} carrying CWE metadata |",
         "",
     ]
     if gaps:

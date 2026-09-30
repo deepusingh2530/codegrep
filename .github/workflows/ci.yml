@@ -15,7 +15,7 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Build release binary
         run: cargo build --release -p codegrep
-      - name: Rule corpus gate (1183 rules, 2152 fixtures)
+      - name: Rule corpus gate (rules + accuracy fixtures)
         run: ./target/release/codegrep rule test rules/
       - name: Demo scan (testdata)
         run: ./target/release/codegrep scan ./testdata --rules ./rules --metrics

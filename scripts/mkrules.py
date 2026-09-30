@@ -42,6 +42,8 @@ LANG_EXT = {
     "terraform": "tf", "yaml": "yaml", "dockerfile": "Dockerfile",
     "scala": "scala", "c": "c", "ocaml": "ml", "kotlin": "kt",
     "bash": "sh", "json": "json", "html": "html", "generic": "txt",
+    "rust": "rs", "swift": "swift", "dart": "dart", "elixir": "ex",
+    "lua": "lua", "powershell": "ps1", "sql": "sql",
 }
 
 

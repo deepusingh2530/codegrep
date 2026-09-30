@@ -1,0 +1,1 @@
+return Redirect::to("/dashboard");

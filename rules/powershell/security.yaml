@@ -1,0 +1,108 @@
+- id: "powershell-code-eval"
+  languages: ["powershell"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Invoke-Expression executes a string taken from user-controlled data"
+  fix: "Avoid IEX; use script blocks, param validation, or a fixed command"
+  pattern-either:
+    - pattern: "Invoke-Expression $C"
+    - pattern: "IEX $C"
+  metavariable-regex:
+    "C": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "powershell-download-exec"
+  languages: ["powershell"]
+  severity: "WARNING"
+  category: "security:supply-chain"
+  message: "Script downloaded over the network (unverified code execution risk)"
+  fix: "Ship scripts locally and verify signatures/hashes before running"
+  pattern: "DownloadString($U"
+  metavariable-regex:
+    "U": "[Hh]ttp|[Uu]ser|[Ii]nput|[Tt]emp"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-494"
+    "confidence": "HIGH"
+- id: "powershell-amsi-bypass"
+  languages: ["powershell"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "AMSI telemetry tampering (AmsiUtils / amsiInitFailed manipulation)"
+  fix: "Remove the bypass; let endpoint protection inspect script content"
+  pattern-either:
+    - pattern: "AmsiUtils"
+    - pattern: "amsiInitFailed"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "powershell-insecure-tls"
+  languages: ["powershell"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "TLS certificate verification disabled in a PowerShell web call"
+  fix: "Drop the override and trust the server certificate chain"
+  pattern-either:
+    - pattern: "ServerCertificateValidationCallback = $CB"
+    - pattern: "-SkipCertificateCheck"
+  metavariable-regex:
+    "CB": "true"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-295"
+    "confidence": "HIGH"
+- id: "powershell-plaintext-password"
+  languages: ["powershell"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Plaintext password converted to a SecureString (cleartext origin)"
+  fix: "Read credentials from a secret store or prompt instead of literals"
+  pattern: "ConvertTo-SecureString $P -AsPlainText"
+  metavariable-regex:
+    "P": "[Uu]ser|[Pp]assw|\\$plain"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-312"
+    "confidence": "HIGH"
+- id: "powershell-weak-cipher"
+  languages: ["powershell"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "Obsolete cipher (DES/RC2) in use"
+  fix: "Use AES-GCM or AES-256-CBC with authenticated encryption"
+  pattern-either:
+    - pattern: "DESCryptoServiceProvider"
+    - pattern: "RC2CryptoServiceProvider"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "powershell-weak-hash"
+  languages: ["powershell"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 chosen as a file hash (broken for security purposes)"
+  fix: "Use SHA256 or stronger for integrity checks"
+  pattern: "-Algorithm $ALG"
+  metavariable-regex:
+    "ALG": "MD5|SHA1"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "powershell-ssrf-user-input"
+  languages: ["powershell"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "REST call URL taken from user-controlled data (SSRF)"
+  fix: "Validate the URL against an allowlist of hosts/schemes"
+  pattern: "Invoke-RestMethod $URL"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest|[Nn]ext"
+  metadata:
+    "owasp": "A10:2021-Server-Side-Request-Forgery"
+    "cwe": "CWE-918"
+    "confidence": "HIGH"

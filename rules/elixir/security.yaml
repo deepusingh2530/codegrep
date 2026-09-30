@@ -1,0 +1,141 @@
+- id: "elixir-command-injection"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "OS command run with an argument taken from user-controlled data"
+  fix: "Use a fixed command and pass user data as separate arguments"
+  pattern-either:
+    - pattern: "System.cmd($CMD"
+    - pattern: ":os.cmd($CMD"
+  metavariable-regex:
+    "CMD": "[Uu]ser|[Ii]nput|[Aa]rgs|[Pp]arams?|[Qq]uery"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "elixir-code-eval"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Elixir code evaluated from user-controlled content"
+  fix: "Never eval request data; use pattern matching or data-driven dispatch"
+  pattern-either:
+    - pattern: "Code.eval_string($C"
+    - pattern: "Code.eval($C"
+  metavariable-regex:
+    "C": "[Uu]ser|[Ii]nput|[Ff]ormat|[Qq]uery|[Pp]aram|[Rr]equest"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-95"
+    "confidence": "HIGH"
+- id: "elixir-unsafe-term-decode"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:deserialization"
+  message: "binary_to_term on untrusted data (unsafe Erlang term decoding)"
+  fix: "Use :erlang.binary_to_term(bin, [:safe]) or an explicit allowlisted format"
+  pattern: ":erlang.binary_to_term($D"
+  metavariable-regex:
+    "D": "[Rr]esponse|[Nn]etwork|[Rr]equest|[Uu]ntrusted|[Ss]ocket|[Pp]ayload|[Bb]ody"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-502"
+    "confidence": "HIGH"
+- id: "elixir-sql-string-interpolation"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built with string interpolation (SQL injection)"
+  fix: "Use Ecto parameterized queries with ? / $n placeholders"
+  pattern-either:
+    - pattern: "query($Q"
+    - pattern: "execute($Q"
+  metavariable-regex:
+    "Q": "[Ff]ormat|[Uu]ser|[Ii]nput|[Pp]aram|[Qq]uery|\\+|interpolat|#\\{"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "elixir-open-redirect-user-input"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:open-redirect"
+  message: "Redirect target taken from user-controlled data (open redirect)"
+  fix: "Resolve the target against an allowlist of local paths"
+  pattern: "redirect(conn, $URL"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Nn]ext|[Ff]rom"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-601"
+    "confidence": "HIGH"
+- id: "elixir-ssrf-user-input"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "HTTP request URL taken from user-controlled data (SSRF)"
+  fix: "Validate the URL against an allowlist of hosts/schemes"
+  pattern-either:
+    - pattern: "HTTPoison.get($URL"
+    - pattern: "Tesla.get($URL"
+    - pattern: "Finch.get($URL"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest|[Nn]ext"
+  metadata:
+    "owasp": "A10:2021-Server-Side-Request-Forgery"
+    "cwe": "CWE-918"
+    "confidence": "HIGH"
+- id: "elixir-html-user-input"
+  languages: ["elixir"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "Raw HTML rendered from user-controlled data (XSS)"
+  fix: "Drop raw/1 or escape the value before inserting it into HTML"
+  pattern: "raw($H"
+  metavariable-regex:
+    "H": "[Ff]ormat|[Uu]ser|[Ii]nput|[Rr]equest|[Qq]uery|[Pp]aram"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "HIGH"
+- id: "elixir-weak-md5-sha1"
+  languages: ["elixir"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 hash used (broken for security purposes)"
+  fix: "Use SHA-256+ for integrity, bcrypt/scrypt/argon2 for passwords"
+  pattern-either:
+    - pattern: ":crypto.hash(:md5, $D"
+    - pattern: ":crypto.hash(:sha1, $D"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"
+- id: "elixir-atom-exhaustion"
+  languages: ["elixir"]
+  severity: "WARNING"
+  category: "security:denial-of-service"
+  message: "New atom created from user-controlled data (atom table exhaustion)"
+  fix: "Use String.to_existing_atom/1 and handle ArgumentError"
+  pattern: "String.to_atom($S"
+  metavariable-regex:
+    "S": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest|[Hh]eader"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-400"
+    "confidence": "MEDIUM"
+- id: "elixir-user-controlled-template"
+  languages: ["elixir"]
+  severity: "ERROR"
+  category: "security:ssti"
+  message: "Template evaluated from user-controlled content (SSTI)"
+  fix: "Render fixed templates; pass user data as assigns only"
+  pattern-either:
+    - pattern: "EEx.eval_string($T"
+    - pattern: "render_to_string($T"
+  metavariable-regex:
+    "T": "[Ff]ormat|[Uu]ser|[Ii]nput|[Rr]equest|[Qq]uery|[Pp]aram"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-1336"
+    "confidence": "HIGH"

@@ -2,8 +2,9 @@
 //! Core 10 langs (Python, JavaScript, TypeScript, Go, Java, Ruby, PHP, C#, C,
 //! C++) have tree-sitter grammars. Matching itself is regex-on-text, so
 //! additional languages (terraform, yaml, dockerfile, scala, ocaml, kotlin,
-//! bash, json, html) are supported via extension detection + text scan with
-//! no grammar.
+//! bash, json, html, rust, swift, dart, elixir, lua, powershell, sql) are
+//! supported via extension detection + text scan with no grammar. Files with
+//! unrecognized extensions are scanned as the `generic` pseudolanguage.
 
 use anyhow::{anyhow, Result};
 
@@ -29,6 +30,17 @@ pub enum Language {
     Bash,
     Json,
     Html,
+    Rust,
+    Swift,
+    Dart,
+    Elixir,
+    Lua,
+    PowerShell,
+    Sql,
+    /// Pseudolanguage for files whose extension is not recognized: scanned
+    /// by `generic`-language rules (secrets, polyglot patterns). Never
+    /// returned by [`Language::from_path`]; `scan()` applies it as fallback.
+    Generic,
 }
 
 impl Language {
@@ -78,6 +90,20 @@ impl Language {
             Some(Self::Kotlin)
         } else if path.ends_with(".sh") || path.ends_with(".bash") || path.ends_with(".zsh") {
             Some(Self::Bash)
+        } else if path.ends_with(".rs") {
+            Some(Self::Rust)
+        } else if path.ends_with(".swift") {
+            Some(Self::Swift)
+        } else if path.ends_with(".dart") {
+            Some(Self::Dart)
+        } else if path.ends_with(".ex") || path.ends_with(".exs") || path.ends_with(".heex") {
+            Some(Self::Elixir)
+        } else if path.ends_with(".lua") {
+            Some(Self::Lua)
+        } else if path.ends_with(".ps1") || path.ends_with(".psm1") {
+            Some(Self::PowerShell)
+        } else if path.ends_with(".sql") {
+            Some(Self::Sql)
         } else if path.ends_with(".json") {
             Some(Self::Json)
         } else if path.ends_with(".html") || path.ends_with(".htm") {
@@ -108,6 +134,14 @@ impl Language {
             Self::Bash => "bash",
             Self::Json => "json",
             Self::Html => "html",
+            Self::Rust => "rust",
+            Self::Swift => "swift",
+            Self::Dart => "dart",
+            Self::Elixir => "elixir",
+            Self::Lua => "lua",
+            Self::PowerShell => "powershell",
+            Self::Sql => "sql",
+            Self::Generic => "generic",
         }
     }
 
@@ -133,7 +167,15 @@ impl Language {
             | Self::Kotlin
             | Self::Bash
             | Self::Json
-            | Self::Html => return None,
+            | Self::Html
+            | Self::Rust
+            | Self::Swift
+            | Self::Dart
+            | Self::Elixir
+            | Self::Lua
+            | Self::PowerShell
+            | Self::Sql
+            | Self::Generic => return None,
         })
     }
 }
@@ -221,7 +263,40 @@ mod tests {
         assert_eq!(Language::from_path("a.rb"), Some(Language::Ruby));
         assert_eq!(Language::from_path("a.php"), Some(Language::Php));
         assert_eq!(Language::from_path("a.cs"), Some(Language::CSharp));
-        assert_eq!(Language::from_path("a.rs"), None);
+        // Recognized extension → language; truly unknown → None (scan()
+        // falls back to Language::Generic so generic rules still apply).
+        assert_eq!(Language::from_path("a.rs"), Some(Language::Rust));
+        assert_eq!(Language::from_path("notes.txt"), None);
+        assert_eq!(Language::from_path("Makefile"), None);
+    }
+
+    #[test]
+    fn detects_additional_languages() {
+        assert_eq!(Language::from_path("main.rs"), Some(Language::Rust));
+        assert_eq!(Language::from_path("App.swift"), Some(Language::Swift));
+        assert_eq!(Language::from_path("main.dart"), Some(Language::Dart));
+        assert_eq!(Language::from_path("app.ex"), Some(Language::Elixir));
+        assert_eq!(Language::from_path("test.exs"), Some(Language::Elixir));
+        assert_eq!(Language::from_path("page.heex"), Some(Language::Elixir));
+        assert_eq!(Language::from_path("init.lua"), Some(Language::Lua));
+        assert_eq!(Language::from_path("deploy.ps1"), Some(Language::PowerShell));
+        assert_eq!(Language::from_path("mod.psm1"), Some(Language::PowerShell));
+        assert_eq!(Language::from_path("query.sql"), Some(Language::Sql));
+        for l in [
+            Language::Rust,
+            Language::Swift,
+            Language::Dart,
+            Language::Elixir,
+            Language::Lua,
+            Language::PowerShell,
+            Language::Sql,
+            Language::Generic,
+        ] {
+            assert!(l.grammar().is_none(), "{} must be text-scanned", l.name());
+        }
+        assert_eq!(Language::Generic.name(), "generic");
+        // Generic is a fallback, not a detectable language.
+        assert_ne!(Language::from_path("whatever.xyz"), Some(Language::Generic));
     }
 
     #[test]

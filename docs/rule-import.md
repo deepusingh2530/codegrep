@@ -28,9 +28,10 @@ content, and the translator is original MIT-licensed code.
 | `severity: CRITICAL/HIGH/MEDIUM/LOW` | `ERROR` / `WARNING` / `INFO` |
 | `metadata` (scalars) | copied through (used by CVE-watch, reports) |
 
-Unsupported languages are dropped from a rule's language list (e.g. Rust in a
-`[python, rust]` rule keeps `python`); a rule with *no* supported language is
-skipped.
+Unsupported languages are dropped from a rule's language list (e.g. COBOL in a
+`[python, cobol]` rule keeps `python`); a rule with *no* supported language is
+skipped. All 27 recognized languages import (including the text-scanned
+ones: `rust`, `swift`, `dart`, `elixir`, `lua`, `powershell`, `sql`, …).
 
 ## What is refused (strictly)
 

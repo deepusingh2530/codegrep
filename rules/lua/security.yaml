@@ -1,0 +1,110 @@
+- id: "lua-code-eval"
+  languages: ["lua"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Lua chunk compiled/executed from user-controlled content"
+  fix: "Never load request data; use fixed chunks or data-driven dispatch"
+  pattern-either:
+    - pattern: "load($C"
+    - pattern: "loadstring($C"
+  metavariable-regex:
+    "C": "[Uu]ser|[Ii]nput|[Ff]ormat|[Qq]uery|[Pp]aram|[Rr]equest"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-94"
+    "confidence": "HIGH"
+- id: "lua-command-injection"
+  languages: ["lua"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "Shell command built from user-controlled data"
+  fix: "Use a fixed command; pass user data as separate arguments"
+  pattern: "os.execute($CMD"
+  metavariable-regex:
+    "CMD": "[Uu]ser|[Ii]nput|[Aa]rgs|[Pp]arams?|[Qq]uery"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "lua-path-traversal"
+  languages: ["lua"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "File opened with a path derived from user-controlled data"
+  fix: "Canonicalize the path and confirm it stays inside the base directory"
+  pattern: "io.open($P"
+  metavariable-regex:
+    "P": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|\\.\\./"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "HIGH"
+- id: "lua-library-load"
+  languages: ["lua"]
+  severity: "ERROR"
+  category: "security:misconfig"
+  message: "Native library loaded from a user-controlled path (library injection)"
+  fix: "Load only fixed, trusted library paths"
+  pattern: "package.loadlib($L"
+  metavariable-regex:
+    "L": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|\\.\\./"
+  metadata:
+    "owasp": "A05:2021-Security-Misconfiguration"
+    "cwe": "CWE-114"
+    "confidence": "HIGH"
+- id: "lua-ssrf-user-input"
+  languages: ["lua"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "HTTP request URL taken from user-controlled data (SSRF)"
+  fix: "Validate the URL against an allowlist of hosts/schemes"
+  pattern-either:
+    - pattern: "http.get($URL"
+    - pattern: "http.request($URL"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]equest|[Nn]ext"
+  metadata:
+    "owasp": "A10:2021-Server-Side-Request-Forgery"
+    "cwe": "CWE-918"
+    "confidence": "HIGH"
+- id: "lua-html-user-input"
+  languages: ["lua"]
+  severity: "WARNING"
+  category: "security:owasp-a3-xss"
+  message: "HTML written from user-controlled data (XSS)"
+  fix: "Escape user content before writing it to the response body"
+  pattern: "ngx.say($H"
+  metavariable-regex:
+    "H": "[Ff]ormat|[Uu]ser|[Ii]nput|[Rr]equest|[Qq]uery|[Pp]aram"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-79"
+    "confidence": "HIGH"
+- id: "lua-sql-concat"
+  languages: ["lua"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built by concatenation (SQL injection)"
+  fix: "Use parameterized queries instead of concatenating SQL"
+  pattern-either:
+    - pattern: "conn:query($Q"
+    - pattern: "db:query($Q"
+  metavariable-regex:
+    "Q": "[Ff]ormat|[Uu]ser|[Ii]nput|[Pp]aram|\\.\\."
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "lua-weak-md5-sha1"
+  languages: ["lua"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 hash used (broken for security purposes)"
+  fix: "Use SHA-256+ for integrity, bcrypt/scrypt/argon2 for passwords"
+  pattern-either:
+    - pattern: "md5.sumhexa("
+    - pattern: "md5.sum("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"

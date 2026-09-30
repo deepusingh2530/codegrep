@@ -1,0 +1,1 @@
+redirect(conn, to: "/dashboard")

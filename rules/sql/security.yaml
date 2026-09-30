@@ -1,0 +1,83 @@
+- id: "sql-hardcoded-password"
+  languages: ["sql"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "CREATE USER with a hardcoded password literal"
+  fix: "Use a parameterized/secret-managed password or external auth"
+  pattern-either:
+    - pattern: "IDENTIFIED BY $PW"
+  metavariable-regex:
+    "PW": "'.+'"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+- id: "sql-grant-all-public"
+  languages: ["sql"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "ALL PRIVILEGES granted to PUBLIC or any-host account"
+  fix: "Grant least-privilege rights to a specific role/account"
+  pattern: "GRANT ALL PRIVILEGES ON $O TO $T"
+  metavariable-regex:
+    "T": "PUBLIC|'%'|ALL USERS"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-269"
+    "confidence": "MEDIUM"
+- id: "sql-dynamic-sql-concat"
+  languages: ["sql"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Dynamic SQL statement built by concatenation (SQL injection)"
+  fix: "Use parameterized statements / sp_executesql with bind variables"
+  pattern-either:
+    - pattern: "EXECUTE IMMEDIATE $Q"
+    - pattern: "EXEC($Q"
+  metavariable-regex:
+    "Q": "[Uu]ser|[Ii]nput|[Pp]aram|\\+"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "HIGH"
+- id: "sql-xp-cmdshell"
+  languages: ["sql"]
+  severity: "ERROR"
+  category: "security:code-execution"
+  message: "xp_cmdshell enabled/invoked (OS command execution from SQL)"
+  fix: "Disable xp_cmdshell; use external job runners for OS tasks"
+  pattern: "xp_cmdshell $CMD"
+  metavariable-regex:
+    "CMD": "'.+'"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-78"
+    "confidence": "HIGH"
+- id: "sql-into-outfile"
+  languages: ["sql"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SELECT INTO OUTFILE/DUMPFILE writes server files (SQLi impact)"
+  fix: "Remove FILE privilege; export through controlled application code"
+  pattern-either:
+    - pattern: "INTO OUTFILE $F"
+    - pattern: "INTO DUMPFILE $F"
+  metavariable-regex:
+    "F": "'.+'"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-73"
+    "confidence": "HIGH"
+- id: "sql-weak-md5-sha1"
+  languages: ["sql"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "MD5/SHA-1 hash used (broken for security purposes)"
+  fix: "Use SHA-256+ for integrity, bcrypt/scrypt/argon2 for passwords"
+  pattern-either:
+    - pattern: "MD5("
+    - pattern: "SHA1("
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-327"
+    "confidence": "MEDIUM"

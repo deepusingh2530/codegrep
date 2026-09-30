@@ -397,7 +397,19 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
         .par_iter()
         .filter_map(|path| {
             let path_s = path.to_string_lossy().to_string();
-            let lang = cg_parser::Language::from_path(&path_s)?;
+            // Unknown extension → generic: `generic`-language rules (secrets,
+            // polyglot patterns) still apply instead of skipping the file.
+            let lang = cg_parser::Language::from_path(&path_s)
+                .unwrap_or(cg_parser::Language::Generic);
+            if lang == cg_parser::Language::Generic {
+                // Unrecognized extensions can be large data files; bound the
+                // read so a stray .log/.csv cannot blow up the scan.
+                if let Ok(m) = path.metadata() {
+                    if m.len() > 10_000_000 {
+                        return None;
+                    }
+                }
+            }
             let text = std::fs::read_to_string(path).ok()?;
             let chash = hash_str(&text);
             if !opts.no_cache {
@@ -846,7 +858,10 @@ pub fn diff_changed_lines(baseline: &str) -> HashMap<String, HashSet<usize>> {
 }
 
 /// Discover scannable files under `root` (respects .gitignore, hidden
-/// files included, restricted to supported languages).
+/// files included). Every text file is a candidate — language resolution
+/// happens per-file at scan time, and unrecognized extensions are scanned
+/// as the `generic` pseudolanguage so generic rules (secrets, polyglot
+/// patterns) never silently miss a file.
 pub fn discover_files(root: &str) -> Vec<PathBuf> {
     let mut b = ignore::WalkBuilder::new(root);
     b.hidden(false)
@@ -858,7 +873,6 @@ pub fn discover_files(root: &str) -> Vec<PathBuf> {
         .filter_map(|e| e.ok())
         .map(|e| e.into_path())
         .filter(|p| p.is_file())
-        .filter(|p| cg_parser::Language::from_path(&p.to_string_lossy()).is_some())
         .collect()
 }
 

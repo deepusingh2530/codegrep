@@ -21,7 +21,7 @@ authoring, not data loaded into the scanner.
 1. `cargo update` — pull compatible security patches for Rust dependencies
 2. `cargo audit` — fail (and open/refresh a blocker issue) on rustsec advisories
 3. Gates — `cargo test`, `clippy -D warnings`, `codegrep rule test rules/`
-   (all 2152 fixtures)
+   (every rule's pass/fail fixtures)
 4. CVE watch — NVD window → `docs/cve-coverage.md` + workflow summary
 5. Bump `crates/codegrep` patch version + CHANGELOG entry (`scripts/bump.sh`)
 6. Commit + tag `v*` + `scripts/publish.sh` → crates.io

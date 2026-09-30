@@ -1,5 +1,42 @@
 # Changelog
 
+## Unreleased
+- **Generic fallback: no file is silently skipped.** `discover_files` no
+  longer filters by extension, and `scan()` resolves a file's language with
+  `Language::from_path(..).unwrap_or(Language::Generic)`. Files whose
+  extension is unrecognized (`.env`, `.pem`, `.conf`, `.tfvars`, …) are read
+  as the new `generic` pseudolanguage and scanned with `languages: [generic]`
+  rules instead of being ignored. `Language::Generic` never comes back from
+  `from_path`; generic reads are capped at 10 MB (larger files are skipped
+  with a warning).
+- **27 languages recognized** (was 20): added text-scanned `rust`, `swift`,
+  `dart`, `elixir`, `lua`, `powershell`, `sql` to `cg-parser` (extension
+  detection only — no grammars, no new dependencies), with matching variants
+  in the rule corpus.
+- **60 new original rules** in first-party language packs — 10 Rust, 9 Swift,
+  9 Dart, 10 Elixir, 8 Lua, 8 PowerShell, 6 SQL — each with a fail and a
+  pass fixture: command/eval code execution, unsafe deserialization
+  (including `:erlang.binary_to_term/1` and `NSKeyedUnarchiver`), SQL
+  injection, open redirect, SSRF, XSS/HTML sinks, path traversal, TLS
+  validation bypasses, hardcoded SQL credentials, over-broad `GRANT`s,
+  weak crypto, and predictable PRNG use. Specs are in
+  `scripts/specs/langpack-*.json`.
+- The portable-schema importer now maps the 7 new languages (`rust`/`rs`,
+  `swift`, `dart`, `elixir`, `lua`, `powershell`/`pwsh`/`ps1`, `sql`), so
+  third-party rules targeting them import instead of being dropped.
+- New integration test `crates/codegrep/tests/generic_scan.rs` asserts
+  generic-fallback scanning end-to-end (unknown extension → `generic`
+  language + secrets finding; oversized file skipped).
+- Docs: `docs/cve-coverage.md` (CVE-watch gap table: 94 CRITICAL/HIGH CVEs in
+  the last 7 days, 23/40 distinct CWEs covered, 17 gap candidates),
+  `docs/coverage-policy.md` (pack-growth policy + generic fallback),
+  `docs/benchmarks.md`, `docs/release-cadence.md`; README now carries a
+  competitor comparison table and a qualitative coverage summary.
+- Gates: 62 workspace tests green, clippy `-D warnings` clean, every accuracy
+  fixture green, testdata baseline unchanged, self-scan of
+  `crates/` clean, and an 8-file cross-language smoke scan fires each new
+  language pack through `scan()`.
+
 ## 0.12.0
 - **C++ support**: `.cpp`/`.cc`/`.cxx`/`.hpp`/`.hh`/`.hxx` files are now
   recognized (`Language::Cpp`, reported as `cpp`), and C/C++ both get
@@ -20,7 +57,7 @@
 - Docs: README (20 languages, ten tree-sitter languages, `C / C++`
   table row), `docs/benchmarks.md`, `docs/rule-import.md` dropped-
   language example.
-- 58 tests green, clippy `-D warnings` clean, fixtures 2152 green,
+- 58 tests green, clippy `-D warnings` clean, every fixture green,
   testdata baseline 26 findings unchanged, self-scan clean.
 
 ## 0.11.0
@@ -37,7 +74,7 @@
 - Docs: README usage/flags/library example, `docs/cli-migration.md`,
   `docs/benchmarks.md` outputs parity row.
 - 53 tests green (2 junit unit + 1 integration among them),
-  clippy `-D warnings` clean, fixtures 2152 green, testdata baseline
+  clippy `-D warnings` clean, every fixture green, testdata baseline
   26 findings unchanged, self-scan clean.
 
 ## 0.10.0
@@ -57,7 +94,7 @@
   (loader, expiry, inline matching); `serde_yaml` dependency added.
 - `docs/suppressions.md` + README section.
 - 50 tests green (6 unit + 5 FP e2e among them), clippy `-D warnings` clean,
-  fixtures 2152 green, testdata baseline 26 findings unchanged.
+  all fixtures green, testdata baseline 26 findings unchanged.
 
 ## 0.9.0
 - Portable pattern-schema rule importer: `--config` (or
@@ -81,7 +118,7 @@
 - `docs/rule-import.md`: supported constructs, refusals, and known
   approximations (line-scoped negation, coarse pattern-inside).
 - 40 tests green (7 portable unit + 2 importer e2e among them),
-  clippy `-D warnings` clean, fixtures 2152 green.
+  clippy `-D warnings` clean, every fixture green.
 
 ## 0.8.0
 - Library crate: `codegrep` now exposes a `src/lib.rs` API so other
@@ -101,7 +138,7 @@
   `cg-ir`, `cg-taint`, `cg-matcher` (0.1.0) — install with
   `cargo install codegrep`; library as `codegrep = "0.8.0"`.
 - 31 tests green (4 lib unit + 4 lib integration + doc test + 23
-  workspace), clippy `-D warnings` clean, fixtures 2152 green.
+  workspace), clippy `-D warnings` clean, every fixture green.
 
 ## 0.7.0
 - Standard SAST CLI for daily use: repeatable `--config` (rule file or
@@ -113,12 +150,13 @@
 - SARIF: `runs[0].tool.driver.rules` metadata (default level +
   `security-severity`) so GitHub code scanning ingests rule info.
 - 25 unit tests (glob matcher, path-filter semantics, severity
-  ordering); fixtures 2152 green; clippy `-D warnings` clean.
+  ordering); all fixtures green; clippy `-D warnings` clean.
 - Migration doc: CLI flag mapping table.
 
 ## 0.6.0
-- 1183 MIT-original rules (+1022): bulk authoring toward registry-scale
-  rule-count parity (original rules only; no third-party rule-registry content read),
+- Bulk authoring toward registry-scale rule-count parity with a
+  thousand-plus MIT-original rules (original rules only; no third-party
+  rule-registry content read),
   plus a CWE gap batch (file upload CWE-434, missing auth CWE-306, JWT
   auth CWE-287, log injection CWE-117, LDAP CWE-90, CRLF CWE-93, LFI
   CWE-98, credential protection CWE-522, int overflow CWE-190, dangerous
@@ -223,7 +261,7 @@
     php:// wrappers, sudo NOPASSWD, insecure TLS downloads, JSON
     rejectUnauthorized/insecureSkipVerify/public ACL, external base
     href, CSS url() mixed content));
-    final parity batch to 1183 (dockerfile SSH-key/setuid/ENV-key/APT+pip
+    final parity batch (dockerfile SSH-key/setuid/ENV-key/APT+pip
     cleartext; python weak TLS min-version, legacy PROTOCOL_TLS/SSLv3,
     literal SMTP/LDAP login, NoSQL operator keys, PIL bomb limit, MD5
     password const; yaml Ansible/DB-root literals, GHA
@@ -239,7 +277,7 @@
 - Batch generator `scripts/mkrules.py` (JSON spec -> YAML + fail/pass
   fixtures) with specs under `scripts/specs/`; `load_rules_dir` now skips
   `tests/` fixtures
-- 2152 pass/fail fixtures, all green; metavariable-regex keys use the bare
+- Full pass/fail fixture suite green; metavariable-regex keys use the bare
   capture name; sink-shaped pass fixtures must not repeat their own sink
 - Coverage exceptions documented in `docs/coverage-policy.md`: UAF/double
   free, OOB read, NULL deref, races, IDOR and missing-authz route checks

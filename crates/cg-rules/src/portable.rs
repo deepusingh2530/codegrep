@@ -123,6 +123,16 @@ fn map_languages(list: &[String]) -> (Vec<String>, Vec<String>) {
         ("dockerfile", "dockerfile"),
         ("docker", "dockerfile"),
         ("html", "html"),
+        ("rust", "rust"),
+        ("rs", "rust"),
+        ("swift", "swift"),
+        ("dart", "dart"),
+        ("elixir", "elixir"),
+        ("lua", "lua"),
+        ("powershell", "powershell"),
+        ("pwsh", "powershell"),
+        ("ps1", "powershell"),
+        ("sql", "sql"),
         ("generic", "generic"),
     ]);
     let mut out = vec![];
@@ -606,27 +616,50 @@ patterns:
         let v = parse(
             r#"
 id: portable-langs
-languages: [python, elixir]
+languages: [python, cobol]
 severity: ERROR
 message: m
 pattern: eval($X)
 "#,
         );
-        // elixir-only would fail; python+elixir keeps python with a warning.
+        // cobol-only would fail; python+cobol keeps python with a warning.
         let (r, warnings) = translate(&v).unwrap();
         assert_eq!(r.languages, vec!["python"]);
-        assert!(warnings[0].contains("elixir"));
+        assert!(warnings[0].contains("cobol"));
 
         let v2 = parse(
             r#"
 id: portable-langs2
-languages: [rust]
+languages: [cobol]
 severity: ERROR
 message: m
 pattern: eval($X)
 "#,
         );
         assert!(translate(&v2).unwrap_err().contains("no supported languages"));
+    }
+
+    #[test]
+    fn new_text_scanned_languages_mapped() {
+        for (from, want) in [
+            ("rust", "rust"),
+            ("rs", "rust"),
+            ("swift", "swift"),
+            ("dart", "dart"),
+            ("elixir", "elixir"),
+            ("lua", "lua"),
+            ("powershell", "powershell"),
+            ("pwsh", "powershell"),
+            ("ps1", "powershell"),
+            ("sql", "sql"),
+        ] {
+            let v = parse(&format!(
+                "id: portable-{from}\nlanguages: [{from}]\nseverity: ERROR\nmessage: m\npattern: eval($X)\n"
+            ));
+            let (r, warnings) = translate(&v).unwrap();
+            assert_eq!(r.languages, vec![want], "{from} should map to {want}");
+            assert!(warnings.is_empty(), "{from} must not warn: {warnings:?}");
+        }
     }
 
     #[test]

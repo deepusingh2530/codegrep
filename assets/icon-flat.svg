@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="codegrep">
+  <title>codegrep (flat)</title>
+
+  <!-- Flat single-color variant for one-tone contexts (stamps, favicons,
+       print). Same silhouette as assets/icon.svg without gradients. -->
+  <path d="M32 6.5 L54 14 v17 c0 13.4-10 22.4-22 27 c-12-4.6-22-13.6-22-27 V14 z"
+        fill="none" stroke="#0A0F1A" stroke-width="4"
+        stroke-linejoin="round"/>
+  <path d="M22.5 23.5 L29 30 L22.5 36.5"
+        fill="none" stroke="#E4572E" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M33 37.5 H42" fill="none" stroke="#E4572E" stroke-width="4" stroke-linecap="round"/>
+</svg>

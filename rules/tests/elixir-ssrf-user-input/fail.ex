@@ -1,0 +1,1 @@
+HTTPoison.get(userUrl)
