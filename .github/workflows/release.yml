@@ -99,8 +99,11 @@ jobs:
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           else
+            # Another matrix job may create the release between view and
+            # create; on that 422 fall back to uploading to theirs.
             gh release create "$GITHUB_REF_NAME" "${FILES[@]}" \
               --repo "$GITHUB_REPOSITORY" \
               --title "codegrep ${GITHUB_REF_NAME}" \
-              --generate-notes
+              --generate-notes \
+              || gh release upload "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           fi
