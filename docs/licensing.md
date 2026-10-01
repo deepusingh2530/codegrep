@@ -8,8 +8,8 @@ time, and how to get a different answer.
 
 | Version | License | Commercial use |
 | --- | --- | --- |
-| `0.12.0` and earlier | MIT ([`LICENSE-MIT`](LICENSE-MIT)) | allowed, forever |
-| first release after `0.12.0` (and all work on `main` from this change onward) | **PolyForm Noncommercial 1.0.0** ([`LICENSE`](LICENSE)) | **not permitted** |
+| `0.12.0` and earlier | MIT ([`LICENSE-MIT`](../LICENSE-MIT)) | allowed, forever |
+| first release after `0.12.0` (and all work on `main` from this change onward) | **PolyForm Noncommercial 1.0.0** ([`LICENSE`](../LICENSE)) | **not permitted** |
 
 The boundary is one-way and cannot be undone. MIT grants are irrevocable: if
 you obtained 0.12.0 (or any earlier version) from crates.io, a GitHub Release,

@@ -40,7 +40,8 @@ git push   # merged rules ride the next weekly release
 
 Rules must be authored from scratch (this repo reads no third-party rule
 content); the gap table tells you *which* CWEs and example CVEs need coverage.
-Optional local assist: `python3 scripts/rule-gen.py` (Ollama, offline).
+Optional local assist: `python3 scripts/rule-gen.py` (Ollama, offline) — see
+[`rule-authoring.md`](rule-authoring.md) for the loop it feeds.
 
 ## Manual trigger / dry-run
 
