@@ -1,5 +1,5 @@
 //! False-positive suppression: auditable YAML entries (rule/path/line +
-//! required reason, optional expiry) and inline `codegrep-ignore` comments.
+//! required reason, optional expiry) and inline `scanward-ignore` comments.
 //!
 //! Suppression files are checked into the repo so every silenced finding has
 //! a reviewable reason; expired entries stop applying and warn loudly.
@@ -145,12 +145,12 @@ pub fn parse_date(s: &str) -> Result<(i64, u32, u32)> {
     Ok((y as i64, m, d))
 }
 
-/// Markers that must precede `codegrep-ignore` on the same line for it to
+/// Markers that must precede `scanward-ignore` on the same line for it to
 /// count (so the text inside string literals rarely triggers by accident).
 const MARKERS: &[&str] = &["#", "//", "<!--", "/*"];
 
-/// An ignore comment found on a line: `next` means `codegrep-ignore-next-line`
-/// (applies to the following line); ids = `codegrep-ignore(a, b)` scope,
+/// An ignore comment found on a line: `next` means `scanward-ignore-next-line`
+/// (applies to the following line); ids = `scanward-ignore(a, b)` scope,
 /// `None` = all rules.
 struct InlineIgnore {
     next: bool,
@@ -159,16 +159,27 @@ struct InlineIgnore {
 
 /// Collect ignore comments on one source line (word-boundary + comment
 /// marker required).
+///
+/// Accepts both the current `scanward-ignore` marker and the legacy
+/// `codegrep-ignore` marker from before the project was renamed, so
+/// suppressions already committed in user repositories keep working.
 fn ignores_on(line: &str) -> Vec<InlineIgnore> {
-    const TOKEN: &str = "codegrep-ignore";
-    const NEXT: &str = "codegrep-ignore-next-line";
+    const TOKEN: &str = "scanward-ignore";
+    const LEGACY: &str = "codegrep-ignore";
     let mut out = vec![];
     let mut from = 0usize;
-    while let Some(rel) = line[from..].find(TOKEN) {
+    loop {
+        // Prefer whichever marker appears first on the remainder of the line.
+        let (rel, token) = match (line[from..].find(TOKEN), line[from..].find(LEGACY)) {
+            (Some(a), Some(b)) if b < a => (b, LEGACY),
+            (Some(a), _) => (a, TOKEN),
+            (None, Some(b)) => (b, LEGACY),
+            (None, None) => break,
+        };
         let idx = from + rel;
-        from = idx + TOKEN.len();
+        from = idx + token.len();
         let before = &line[..idx];
-        // Word boundary: `xcodegrep-ignore` does not count.
+        // Word boundary: `xscanward-ignore` does not count.
         if before
             .chars()
             .next_back()
@@ -182,7 +193,7 @@ fn ignores_on(line: &str) -> Vec<InlineIgnore> {
         }
         let after = &line[from..];
         let next = after.starts_with("-next-line");
-        let rest = if next { &after[NEXT.len() - TOKEN.len()..] } else { after };
+        let rest = if next { &after["-next-line".len()..] } else { after };
         let rest = rest.trim_start();
         let ids = if let Some(inner) = rest.strip_prefix('(') {
             match inner.find(')') {
@@ -205,7 +216,7 @@ fn ignores_on(line: &str) -> Vec<InlineIgnore> {
 }
 
 /// Drop findings suppressed by an inline comment on their own line
-/// (`# codegrep-ignore[...]`) or by a `# codegrep-ignore-next-line` comment
+/// (`# scanward-ignore[...]`) or by a `# scanward-ignore-next-line` comment
 /// on the line directly above. Returns (kept, suppressed_count).
 pub fn apply_inline(text: &str, findings: Vec<Finding>) -> (Vec<Finding>, usize) {
     let lines: Vec<&str> = text.lines().collect();
@@ -324,13 +335,13 @@ mod tests {
 
     #[test]
     fn inline_same_line_and_next_line() {
-        let text = "os.system(cmd)  # codegrep-ignore\n\
+        let text = "os.system(cmd)  # scanward-ignore\n\
                     foo()\n\
-                    bar()  # codegrep-ignore-next-line\n\
+                    bar()  # scanward-ignore-next-line\n\
                     baz()\n\
-                    qux()  # codegrep-ignore(pyrce-exec)\n\
+                    qux()  # scanward-ignore(pyrce-exec)\n\
                     zap()\n\
-                    y = \"codegrep-ignore\"\n";
+                    y = \"scanward-ignore\"\n";
         // line 1: bare same-line ignore
         let (kept, n) = apply_inline(text, vec![finding("any-rule", 1)]);
         assert_eq!((kept.len(), n), (0, 1));
@@ -354,17 +365,36 @@ mod tests {
     }
 
     #[test]
+    fn legacy_codegrep_ignore_marker_still_suppresses() {
+        // Suppressions committed before the rename must keep working: the
+        // legacy `codegrep-ignore` marker is still honored.
+        let text = "os.system(cmd)  # codegrep-ignore\n\
+                    bar()\n\
+                    qux()  # codegrep-ignore-next-line\n\
+                    zap()\n\
+                    y = \"codegrep-ignore\"\n";
+        let (kept, n) = apply_inline(text, vec![finding("any-rule", 1)]);
+        assert_eq!((kept.len(), n), (0, 1), "bare legacy marker on the same line");
+let (kept, n) = apply_inline(text, vec![finding("any-rule", 3)]);
+        assert_eq!((kept.len(), n), (1, 0), "a marker does not suppress its own line");
+        let (kept, n) = apply_inline(text, vec![finding("any-rule", 4)]);
+        assert_eq!((kept.len(), n), (0, 1), "legacy next-line marker");
+        let (kept, n) = apply_inline(text, vec![finding("any", 5)]);
+        assert_eq!((kept.len(), n), (1, 0), "no comment marker -> no suppression");
+    }
+
+    #[test]
     fn inline_requires_comment_marker_and_boundary() {
         // Inside plain text (no comment marker) must not suppress.
-        let text = "x = \"codegrep-ignore\"";
+        let text = "x = \"scanward-ignore\"";
         let (kept, n) = apply_inline(text, vec![finding("r", 1)]);
         assert_eq!((kept.len(), n), (1, 0));
         // Not at a word boundary.
-        let text = "# xcodegrep-ignore";
+        let text = "# xscanward-ignore";
         let (kept, n) = apply_inline(text, vec![finding("r", 1)]);
         assert_eq!((kept.len(), n), (1, 0));
         // C-style comment works too.
-        let text = "os.system(c);  // codegrep-ignore";
+        let text = "os.system(c);  // scanward-ignore";
         let (kept, n) = apply_inline(text, vec![finding("r", 1)]);
         assert_eq!((kept.len(), n), (0, 1));
     }

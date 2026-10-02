@@ -14,16 +14,16 @@ jobs:
       - name: Lint (deny warnings)
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Build release binary
-        run: cargo build --release -p codegrep
+        run: cargo build --release -p scanward
       - name: Rule corpus gate (rules + accuracy fixtures)
-        run: ./target/release/codegrep rule test rules/
+        run: ./target/release/scanward rule test rules/
       - name: Demo scan (testdata)
-        run: ./target/release/codegrep scan ./testdata --rules ./rules --metrics
+        run: ./target/release/scanward scan ./testdata --rules ./rules --metrics
       - name: Self-scan gate (source must be clean)
-        run: ./target/release/codegrep scan ./crates --min-severity warning --error
+        run: ./target/release/scanward scan ./crates --min-severity warning --error
       - name: SARIF report (testdata findings)
         if: always()
-        run: ./target/release/codegrep scan ./testdata --sarif -o results.sarif
+        run: ./target/release/scanward scan ./testdata --sarif -o results.sarif
       - name: Upload SARIF artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -32,7 +32,7 @@ jobs:
           path: results.sarif
       - name: JUnit report (testdata findings)
         if: always()
-        run: ./target/release/codegrep scan ./testdata --junit -o results.xml
+        run: ./target/release/scanward scan ./testdata --junit -o results.xml
       - name: Upload JUnit artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

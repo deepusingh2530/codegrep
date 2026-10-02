@@ -1,7 +1,7 @@
 //! Library API smoke test: the crate must be usable as a dependency
 //! (as prsniffer-style embedders do), with no CLI involved.
 
-use codegrep::{junit_from, sarif_from, scan, ScanOptions};
+use scanward::{junit_from, sarif_from, scan, ScanOptions};
 
 #[test]
 fn scans_testdata_with_shipped_rules() {
@@ -51,7 +51,7 @@ fn severity_and_path_filters_apply() {
     assert!(errors_only
         .findings
         .iter()
-        .all(|f| codegrep::severity_rank(&f.severity) >= 3));
+        .all(|f| scanward::severity_rank(&f.severity) >= 3));
 
     let excluded = scan(&ScanOptions {
         exclude: vec!["**/*.py".into()],
@@ -73,7 +73,7 @@ fn sarif_document_is_producible_from_report() {
     .expect("scan");
     let doc = sarif_from(&report.findings);
     assert_eq!(doc["version"], "2.1.0");
-    assert_eq!(doc["runs"][0]["tool"]["driver"]["name"], "codegrep");
+    assert_eq!(doc["runs"][0]["tool"]["driver"]["name"], "scanward");
     let results = doc["runs"][0]["results"].as_array().unwrap();
     assert_eq!(results.len(), report.findings.len());
 }

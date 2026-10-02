@@ -1,4 +1,4 @@
-# Contributing to codegrep
+# Contributing to scanward
 
 Thanks for wanting to help. This document is the whole deal: how to get a
 change in, what CI will check, and the two rules that are non-negotiable in
@@ -10,7 +10,7 @@ this project (original content only, offline by design).
    direct pushes, no force pushes, no branch deletion, and linear history
    only. Even the maintainer works from a branch and a PR — that is deliberate,
    because it keeps the review trail intact.
-2. **Original content only.** codegrep ships its own engine and its own rules.
+2. **Original content only.** scanward ships its own engine and its own rules.
    Do not copy third-party scanner code or rule-registry content (those
    registries are generally incompatible with this project's terms).
    Concepts from permissively licensed projects (Tree-sitter, Gitleaks,
@@ -47,10 +47,10 @@ description — it will be reviewed on its merits, not on where it came from.
 ```sh
 cargo test --workspace                                    # unit + integration
 cargo clippy --workspace --all-targets -- -D warnings     # zero warnings
-cargo build --release -p codegrep
-./target/release/codegrep rule test rules/                 # rule + fixture gate
-./target/release/codegrep scan ./crates --min-severity warning --error   # self-scan
-./target/release/codegrep scan ./testdata --rules ./rules --metrics     # demo scan
+cargo build --release -p scanward
+./target/release/scanward rule test rules/                 # rule + fixture gate
+./target/release/scanward scan ./crates --min-severity warning --error   # self-scan
+./target/release/scanward scan ./testdata --rules ./rules --metrics     # demo scan
 ```
 
 `cargo deny check` runs in CI (advisories, licenses, bans, sources). All six
@@ -65,7 +65,7 @@ Rules are authored as JSON specs and generated into YAML plus fixtures
 ```sh
 $EDITOR scripts/specs/my-rule.json     # id, languages, severity, message, fix, fixtures
 python3 scripts/mkrules.py scripts/specs/my-rule.json
-./target/release/codegrep rule test rules/
+./target/release/scanward rule test rules/
 ```
 
 A spec must carry:
@@ -93,7 +93,7 @@ user-controlled input may claim ERROR/HIGH. Do not ship INFO-band noise.
    so third-party rules for it import instead of being dropped.
 3. Author the first pack in `scripts/specs/langpack-<lang>.json` and generate it.
 4. Update the language table in `README.md` and the counts you can verify with
-   `codegrep rule test rules/`.
+   `scanward rule test rules/`.
 
 A new language must not regress the ones that exist: `testdata` and the
 self-scan baselines are part of CI.
@@ -112,7 +112,7 @@ self-scan baselines are part of CI.
 
 ## Security reports
 
-Do **not** open a public issue for a vulnerability in codegrep itself or in
+Do **not** open a public issue for a vulnerability in scanward itself or in
 the rules it ships. Follow [`SECURITY.md`](SECURITY.md) (private disclosure,
 acknowledgement targets, supported versions).
 
@@ -124,12 +124,12 @@ gate will be closed.
 
 ## License and your contribution
 
-codegrep is **not** MIT-licensed any more. The first release after `0.12.0`
+scanward is **not** MIT-licensed any more. The first release after `0.12.0`
 is licensed under [PolyForm Noncommercial 1.0.0](LICENSE): free for personal,
 research, educational, charity, public-sector and other noncommercial use;
 **commercial use is not permitted** without a separate license from the
 maintainer. See [`docs/licensing.md`](docs/licensing.md) for the full terms and
-the version boundary (versions `0.12.0` and earlier remain MIT, permanently).
+the version boundary (`codegrep` `0.12.0` and earlier remain MIT, permanently).
 
 By opening a pull request you agree to these terms for your contribution:
 

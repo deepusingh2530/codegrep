@@ -1,7 +1,7 @@
 //! End-to-end FP management: suppression files (explicit + auto-discovered),
-//! inline `codegrep-ignore` comments, expiry warnings, and strict validation.
+//! inline `scanward-ignore` comments, expiry warnings, and strict validation.
 
-use codegrep::{scan, ScanOptions};
+use scanward::{scan, ScanOptions};
 
 const PY: &str = r#"import subprocess, os, pickle
 user = "x"
@@ -11,7 +11,7 @@ eval(user)
 pickle.loads(user)
 "#;
 
-fn scan_dir(dir: &std::path::Path, suppress: Vec<String>) -> codegrep::ScanReport {
+fn scan_dir(dir: &std::path::Path, suppress: Vec<String>) -> scanward::ScanReport {
     scan(&ScanOptions {
         path: dir.to_str().unwrap().into(),
         rules: "../../rules".into(),
@@ -59,7 +59,7 @@ fn auto_discovery_at_scan_root() {
     let dir = temp_dir("auto");
     std::fs::write(dir.join("app.py"), PY).unwrap();
     std::fs::write(
-        dir.join(".codegrep-suppressions.yml"),
+        dir.join(".scanward-suppressions.yml"),
         "- rule: \"py-*\"\n  reason: bulk-triaged as test code\n",
     )
     .unwrap();
@@ -111,8 +111,8 @@ fn inline_ignore_comments_suppress() {
         dir.join("app.py"),
         "import subprocess, os, pickle\n\
          user = \"x\"\n\
-         os.system(\"ls \" + user)  # codegrep-ignore(py-command-injection)\n\
-         subprocess.run(user, shell=True)  # codegrep-ignore\n\
+         os.system(\"ls \" + user)  # scanward-ignore(py-command-injection)\n\
+         subprocess.run(user, shell=True)  # scanward-ignore\n\
          eval(user)  # innocuous\n\
          pickle.loads(user)\n",
     )
@@ -143,7 +143,7 @@ fn next_line_ignore_and_validation() {
         dir.join("app.py"),
         "import os\n\
          user = \"x\"\n\
-         # codegrep-ignore-next-line\n\
+         # scanward-ignore-next-line\n\
          os.system(\"ls \" + user)\n",
     )
     .unwrap();

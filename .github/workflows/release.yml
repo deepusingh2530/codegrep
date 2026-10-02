@@ -18,7 +18,7 @@ jobs:
       - name: Rule corpus gate
         run: |
           cargo build -q --release
-          ./target/release/codegrep rule test rules/ > /dev/null
+          ./target/release/scanward rule test rules/ > /dev/null
       - name: Publish to crates.io
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -61,16 +61,16 @@ jobs:
         with:
           key: ${{ matrix.target }}
       - name: Build
-        run: cargo build --release -p codegrep --target ${{ matrix.target }}
+        run: cargo build --release -p scanward --target ${{ matrix.target }}
       - name: Package
         run: |
           set -euo pipefail
-          BIN="target/${{ matrix.target }}/release/codegrep"
+          BIN="target/${{ matrix.target }}/release/scanward"
           [ "$RUNNER_OS" = "Windows" ] || true
           mkdir -p dist
-          cp "$BIN" dist/codegrep
+          cp "$BIN" dist/scanward
           cp LICENSE README.md dist/
-          tar -czf "codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz" -C dist .
+          tar -czf "scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz" -C dist .
       - name: SBOM (CycloneDX)
         uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
         with:
@@ -86,15 +86,15 @@ jobs:
         run: |
           set -euo pipefail
           cosign sign-blob --yes \
-            --bundle "codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.sig.bundle" \
-            "codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz"
+            --bundle "scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.sig.bundle" \
+            "scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz"
       - name: Attach to GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          FILES=("codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz"
-                 "codegrep-${GITHUB_REF_NAME}-${{ matrix.name }}.sig.bundle"
+          FILES=("scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz"
+                 "scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.sig.bundle"
                  "sbom-${{ matrix.name }}.cdx.json")
           if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
@@ -103,7 +103,7 @@ jobs:
             # create; on that 422 fall back to uploading to theirs.
             gh release create "$GITHUB_REF_NAME" "${FILES[@]}" \
               --repo "$GITHUB_REPOSITORY" \
-              --title "codegrep ${GITHUB_REF_NAME}" \
+              --title "scanward ${GITHUB_REF_NAME}" \
               --generate-notes \
               || gh release upload "$GITHUB_REF_NAME" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
           fi

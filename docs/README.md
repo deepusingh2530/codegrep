@@ -7,7 +7,7 @@
 | [coverage-policy.md](coverage-policy.md) | What is deliberately *not* flagged, and why; the severity contract |
 | [cve-coverage.md](cve-coverage.md) | Generated weekly CVE-watch gap table: which CWEs recent CVEs exercise that no rule covers yet |
 | [release-cadence.md](release-cadence.md) | Weekly release flow, what each gate enforces, how a CVE gap becomes a rule |
-| [cli-migration.md](cli-migration.md) | Flag-by-flag mapping from other scanners' CLIs to codegrep |
+| [cli-migration.md](cli-migration.md) | Flag-by-flag mapping from other scanners' CLIs to scanward |
 | [benchmarks.md](benchmarks.md) | Measured performance against a reference scanner, with the method |
 | [suppressions.md](suppressions.md) | False-positive management: suppression files and inline ignores |
 | [rule-import.md](rule-import.md) | Using rules written in the portable pattern schema, and what is refused |

@@ -1,21 +1,21 @@
 [package]
-name = "codegrep"
-version = "0.12.0"
+name = "scanward"
+version = "0.13.0"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "PolyForm-Noncommercial-1.0.0"
 description = "Fast offline multi-language SAST scanner with a curated, original rule corpus"
-repository = "https://github.com/deepusingh2530/codegrep"
+repository = "https://github.com/deepusingh2530/scanward"
 keywords = ["sast", "security", "static-analysis", "sarif", "scanner"]
 categories = ["command-line-utilities", "security", "development-tools"]
 readme = "README.md"
 
 [lib]
-name = "codegrep"
+name = "scanward"
 path = "src/lib.rs"
 
 [[bin]]
-name = "codegrep"
+name = "scanward"
 path = "src/main.rs"
 
 [dependencies]

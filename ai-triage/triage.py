@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-# ai-triage: async AI side-plane for codegrep (BYOK, optional, stdlib only).
+# ai-triage: async AI side-plane for scanward (BYOK, optional, stdlib only).
 #
-# Core `codegrep scan` NEVER calls this and needs no keys. This script consumes
+# Core `scanward scan` NEVER calls this and needs no keys. This script consumes
 # scan output and adds AI judgment:
 #   triage mode: score findings as TP/FP (heuristic offline, or real LLM via
 #                Anthropic / OpenAI / Ollama when you provide keys/endpoints).
 #   fix mode:    ask the LLM for a minimal fix, apply it to a scratch copy of
-#                the repo, re-run `codegrep scan` on the patched copy, and emit
+#                the repo, re-run `scanward scan` on the patched copy, and emit
 #                a unified diff ONLY when the original finding is gone
 #                (verified autofix — unverified suggestions are discarded).
 #
 # No third-party packages: urllib only. No third-party scanner code.
 # Licensed with the project: see LICENSE (PolyForm Noncommercial 1.0.0).
 #
-#   codegrep scan ./repo --json -o findings.json
+#   scanward scan ./repo --json -o findings.json
 #   python3 ai-triage/triage.py --mode triage --input findings.json
 #   python3 ai-triage/triage.py --mode triage --provider anthropic --input findings.json
 #   python3 ai-triage/triage.py --mode fix --input findings.json --repo ./repo
@@ -143,7 +143,7 @@ def apply_snippet(path, line_no, new_snippet):
 
 def cmd_fix(args):
     findings = load_findings(args.input)
-    work = tempfile.mkdtemp(prefix="codegrep-fix-")
+    work = tempfile.mkdtemp(prefix="scanward-fix-")
     shutil.copytree(args.repo, os.path.join(work, "repo"),
                     ignore=shutil.ignore_patterns(".git", "target"))
     verified = 0
@@ -170,7 +170,7 @@ def cmd_fix(args):
         # Verify: original rule must no longer fire on the patched copy.
         rule_id = finding.get("rule_id", "")
         check = subprocess.run(
-            [args.codegrep_bin, "scan", os.path.dirname(target), "--json",
+            [args.scanward_bin, "scan", os.path.dirname(target), "--json",
              "--rules", args.rules, "--no-cache"],
             capture_output=True, text=True, cwd=args.repo)
         try:
@@ -185,12 +185,12 @@ def cmd_fix(args):
             print(f"--- verified fix for {rule_id} {rel}:{line_no}")
             print(diff.stdout or "(content replaced, no git available for diff)")
             verified += 1
-    print(f"codegrep fix: {verified}/{len(findings)} verified", file=sys.stderr)
+    print(f"scanward fix: {verified}/{len(findings)} verified", file=sys.stderr)
     shutil.rmtree(work, ignore_errors=True)
 
 
 def main():
-    ap = argparse.ArgumentParser(description="codegrep AI side-plane (BYOK)")
+    ap = argparse.ArgumentParser(description="scanward AI side-plane (BYOK)")
     ap.add_argument("--mode", choices=["triage", "fix"], default="triage")
     ap.add_argument("--input", default="-", help="findings JSON file or - for stdin")
     ap.add_argument("--provider", default="heuristic",
@@ -199,7 +199,7 @@ def main():
                     help="provider model id (anthropic/openai/ollama)")
     ap.add_argument("--repo", default=".", help="repo root (fix mode)")
     ap.add_argument("--rules", default="rules", help="rules dir (fix verify)")
-    ap.add_argument("--codegrep-bin", default="./target/release/codegrep")
+    ap.add_argument("--scanward-bin", default="./target/release/scanward")
     args = ap.parse_args()
     if args.mode == "triage":
         cmd_triage(args)

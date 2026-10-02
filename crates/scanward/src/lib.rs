@@ -1,9 +1,9 @@
-//! codegrep library: embeddable offline SAST scanning.
+//! scanward library: embeddable offline SAST scanning.
 //!
 //! The CLI (`src/main.rs`) is a thin wrapper over this API:
 //!
 //! ```no_run
-//! let report = codegrep::scan(&codegrep::ScanOptions {
+//! let report = scanward::scan(&scanward::ScanOptions {
 //!     path: "src".into(),
 //!     rules: "rules".into(),
 //!     ..Default::default()
@@ -25,7 +25,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::time::Instant;
 
-// Re-exports so embedders only need the `codegrep` crate.
+// Re-exports so embedders only need the `scanward` crate.
 pub use cg_matcher;
 pub use cg_parser;
 pub use cg_rules::{self, Rule};
@@ -70,12 +70,12 @@ pub struct ScanOptions {
     pub diff_only: bool,
     /// Disable the persistent content-hash cache.
     pub no_cache: bool,
-    /// Override cache directory (default: platform cache dir/codegrep).
+    /// Override cache directory (default: platform cache dir/scanward).
     pub cache_dir: Option<String>,
     /// Rayon worker threads (0 = auto).
     pub jobs: usize,
     /// Suppression files (repeatable). When empty, the scan root is
-    /// auto-checked for `.codegrep-suppressions.yml`/`.yaml`.
+    /// auto-checked for `.scanward-suppressions.yml`/`.yaml`.
     pub suppress: Vec<String>,
 }
 
@@ -114,9 +114,9 @@ pub struct ScanReport {
     /// Whether the persistent cache was enabled.
     pub cache_on: bool,
     /// Warnings from loading user-supplied rules (portable-schema skips,
-    /// dropped languages, ignored fixes). Empty for codegrep's own rules.
+    /// dropped languages, ignored fixes). Empty for scanward's own rules.
     pub warnings: Vec<String>,
-    /// Findings dropped by suppression files or inline `codegrep-ignore`
+    /// Findings dropped by suppression files or inline `scanward-ignore`
     /// comments during this scan.
     pub suppressed: usize,
 }
@@ -161,7 +161,7 @@ pub fn sarif_from(findings: &[Finding]) -> serde_json::Value {
         "version": "2.1.0",
         "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
         "runs": [{"tool": {"driver": {
-            "name": "codegrep",
+            "name": "scanward",
             "version": env!("CARGO_PKG_VERSION"),
             "rules": rules
         }}, "results": results}]
@@ -217,12 +217,12 @@ pub fn junit_from(findings: &[Finding]) -> String {
     out.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     let _ = writeln!(
         out,
-        "<testsuites name=\"codegrep\" tests=\"{total}\" failures=\"{}\" errors=\"0\" time=\"0\">",
+        "<testsuites name=\"scanward\" tests=\"{total}\" failures=\"{}\" errors=\"0\" time=\"0\">",
         if placeholder { 0 } else { findings.len() }
     );
     if placeholder {
-        out.push_str("  <testsuite name=\"codegrep\" tests=\"1\" failures=\"0\" errors=\"0\" time=\"0\">\n");
-        out.push_str("    <testcase classname=\"codegrep\" name=\"no findings\" time=\"0\"/>\n");
+        out.push_str("  <testsuite name=\"scanward\" tests=\"1\" failures=\"0\" errors=\"0\" time=\"0\">\n");
+        out.push_str("    <testcase classname=\"scanward\" name=\"no findings\" time=\"0\"/>\n");
         out.push_str("  </testsuite>\n");
     } else {
         for (path, fs) in &groups {
@@ -284,8 +284,8 @@ pub fn load_rule_set_report(rules_dir: &str, config: &[String]) -> Result<(Vec<R
                 || c == "auto"
             {
                 anyhow::bail!(
-                    "codegrep: remote/registry configs are not supported (--config {c}). \
-                     codegrep is offline-first: point --config at a local rule file or directory."
+                    "scanward: remote/registry configs are not supported (--config {c}). \
+                     scanward is offline-first: point --config at a local rule file or directory."
                 );
             }
             let p = std::path::Path::new(c);
@@ -300,7 +300,7 @@ pub fn load_rule_set_report(rules_dir: &str, config: &[String]) -> Result<(Vec<R
                 out.extend(rules);
                 warnings.extend(w);
             } else {
-                anyhow::bail!("codegrep: --config {c}: no such file or directory");
+                anyhow::bail!("scanward: --config {c}: no such file or directory");
             }
         }
         return Ok((out, warnings));
@@ -330,12 +330,20 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
     let index = cg_rules::RuleIndex::build(&rules);
 
     // Suppression files: explicit list wins; otherwise auto-discover the
-    // conventional file at the scan root (directories only).
+    // conventional file at the scan root (directories only). The legacy
+    // `.codegrep-suppressions.*` names are still honored, checked after the
+    // current ones, so repositories written before the rename keep working.
     let mut suppressions: Vec<Suppression> = Vec::new();
     if opts.suppress.is_empty() {
         let root = std::path::Path::new(&opts.path);
         if root.is_dir() {
-            for name in [".codegrep-suppressions.yml", ".codegrep-suppressions.yaml"] {
+            let candidates = [
+                ".scanward-suppressions.yml",
+                ".scanward-suppressions.yaml",
+                ".codegrep-suppressions.yml",
+                ".codegrep-suppressions.yaml",
+            ];
+            for name in candidates {
                 let p = root.join(name);
                 if p.is_file() {
                     suppressions = suppress::load_suppressions(&p.to_string_lossy())?;
@@ -690,7 +698,7 @@ pub fn parse_min_severity(s: &str) -> Result<u8> {
         "warning" | "warn" | "medium" => Ok(2),
         "info" | "note" | "low" => Ok(1),
         other => anyhow::bail!(
-            "codegrep: unknown severity level {other:?} (expected error|warning|info)"
+            "scanward: unknown severity level {other:?} (expected error|warning|info)"
         ),
     }
 }
@@ -910,11 +918,11 @@ struct CacheEntry {
 
 fn default_cache_dir() -> PathBuf {
     if let Ok(xdg) = std::env::var("XDG_CACHE_HOME") {
-        PathBuf::from(xdg).join("codegrep")
+        PathBuf::from(xdg).join("scanward")
     } else if let Ok(home) = std::env::var("HOME") {
-        PathBuf::from(home).join(".cache").join("codegrep")
+        PathBuf::from(home).join(".cache").join("scanward")
     } else {
-        PathBuf::from("/tmp/codegrep-cache")
+        PathBuf::from("/tmp/scanward-cache")
     }
 }
 

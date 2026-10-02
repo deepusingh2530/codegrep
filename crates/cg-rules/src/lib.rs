@@ -1,4 +1,4 @@
-//! codegrep rules: YAML loader + validator + literal indexer (Aho-Corasick).
+//! scanward rules: YAML loader + validator + literal indexer (Aho-Corasick).
 //! Single-doc YAML rule format of our own design; content is MIT-licensed own rules.
 //! User-supplied portable-schema rule files are detected and translated on load
 //! (see [`portable`]); only files passed in by the user are ever parsed this way.

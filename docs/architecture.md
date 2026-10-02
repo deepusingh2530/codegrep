@@ -1,6 +1,6 @@
 # Architecture
 
-How a scan actually flows through codegrep, and the invariants that any change
+How a scan actually flows through scanward, and the invariants that any change
 must preserve. This is the reference for contributors; the rule format itself
 lives in [`rule-authoring.md`](rule-authoring.md) and the CLI surface in the
 [README](../README.md).
@@ -29,7 +29,7 @@ scan(path, options)
   │                           taint rules: sources → propagators → sanitizers → sinks
   │
   ├─ dedup + filters          severity floor, --exclude/--include, suppressions,
-  │                           --baseline/--diff-only, inline codegrep-ignore
+  │                           --baseline/--diff-only, inline scanward-ignore
   │
   └─ emit                     human table | --json | --sarif 2.1.0 | --junit
 ```
@@ -43,7 +43,7 @@ call summaries taint consumes, not to gate pattern hits.
 
 | Crate | Responsibility |
 | --- | --- |
-| [`codegrep`](../crates/codegrep) | Library API + CLI (`scan`, `rule test`, `autofix --verify`), walker, cache, SARIF/JSON/JUnit output |
+| [`scanward`](../crates/scanward) | Library API + CLI (`scan`, `rule test`, `autofix --verify`), walker, cache, SARIF/JSON/JUnit output |
 | [`cg-parser`](../crates/cg-parser) | Language detection (27 languages), tree-sitter loading, error-tolerant parse, IR lowering |
 | [`cg-ir`](../crates/cg-ir) | Shared node representation normalized across languages |
 | [`cg-matcher`](../crates/cg-matcher) | Pattern → regex compilation and capture semantics, metavariable-regex/-comparison |
@@ -51,7 +51,7 @@ call summaries taint consumes, not to gate pattern hits.
 | [`cg-rules`](../crates/cg-rules) | Rule loading/validation, literal extraction, portable-schema importer |
 
 Dependencies flow one way: `cg-parser` → `cg-ir` → `cg-matcher` → `cg-taint` →
-`cg-rules` → `codegrep`. No crate depends on `codegrep`.
+`cg-rules` → `scanward`. No crate depends on `scanward`.
 
 ## Invariants
 
@@ -69,7 +69,7 @@ These are not preferences; breaking one is a bug.
    not be reported as "clean".
 4. **Never panic on user input.** Malformed code, malformed rule files, hostile
    archives, and syntax errors all degrade to warnings.
-5. **Every rule ships a fail and a pass fixture.** `codegrep rule test rules/`
+5. **Every rule ships a fail and a pass fixture.** `scanward rule test rules/`
    is a merge gate, not a suggestion.
 6. **Original content only.** No third-party scanner code and no third-party
    rule text — see [`licensing.md`](licensing.md).

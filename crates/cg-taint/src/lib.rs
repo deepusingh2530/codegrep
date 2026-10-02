@@ -1,4 +1,4 @@
-//! codegrep taint v0.3: intra-file flow with function summaries.
+//! scanward taint v0.3: intra-file flow with function summaries.
 //! - Line-level propagation (assign, concat, call args) as before.
 //! - Function definitions are extracted per language family (indent vs braces).
 //!   Parameters are treated as untrusted (standard SAST over-approximation).

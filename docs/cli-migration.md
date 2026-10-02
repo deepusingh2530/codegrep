@@ -1,4 +1,4 @@
-# Migrating to codegrep
+# Migrating to scanward
 - Rule header: `rules:` list → single-doc YAML per rule (`id, languages, severity, message, fix, pattern|pattern-either|taint`).
 - Operators: `pattern, pattern-either, patterns, pattern-not, metavariable-regex, metavariable-comparison` supported; `pattern-inside` partial (file-level containment); `pattern-not-inside` roadmap.
 - Metavars: `$VAR`, `$...ARGS`, `...` supported.
@@ -7,7 +7,7 @@
 
 ## CLI flag mapping
 
-| Common SAST CLI convention | codegrep |
+| Common SAST CLI convention | scanward |
 | --- | --- |
 | `--config=<file-or-dir>` (repeatable) | `--config=<PATH>` (repeatable; supersedes `--rules`) |
 | `--config=p/...`, `--config=auto`, git URLs | refused with a clear error (offline-first; point at local files) |
@@ -17,4 +17,4 @@
 | `--json` / `--sarif` | `--json` / `--sarif` (SARIF includes `driver.rules` metadata + `security-severity`) / `--junit` (JUnit XML, one testsuite per file) |
 | `--metrics=on/off` | `--metrics` (off by default) |
 | `--baseline-commit` + diff scan | `--baseline <ref> --diff-only` |
-| typical CI gate command | `codegrep scan --baseline <ref> --diff-only --sarif --error -o results.sarif` |
+| typical CI gate command | `scanward scan --baseline <ref> --diff-only --sarif --error -o results.sarif` |

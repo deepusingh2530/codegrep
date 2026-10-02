@@ -4,7 +4,7 @@
 
 | Version | Supported |
 | --- | --- |
-| latest release (see [Releases](https://github.com/deepusingh2530/codegrep/releases)) | ✅ |
+| latest release (see [Releases](https://github.com/deepusingh2530/scanward/releases)) | ✅ |
 | `main` (pre-release) | ✅ (best effort) |
 | older releases | ❌ (upgrade; weekly cadence) |
 
@@ -23,7 +23,7 @@ review expectations. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Use [GitHub private vulnerability reporting](https://github.com/deepusingh2530/codegrep/security/advisories/new)
+Use [GitHub private vulnerability reporting](https://github.com/deepusingh2530/scanward/security/advisories/new)
 (send the report privately to the maintainers). If you prefer email, open a
 public issue asking for a contact address only (no details).
 

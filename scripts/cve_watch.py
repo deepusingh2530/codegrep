@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Weekly CVE watch for codegrep.
+"""Weekly CVE watch for scanward.
 
 Fetches recent CRITICAL/HIGH CVEs from the NVD 2.0 API, maps their CWEs
-against the codegrep rule corpus, and writes a markdown coverage report.
+against the scanward rule corpus, and writes a markdown coverage report.
 
-This does NOT feed vulnerability data into the scanner: codegrep stays fully
+This does NOT feed vulnerability data into the scanner: scanward stays fully
 offline. The report drives *rule authoring* — new patterns for vulnerability
 classes that recent CVEs exercise but no rule covers yet. Dependency CVEs in
 scanned projects are handled by the SCA sidecar (osv-scanner); CVEs in
-codegrep's own Rust dependencies are handled by `cargo audit`.
+scanward's own Rust dependencies are handled by `cargo audit`.
 
 Usage:
     python3 scripts/cve_watch.py --days 7 --out docs/cve-coverage.md
@@ -40,7 +40,7 @@ except ImportError:
     sys.exit("need pyyaml: python3 -m pip install pyyaml")
 
 NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
-UA = "codegrep-cve-watch (weekly coverage report; offline SAST)"
+UA = "scanward-cve-watch (weekly coverage report; offline SAST)"
 CWE_RE = re.compile(r"CWE-\d+")
 
 
@@ -152,11 +152,11 @@ def build_report(cves: list[dict], by_cwe: dict[str, set[str]], total: int,
         "- Source: NVD 2.0 API (CRITICAL + HIGH, published in window)",
         f"{note}",
         "",
-        "> codegrep is pattern-based SAST: it flags vulnerability *classes* in code,",
+        "> scanward is pattern-based SAST: it flags vulnerability *classes* in code,",
         "> not per-product advisories. **Gap** below = a CWE exercised by recent CVEs",
         "> with no matching rule yet → candidate for `scripts/specs/` + `mkrules.py`.",
-        "> Dependency advisories for scanned projects: `codegrep scan --only sca`",
-        "> (osv-scanner). codegrep's own deps: `cargo audit` in the weekly run.",
+        "> Dependency advisories for scanned projects: `scanward scan --only sca`",
+        "> (osv-scanner). scanward's own deps: `cargo audit` in the weekly run.",
         "",
         "## Window summary",
         "",
@@ -182,7 +182,7 @@ def build_report(cves: list[dict], by_cwe: dict[str, set[str]], total: int,
             "",
             "To close a gap: write an original spec at `scripts/specs/gap-sec-*.json`,",
             "run `python3 scripts/mkrules.py <spec>` (generates rule + fail/pass",
-            "fixtures), then `codegrep rule test rules/` — CI requires fixtures for",
+            "fixtures), then `scanward rule test rules/` — CI requires fixtures for",
             "every rule.",
             "",
         ]

@@ -2,7 +2,7 @@
 //! YAML rule format used by third-party scanners (keys like `patterns:`,
 //! `pattern-not-inside`, `mode: taint`, `pattern-sources`).
 //!
-//! Only *user-supplied* rule files are translated at runtime; codegrep ships
+//! Only *user-supplied* rule files are translated at runtime; scanward ships
 //! none of their content. Translation is strict: any construct we cannot
 //! represent with faithful semantics skips that rule with a reported reason
 //! instead of silently weakening it.
@@ -90,7 +90,7 @@ fn seq_str(v: &Value) -> Option<Vec<String>> {
         .map(|items| items.iter().filter_map(|i| i.as_str()).map(str::to_string).collect())
 }
 
-/// Map portable language names onto codegrep languages; drop unsupported.
+/// Map portable language names onto scanward languages; drop unsupported.
 fn map_languages(list: &[String]) -> (Vec<String>, Vec<String>) {
     let mapped: HashMap<&str, &str> = HashMap::from([
         ("python", "python"),

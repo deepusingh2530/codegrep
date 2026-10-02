@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-order=(cg-parser cg-rules cg-ir cg-taint cg-matcher codegrep)
+order=(cg-parser cg-rules cg-ir cg-taint cg-matcher scanward)
 
 crate_version() {
   grep -m1 '^version = ' "crates/$1/Cargo.toml" | cut -d'"' -f2
@@ -57,7 +57,7 @@ for c in "${order[@]}"; do
   else
     printf '%s\n' "$pub_out"
   fi
-  if [ "$c" != "codegrep" ]; then
+  if [ "$c" != "scanward" ]; then
     wait_indexed "$c" "$v"
   fi
 done

@@ -12,7 +12,7 @@ fixture gate.
 ```sh
 $EDITOR scripts/specs/my-rule.json
 python3 scripts/mkrules.py scripts/specs/my-rule.json
-./target/release/codegrep rule test rules/
+./target/release/scanward rule test rules/
 ```
 
 ## Engine contract
@@ -76,13 +76,13 @@ claim genuinely is "untrusted input must reach this sink"; use a pattern with
 ## Fixtures
 
 `rules/tests/<id>/fail.<ext>` must produce at least one finding from that rule
-alone; `pass.<ext>` must produce none. They are per-rule: `codegrep rule test`
+alone; `pass.<ext>` must produce none. They are per-rule: `scanward rule test`
 runs each rule against only its own fixtures, so a fixture that trips a
 *different* rule is fine.
 
 ```sh
-./target/release/codegrep rule test rules/            # all rules
-./target/release/codegrep rule test rules/ | grep my-id   # just yours
+./target/release/scanward rule test rules/            # all rules
+./target/release/scanward rule test rules/ | grep my-id   # just yours
 ```
 
 A pass fixture is where precision is proven. Write the counterexample you
@@ -90,7 +90,7 @@ actually expect in real code — the benign call a reviewer will type.
 
 ## Validation loop
 
-1. `codegrep rule test rules/<your-rule>.yaml` — schema loads, id is unique.
+1. `scanward rule test rules/<your-rule>.yaml` — schema loads, id is unique.
 2. Fail fixture triggers; pass fixture stays clean.
 3. On failure, adjust once and re-run; if it still misses, the pattern is
    probably over-constrained — usually a `metavariable-regex` that is too

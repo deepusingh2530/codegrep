@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Patch-bump crates/codegrep and prepend a CHANGELOG entry (weekly cadence).
+# Patch-bump crates/scanward and prepend a CHANGELOG entry (weekly cadence).
 # Usage: ./scripts/bump.sh ["extra changelog bullet", ...]
 # Prints the new version on stdout (last line).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-MANIFEST=crates/codegrep/Cargo.toml
+MANIFEST=crates/scanward/Cargo.toml
 cur="$(grep -m1 '^version = ' "$MANIFEST" | cut -d'"' -f2)"
 IFS=. read -r major minor patch <<<"$cur"
 new="$major.$minor.$((patch + 1))"
@@ -23,8 +23,8 @@ EOF
 cargo metadata --format-version 1 >/dev/null
 
 rules_line=""
-if [ -x target/debug/codegrep ]; then
-  count="$(./target/debug/codegrep rule test rules/ 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1 || true)"
+if [ -x target/debug/scanward ]; then
+  count="$(./target/debug/scanward rule test rules/ 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1 || true)"
   if [ -n "${count:-}" ]; then
     rules_line="Rule corpus: $count rules, fixtures re-verified."
   fi

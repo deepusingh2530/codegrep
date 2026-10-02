@@ -1,4 +1,4 @@
-//! codegrep matcher v0.2 (Tier-2 incremental).
+//! scanward matcher v0.2 (Tier-2 incremental).
 //! - Patterns with $VAR / $...ARGS / ... compiled to regex, matched over the
 //!   WHOLE file text (DOTALL) so multi-line sinks work; byte offset -> line/col.
 //! - `metavariable-regex` and `metavariable-comparison` ($N > 1024) supported.
@@ -19,7 +19,7 @@ pub struct Match {
     pub captures: HashMap<String, String>,
 }
 
-/// Translate a codegrep pattern to a regex string.
+/// Translate a scanward pattern to a regex string.
 /// - `$VAR`, `$X` -> named capture `.+?`
 /// - `$...ARGS` -> named capture `.*?`
 /// - `...` -> `.*?`

@@ -1,23 +1,23 @@
 # Importing rules from other scanners (portable pattern schema)
 
-codegrep understands the **portable pattern-rule schema** — the YAML shape used
+scanward understands the **portable pattern-rule schema** — the YAML shape used
 by common open-source static analyzers: `patterns:` conjunctions,
 `pattern-either`, `pattern-not`, `metavariable-regex`,
 `mode: taint` with `pattern-sources` / `pattern-sinks` / `pattern-sanitizers`,
 and so on. Point `--config` (or `ScanOptions.rules`) at **your own local rule
-files** and they load alongside codegrep's built-in corpus.
+files** and they load alongside scanward's built-in corpus.
 
 ```bash
 # scan a repo with third-party rule files you already have locally
-codegrep scan . --config ./my-rules/
+scanward scan . --config ./my-rules/
 ```
 
-Only files you pass in are ever parsed this way; codegrep ships none of their
+Only files you pass in are ever parsed this way; scanward ships none of their
 content, and the translator is original code shipped with the project.
 
 ## What translates
 
-| Portable construct | codegrep equivalent |
+| Portable construct | scanward equivalent |
 |---|---|
 | `pattern` | `pattern` |
 | `pattern-either: [{pattern: ...}]` | `pattern-either` |
@@ -51,7 +51,7 @@ rest of the directory from loading.
 
 ## Known approximations
 
-- **`pattern-not` is line-scoped** in codegrep's matcher; in the portable
+- **`pattern-not` is line-scoped** in scanward's matcher; in the portable
   schema it is structural (enclosing-scope). Imported negations may fire in a
   few extra cases. Fix: tighten the positive pattern.
 - **`pattern-inside` is coarse** (line-neighborhood check, not full AST
@@ -63,8 +63,8 @@ rest of the directory from loading.
 ## Verifying what was imported
 
 ```bash
-codegrep rule test ./my-rules/     # validity + skip reasons on stderr
-codegrep scan . --config ./my-rules/ --metrics
+scanward rule test ./my-rules/     # validity + skip reasons on stderr
+scanward scan . --config ./my-rules/ --metrics
 ```
 
 `rule test` lists every translated rule id with its languages and severity, so

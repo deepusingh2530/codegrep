@@ -1,7 +1,7 @@
 # Rule coverage policy
 
 The rule corpus is organized around these categories, and every rule ships
-with `rules/tests/<id>/{fail,pass}` fixtures verified by `codegrep rule test`:
+with `rules/tests/<id>/{fail,pass}` fixtures verified by `scanward rule test`:
 
 - code-execution, deserialization, misconfig, open-redirect
 - owasp-a1-injection (SQL/LDAP/NoSQL/XPath/command), owasp-a10-ssrf,
@@ -29,7 +29,7 @@ Three deliberate exceptions (documented here so they read as decisions, not gaps
    assignments). Secret shapes are language-independent; duplicating them per
    language would multiply maintenance without new signal. The `generic`
    pseudolanguage applies to every discovered file — and files whose
-   extension codegrep doesn't recognize (`.env`, `.pem`, `.toml`, `.conf`, …)
+   extension scanward doesn't recognize (`.env`, `.pem`, `.toml`, `.conf`, …)
    are scanned *as* `generic` rather than skipped, up to a 10 MB read cap.
    So the blast radius of `find`/`grep`-style blind spots is gone: 27
    languages are recognized, every other file still gets the polyglot pass.
