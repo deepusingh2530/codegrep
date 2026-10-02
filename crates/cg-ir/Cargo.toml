@@ -1,6 +1,6 @@
 [package]
 name = "cg-ir"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "PolyForm-Noncommercial-1.0.0"
@@ -12,5 +12,5 @@ categories = ["development-tools"]
 [dependencies]
 serde = { workspace = true }
 anyhow = { workspace = true }
-cg-parser = { path = "../cg-parser", version = "0.2.0" }
+cg-parser = { path = "../cg-parser", version = "0.3.0" }
 tree-sitter = { workspace = true }

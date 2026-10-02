@@ -26,7 +26,7 @@ serde_yaml = { workspace = true }
 anyhow = { workspace = true }
 rayon = { workspace = true }
 ignore = { workspace = true }
-cg-parser = { path = "../cg-parser", version = "0.2.0" }
-cg-matcher = { path = "../cg-matcher", version = "0.1.1" }
-cg-taint = { path = "../cg-taint", version = "0.1.1" }
-cg-rules = { path = "../cg-rules", version = "0.2.1" }
+cg-parser = { path = "../cg-parser", version = "0.3.0" }
+cg-matcher = { path = "../cg-matcher", version = "0.2.0" }
+cg-taint = { path = "../cg-taint", version = "0.2.0" }
+cg-rules = { path = "../cg-rules", version = "0.3.0" }
