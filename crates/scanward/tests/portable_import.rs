@@ -1,7 +1,7 @@
 //! End-to-end: user-supplied portable-schema rule files load, translate,
 //! and fire against a target through the public `scan()` API.
 
-use codegrep::{load_rule_set_report, scan, ScanOptions};
+use scanward::{load_rule_set_report, scan, ScanOptions};
 
 const PORTABLE_RULE: &str = r#"
 id: portable-import-example

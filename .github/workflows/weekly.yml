@@ -36,7 +36,7 @@ jobs:
       - name: Pull dependency security patches
         run: cargo update
 
-      - name: Rustsec audit (codegrep's own dependencies)
+      - name: Rustsec audit (scanward's own dependencies)
         run: |
           cargo install cargo-audit --locked --quiet
           cargo audit
@@ -46,7 +46,7 @@ jobs:
           cargo test --workspace
           cargo clippy --workspace --all-targets -- -D warnings
           cargo build -q --release
-          ./target/release/codegrep rule test rules/ | tail -1
+          ./target/release/scanward rule test rules/ | tail -1
 
       - name: CVE watch (NVD -> rule coverage report)
         run: |

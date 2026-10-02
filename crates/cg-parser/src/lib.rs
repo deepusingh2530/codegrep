@@ -1,4 +1,4 @@
-//! codegrep parser: Tree-sitter (MIT) based, error-tolerant, offline.
+//! scanward parser: Tree-sitter (MIT) based, error-tolerant, offline.
 //! Core 10 langs (Python, JavaScript, TypeScript, Go, Java, Ruby, PHP, C#, C,
 //! C++) have tree-sitter grammars. Matching itself is regex-on-text, so
 //! additional languages (terraform, yaml, dockerfile, scala, ocaml, kotlin,

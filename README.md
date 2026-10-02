@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="codegrep" width="320">
+  <img src="assets/logo.svg" alt="scanward" width="320">
 </p>
 
 <p align="center">
-  <a href="https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml"><img src="https://github.com/deepusingh2530/codegrep/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://crates.io/crates/codegrep"><img src="https://img.shields.io/crates/v/codegrep.svg" alt="crates.io"></a>
+  <a href="https://github.com/deepusingh2530/scanward/actions/workflows/ci.yml"><img src="https://github.com/deepusingh2530/scanward/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://crates.io/crates/scanward"><img src="https://img.shields.io/crates/v/scanward.svg" alt="crates.io"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-orange" alt="PolyForm Noncommercial 1.0.0"></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.90%2B-orange?logo=rust&logoColor=white" alt="Rust 1.90+"></a>
 </p>
@@ -41,15 +41,15 @@
 - **AI is optional and separate** — triage/autofix runs as a BYOK side-plane
   outside the scan hot path; the scanner never needs an API key.
 
-## How codegrep compares
+## How scanward compares
 
-codegrep is one thing done well: pattern/taint SAST that runs offline in one
+scanward is one thing done well: pattern/taint SAST that runs offline in one
 small binary with a rule corpus you can read. Most tools below solve a
 different, adjacent problem, or solve SAST with much more machinery.
 
 | Tool | Primary job | Detection model | Scope (own rules) | Offline scan | License / price |
 | --- | --- | --- | --- | --- | --- |
-| **codegrep** | SAST gate for CI | original pattern + taint rules, no third-party rule content | 27 languages recognized, generic fallback; 10 with tree-sitter AST | yes, strict `--offline` | PolyForm Noncommercial — free for noncommercial use, commercial license on request |
+| **scanward** | SAST gate for CI | original pattern + taint rules, no third-party rule content | 27 languages recognized, generic fallback; 10 with tree-sitter AST | yes, strict `--offline` | PolyForm Noncommercial — free for noncommercial use, commercial license on request |
 | Python-based SAST baseline (the one in [`docs/benchmarks.md`](docs/benchmarks.md)) | SAST engine + rule registry | pattern + taint, registry-driven | 30+ languages, 2k community / 20k+ paid rules | OSS tier yes | OSS + commercial tier |
 | Bandit | Python-only SAST | AST + bytecode dataflow | Python only | yes | Apache-2.0, free |
 | Gitleaks | Secret scanning | regex + entropy over any text | language-agnostic | yes | MIT, free |
@@ -59,7 +59,7 @@ different, adjacent problem, or solve SAST with much more machinery.
 
 Practical differences that decide a toolchain:
 
-- **Single binary, zero setup** — `cargo install codegrep` and scan. No
+- **Single binary, zero setup** — `cargo install scanward` and scan. No
   container, no server, no registry account, no per-language install. Measured
   28-140x faster than the reference Python-based scanner in our benchmarks.
 - **Corpus is auditable** — every rule is a small YAML file in
@@ -71,15 +71,15 @@ Practical differences that decide a toolchain:
 - **Switching costs are low** — rule files written for the common portable
   pattern schema are translated on load ([`docs/rule-import.md`](docs/rule-import.md)),
   and CI wiring is a stock SARIF upload.
-- **Where codegrep is deliberately behind** — cross-file/cross-function taint,
+- **Where scanward is deliberately behind** — cross-file/cross-function taint,
   IDE/LSP integration, and platform features (dashboards, PR comments) live in
   other tools today; the known limitations are in
   [`docs/architecture.md`](docs/architecture.md).
 
 <sub>Comparison reflects each tool's public documentation and license files as
-of Sep 2026; codegrep's own numbers are measured locally (see
+of Sep 2026; scanward's own numbers are measured locally (see
 [`docs/benchmarks.md`](docs/benchmarks.md)). Every rule is original — no
-third-party rule content is used. codegrep is
+third-party rule content is used. scanward is
 [PolyForm Noncommercial 1.0.0](LICENSE) (versions 0.12.0 and earlier are
 [MIT](LICENSE-MIT)), so it is free for noncommercial use and needs a
 commercial license for business use.</sub>
@@ -89,41 +89,41 @@ commercial license for business use.</sub>
 ### From crates.io (recommended)
 
 ```sh
-cargo install codegrep
+cargo install scanward
 ```
 
 ### From source (Rust 1.90+)
 
 ```sh
-git clone https://github.com/deepusingh2530/codegrep.git
-cd codegrep
-cargo install --path crates/codegrep
+git clone https://github.com/deepusingh2530/scanward.git
+cd scanward
+cargo install --path crates/scanward
 ```
 
 Or directly from GitHub:
 
 ```sh
-cargo install --git https://github.com/deepusingh2530/codegrep codegrep
+cargo install --git https://github.com/deepusingh2530/scanward scanward
 ```
 
 ### Docker
 
 ```sh
-docker build -t codegrep .
-docker run --rm -v "$PWD:/src" -w /src codegrep scan /src --rules /rules
+docker build -t scanward .
+docker run --rm -v "$PWD:/src" -w /src scanward scan /src --rules /rules
 ```
 
 ## Usage
 
 ```sh
-codegrep scan .                                    # findings, human-readable
-codegrep scan . --config rules/ --sarif -o out.sarif
-codegrep scan . --junit -o results.xml             # JUnit XML for CI test tabs
-codegrep scan . --exclude 'vendor/**' --min-severity error --error
-codegrep scan . --baseline main --diff-only        # only lines changed vs main
-codegrep scan . --only secrets                     # gitleaks sidecar (if installed)
-codegrep rule test rules/                          # validate rules + run all fixtures
-codegrep scan --help
+scanward scan .                                    # findings, human-readable
+scanward scan . --config rules/ --sarif -o out.sarif
+scanward scan . --junit -o results.xml             # JUnit XML for CI test tabs
+scanward scan . --exclude 'vendor/**' --min-severity error --error
+scanward scan . --baseline main --diff-only        # only lines changed vs main
+scanward scan . --only secrets                     # gitleaks sidecar (if installed)
+scanward rule test rules/                          # validate rules + run all fixtures
+scanward scan --help
 ```
 
 | Flag | Purpose |
@@ -134,7 +134,7 @@ codegrep scan --help
 | `--error` | Exit 1 when findings remain (CI gating) |
 | `--json` / `--sarif` / `--junit` | Machine-readable output: JSON, SARIF 2.1.0, or JUnit XML (`-o` writes to a file) |
 | `--baseline <ref>` + `--diff-only` | Diff-aware scan of changed lines only |
-| `--suppress <file>` | FP suppression file, repeatable (auto-discovers `.codegrep-suppressions.yml` at the scan root) |
+| `--suppress <file>` | FP suppression file, repeatable (auto-discovers `.scanward-suppressions.yml` at the scan root) |
 | `--only sast\|secrets\|sca\|all` | SAST core or gitleaks/osv-scanner sidecars |
 | `--offline` | Strict no-network mode (sidecars refused) |
 | `--metrics`, `--jobs <N>`, `--no-cache`, `--cache-dir` | Observability and performance controls |
@@ -176,7 +176,7 @@ entry requires a `reason`; optional owner/expiry with loud re-enable on
 expiry) or inline comments at the finding:
 
 ```yaml
-# .codegrep-suppressions.yml — auto-discovered at the scan root
+# .scanward-suppressions.yml — auto-discovered at the scan root
 - rule: py-eval-exec
   path: "testdata/**"
   reason: sandboxed eval in the test harness
@@ -184,9 +184,13 @@ expiry) or inline comments at the finding:
 ```
 
 ```python
-eval(user)   # codegrep-ignore(py-eval-exec)   # same line, rule-scoped
-# codegrep-ignore-next-line                    # annotate the line above
+eval(user)   # scanward-ignore(py-eval-exec)   # same line, rule-scoped
+# scanward-ignore-next-line                    # annotate the line above
 ```
+
+Renamed from `codegrep`? The legacy `codegrep-ignore` marker and
+`.codegrep-suppressions.yml` are still honored, so existing suppressions keep
+working without edits.
 
 Suppressed counts are always surfaced (`--metrics` / `ScanReport.suppressed`)
 — nothing is hidden without a trace. Details:
@@ -201,7 +205,7 @@ the Security tab):
 name: sast
 on: [push, pull_request]
 jobs:
-  codegrep:
+  scanward:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -210,8 +214,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo install --git https://github.com/deepusingh2530/codegrep codegrep
-      - run: codegrep scan . --min-severity error --error --sarif -o results.sarif
+      - run: cargo install --git https://github.com/deepusingh2530/scanward scanward
+      - run: scanward scan . --min-severity error --error --sarif -o results.sarif
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
@@ -225,22 +229,22 @@ SARIF + JUnit artifacts.
 
 ## Use as a library
 
-`codegrep` is also a Rust library crate — embed scanning in your own tool
+`scanward` is also a Rust library crate — embed scanning in your own tool
 (e.g. a PR scanner) without shelling out:
 
 ```toml
 [dependencies]
-codegrep = "0.12.0"
-# or track main: codegrep = { git = "https://github.com/deepusingh2530/codegrep" }
+scanward = "0.12.0"
+# or track main: scanward = { git = "https://github.com/deepusingh2530/scanward" }
 ```
 
 ```rust
-use codegrep::{scan, sarif_from, ScanOptions};
+use scanward::{scan, sarif_from, ScanOptions};
 
 fn main() -> anyhow::Result<()> {
     let report = scan(&ScanOptions {
         path: "src".into(),
-        rules: "codegrep/rules".into(), // a checkout of this repo
+        rules: "scanward/rules".into(), // a checkout of this repo
         min_severity: Some("warning".into()),
         ..Default::default()
     })?;
@@ -248,7 +252,7 @@ fn main() -> anyhow::Result<()> {
         eprintln!("{}:{} [{}] {}", f.path, f.line, f.severity, f.rule_id);
     }
     println!("{}", sarif_from(&report.findings)); // SARIF for upload
-    // …or codegrep::junit_from(&report.findings) for CI test reports
+    // …or scanward::junit_from(&report.findings) for CI test reports
     Ok(())
 }
 ```
@@ -256,10 +260,10 @@ fn main() -> anyhow::Result<()> {
 Rules ship as YAML in this repository's [`rules/`](rules) directory — point
 `ScanOptions::rules` (or `config`) at a local checkout (git submodule, clone,
 or vendored copy); the scanner itself is fully offline. Runnable version:
-[`crates/codegrep/examples/scan.rs`](crates/codegrep/examples/scan.rs).
+[`crates/scanward/examples/scan.rs`](crates/scanward/examples/scan.rs).
 
 ```sh
-cargo run -p codegrep --example scan -- ./testdata ./rules
+cargo run -p scanward --example scan -- ./testdata ./rules
 ```
 
 Already have rule files written for another scanner's pattern schema? Point
@@ -271,7 +275,7 @@ never silently weakened). See [`docs/rule-import.md`](docs/rule-import.md).
 
 | Crate | Role |
 | --- | --- |
-| [`crates/codegrep`](crates/codegrep) | Library API + CLI: `scan`, `rule test`, cache, SARIF/JSON output |
+| [`crates/scanward`](crates/scanward) | Library API + CLI: `scan`, `rule test`, cache, SARIF/JSON output |
 | [`crates/cg-rules`](crates/cg-rules) | YAML rule loading, validation, literal pre-filter index |
 | [`crates/cg-matcher`](crates/cg-matcher) | Structural matcher: `$VAR`, `...`, regex/comparison checks |
 | [`crates/cg-parser`](crates/cg-parser) | Language detection + tree-sitter parsing |
@@ -285,7 +289,7 @@ Rules are authored from JSON specs and generated into YAML:
 ```sh
 $EDITOR scripts/specs/gap-sec-NN.json   # id, languages, pattern|mvr, fixtures
 python3 scripts/mkrules.py scripts/specs/gap-sec-NN.json
-./target/release/codegrep rule test rules/   # gate: every rule needs fixtures
+./target/release/scanward rule test rules/   # gate: every rule needs fixtures
 ```
 
 Fixtures live in `rules/tests/<rule-id>/` as `fail*` (must trigger) and
@@ -329,10 +333,10 @@ python3 ai-triage/triage.py --mode triage --input findings.json
 educational, and other noncommercial use, including charities, schools, public
 research bodies, and government. **Commercial use is not permitted** under these
 terms; ask for a [commercial license](docs/licensing.md) if you need one.
-Versions `0.12.0` and earlier were released under
+The `codegrep` crate up to and including `0.12.0` was released under
 [MIT](LICENSE-MIT) and remain so permanently.
 
-> Required Notice: Copyright (c) 2026 Deepu Singh (https://github.com/deepusingh2530/codegrep)
+> Required Notice: Copyright (c) 2026 Deepu Singh (https://github.com/deepusingh2530/scanward)
 
 The engine and every rule are original work — no third-party scanner code or
 rule-registry content is used (those registries carry non-MIT licenses).

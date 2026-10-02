@@ -1,14 +1,14 @@
-//! codegrep CLI: `scan`, `rule test`, `autofix --verify`.
+//! scanward CLI: `scan`, `rule test`, `autofix --verify`.
 //! Deterministic + offline. Parallel with rayon. Respects .gitignore.
 //! Library API (scan, sarif, filters) lives in `src/lib.rs`.
 
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use codegrep::{findings_for_rule, parse_min_severity, sarif_from, ScanOptions};
+use scanward::{findings_for_rule, parse_min_severity, sarif_from, ScanOptions};
 use std::collections::HashMap;
 
 #[derive(Parser, Debug)]
-#[command(name = "codegrep", version, about = "Fast multi-language SAST scanner (MIT)")]
+#[command(name = "scanward", version, about = "Fast multi-language SAST scanner (noncommercial license)")]
 struct Cli {
     #[command(subcommand)]
     cmd: Commands,
@@ -35,7 +35,7 @@ enum Commands {
 
 #[derive(Subcommand, Debug)]
 enum RuleCmd {
-    /// Validate rules + report count (`codegrep rule test rules/`)
+    /// Validate rules + report count (`scanward rule test rules/`)
     Test { path: String },
 }
 
@@ -79,7 +79,7 @@ struct ScanArgs {
     /// Disable persistent content-hash cache (cache is on by default)
     #[arg(long, default_value_t = false)]
     no_cache: bool,
-    /// Override cache directory (default ~/.cache/codegrep)
+    /// Override cache directory (default ~/.cache/scanward)
     #[arg(long)]
     cache_dir: Option<String>,
     /// Strict offline: no network, no external sidecars (secrets/sca wrappers refused)
@@ -98,7 +98,7 @@ struct ScanArgs {
     #[arg(long, value_name = "LEVEL")]
     min_severity: Option<String>,
     /// Suppression file (repeatable; replaces auto-discovered
-    /// .codegrep-suppressions.yml at the scan root)
+    /// .scanward-suppressions.yml at the scan root)
     #[arg(long = "suppress", value_name = "FILE")]
     suppress: Vec<String>,
     /// Exit 1 when findings remain (CI gating)
@@ -115,7 +115,7 @@ fn run_secrets(path: &str) -> Result<()> {
         .output();
     let out = match attempt {
         Err(e) => anyhow::bail!(
-            "codegrep: `gitleaks` not found ({e}). Install gitleaks (MIT) for `--only secrets` or run `--only sast`."
+            "scanward: `gitleaks` not found ({e}). Install gitleaks (MIT) for `--only secrets` or run `--only sast`."
         ),
         Ok(o) => o,
     };
@@ -125,10 +125,10 @@ fn run_secrets(path: &str) -> Result<()> {
         .and_then(|v| v.as_array().map(|a| a.len()))
         .unwrap_or(0);
     if text.trim().is_empty() {
-        println!("codegrep secrets: no leaks reported ✅");
+        println!("scanward secrets: no leaks reported ✅");
     } else {
         println!("{text}");
-        eprintln!("codegrep secrets: {count} finding(s) via gitleaks");
+        eprintln!("scanward secrets: {count} finding(s) via gitleaks");
     }
     Ok(())
 }
@@ -144,7 +144,7 @@ fn run_sca(path: &str) -> Result<()> {
         match std::process::Command::new("osv-scanner").args(*args).output() {
             Err(e) => {
                 last_err = format!(
-                    "codegrep: `osv-scanner` not found ({e}). Install osv-scanner (Apache-2.0) for `--only sca` or run `--only sast`."
+                    "scanward: `osv-scanner` not found ({e}). Install osv-scanner (Apache-2.0) for `--only sca` or run `--only sast`."
                 );
                 break;
             }
@@ -155,7 +155,7 @@ fn run_sca(path: &str) -> Result<()> {
                     return Ok(());
                 }
                 last_err = format!(
-                    "codegrep: osv-scanner produced no JSON (stderr: {})",
+                    "scanward: osv-scanner produced no JSON (stderr: {})",
                     String::from_utf8_lossy(&o.stderr).chars().take(300).collect::<String>()
                 );
             }
@@ -168,7 +168,7 @@ fn run_scan(args: ScanArgs) -> Result<()> {
     // Strict offline policy: SAST core is always offline; external sidecars are refused.
     if args.offline && args.only != "sast" && args.only != "all" {
         anyhow::bail!(
-            "codegrep --offline: --only {} refused (secrets/sca wrappers shell out to gitleaks/osv-scanner which may fetch DBs). Use --only sast offline.",
+            "scanward --offline: --only {} refused (secrets/sca wrappers shell out to gitleaks/osv-scanner which may fetch DBs). Use --only sast offline.",
             args.only
         );
     }
@@ -179,11 +179,11 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         "sast" | "all" => {}
         "secrets" => return run_secrets(&args.path),
         "sca" => return run_sca(&args.path),
-        other => anyhow::bail!("codegrep: unknown --only {other} (expected sast|secrets|sca|all)"),
+        other => anyhow::bail!("scanward: unknown --only {other} (expected sast|secrets|sca|all)"),
     }
 
     let scan_path = args.path.clone();
-    let report = codegrep::scan(&ScanOptions {
+    let report = scanward::scan(&ScanOptions {
         path: args.path.clone(),
         rules: args.rules.clone(),
         config: args.config.clone(),
@@ -199,16 +199,16 @@ fn run_scan(args: ScanArgs) -> Result<()> {
     })?;
     if report.rules_loaded == 0 {
         eprintln!(
-            "codegrep: no rules found in '{}' — scanning with 0 rules",
+            "scanward: no rules found in '{}' — scanning with 0 rules",
             args.rules
         );
     }
     for w in &report.warnings {
-        eprintln!("codegrep: {w}");
+        eprintln!("scanward: {w}");
     }
     if report.suppressed > 0 {
         eprintln!(
-            "codegrep: {} finding(s) suppressed (see --suppress / inline codegrep-ignore)",
+            "scanward: {} finding(s) suppressed (see --suppress / inline scanward-ignore)",
             report.suppressed
         );
     }
@@ -216,7 +216,7 @@ fn run_scan(args: ScanArgs) -> Result<()> {
 
     if args.metrics {
         eprintln!(
-            "codegrep metrics: files={} rules={} findings={} suppressed={} elapsed_ms={} cache_hits={} cache={}",
+            "scanward metrics: files={} rules={} findings={} suppressed={} elapsed_ms={} cache_hits={} cache={}",
             report.files_scanned,
             report.rules_loaded,
             uniq.len(),
@@ -230,24 +230,24 @@ fn run_scan(args: ScanArgs) -> Result<()> {
     // `--only all`: SAST above plus best-effort sidecars (warn, don't fail).
     if args.only == "all" && !args.offline {
         if let Err(e) = run_secrets(&scan_path) {
-            eprintln!("codegrep: secrets sidecar skipped: {e}");
+            eprintln!("scanward: secrets sidecar skipped: {e}");
         }
         if let Err(e) = run_sca(&scan_path) {
-            eprintln!("codegrep: sca sidecar skipped: {e}");
+            eprintln!("scanward: sca sidecar skipped: {e}");
         }
     }
 
     let body = if args.sarif {
         serde_json::to_string_pretty(&sarif_from(uniq))?
     } else if args.junit {
-        codegrep::junit_from(uniq)
+        scanward::junit_from(uniq)
     } else if args.json || args.output.is_some() {
         serde_json::to_string_pretty(uniq)?
     } else {
         if uniq.is_empty() {
-            "codegrep: no findings ✅".to_string()
+            "scanward: no findings ✅".to_string()
         } else {
-            let mut s = format!("codegrep: {} finding(s)\n", uniq.len());
+            let mut s = format!("scanward: {} finding(s)\n", uniq.len());
             for f in uniq {
                 s.push_str(&format!(
                     "{}:{} [{}] {} — {}\n",
@@ -269,13 +269,13 @@ fn run_scan(args: ScanArgs) -> Result<()> {
 
     if let Some(o) = &args.output {
         std::fs::write(o, body).with_context(|| format!("writing {o}"))?;
-        eprintln!("codegrep: wrote {} finding(s) to {o}", uniq.len());
+        eprintln!("scanward: wrote {} finding(s) to {o}", uniq.len());
     } else {
         println!("{body}");
     }
     if args.error && !uniq.is_empty() {
         if !args.json && !args.sarif && !args.junit && args.output.is_none() {
-            eprintln!("codegrep: exiting 1 (--error, {} finding(s))", uniq.len());
+            eprintln!("scanward: exiting 1 (--error, {} finding(s))", uniq.len());
         }
         std::process::exit(1);
     }
@@ -291,9 +291,9 @@ fn main() -> Result<()> {
                 let (rules, warnings) = cg_rules::load_rules_dir_report(&path)
                     .with_context(|| format!("loading rules from {path}"))?;
                 for w in &warnings {
-                    eprintln!("codegrep: {w}");
+                    eprintln!("scanward: {w}");
                 }
-                println!("codegrep: {} rule(s) valid in {}", rules.len(), path);
+                println!("scanward: {} rule(s) valid in {}", rules.len(), path);
                 for r in &rules {
                     println!("  ✓ {} [{}] langs={:?}", r.id, r.severity, r.languages);
                 }
@@ -353,24 +353,24 @@ fn main() -> Result<()> {
                         }
                     }
                     println!(
-                        "codegrep: fixtures: {tested} checked, {} failed",
+                        "scanward: fixtures: {tested} checked, {} failed",
                         failed
                     );
                     if failed > 0 {
                         anyhow::bail!("rule test: {failed} fixture(s) failed");
                     }
                     if tested == 0 {
-                        println!("codegrep: no fixtures found under rules/tests/ (add fail*/pass* files)");
+                        println!("scanward: no fixtures found under rules/tests/ (add fail*/pass* files)");
                     }
                 } else {
-                    println!("codegrep: no fixtures dir at rules/tests/ (skipped)");
+                    println!("scanward: no fixtures dir at rules/tests/ (skipped)");
                 }
                 Ok(())
             }
         },
         Commands::Autofix { verify, path } => {
             println!(
-                "codegrep autofix: path={path} verify={verify}\n\
+                "scanward autofix: path={path} verify={verify}\n\
                  AI autofix is an async side-plane (see ai-triage/, BYOK). \
                  No patch is shown unless re-scan verification passes. \
                  Offline scan results are unaffected."

@@ -2,7 +2,7 @@
 //! `generic` pseudolanguage instead of being silently skipped, and
 //! `generic` rules apply to recognized files too.
 
-use codegrep::{scan, ScanOptions};
+use scanward::{scan, ScanOptions};
 
 #[test]
 fn unknown_extension_scanned_as_generic() {

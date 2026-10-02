@@ -1,9 +1,9 @@
 //! Minimal embedding example: scan a path and print SARIF to stdout.
 //!
 //! ```sh
-//! cargo run -p codegrep --example scan -- ./testdata ./rules
+//! cargo run -p scanward --example scan -- ./testdata ./rules
 //! ```
-use codegrep::{scan, ScanOptions};
+use scanward::{scan, ScanOptions};
 
 fn main() -> anyhow::Result<()> {
     let path = std::env::args().nth(1).unwrap_or_else(|| ".".into());
@@ -15,7 +15,7 @@ fn main() -> anyhow::Result<()> {
         ..Default::default()
     })?;
     eprintln!(
-        "codegrep: files={} rules={} findings={} in {}ms",
+        "scanward: files={} rules={} findings={} in {}ms",
         report.files_scanned,
         report.rules_loaded,
         report.findings.len(),
@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
     );
     println!(
         "{}",
-        serde_json::to_string_pretty(&codegrep::sarif_from(&report.findings))?
+        serde_json::to_string_pretty(&scanward::sarif_from(&report.findings))?
     );
     Ok(())
 }

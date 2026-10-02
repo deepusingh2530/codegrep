@@ -14,7 +14,7 @@
 
 - [ ] `cargo test --workspace`
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings`
-- [ ] `codegrep rule test rules/` (required for any rule change)
+- [ ] `scanward rule test rules/` (required for any rule change)
 - [ ] self-scan of `crates/` is still clean (required for engine changes)
 - [ ] `testdata` finding count unchanged (required for rule changes)
 

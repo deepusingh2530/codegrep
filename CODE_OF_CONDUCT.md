@@ -2,7 +2,7 @@
 
 ## Our commitment
 
-We want participation in codegrep to be a good experience for everyone,
+We want participation in scanward to be a good experience for everyone,
 regardless of experience level, background, or seniority. Harassment,
 discrimination, and personal attacks are not tolerated in any project space:
 issues, pull requests, reviews, discussions, or commit messages.

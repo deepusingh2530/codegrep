@@ -1,6 +1,6 @@
 # Brand assets
 
-Original artwork for codegrep, covered by the project license. No third-party logos or
+Original artwork for scanward, covered by the project license. No third-party logos or
 trademarks are used or referenced; the mark is an original composition.
 
 | File | Use |

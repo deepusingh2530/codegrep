@@ -1,4 +1,4 @@
-name: codegrep
+name: scanward
 on: [pull_request]
 jobs:
   scan:

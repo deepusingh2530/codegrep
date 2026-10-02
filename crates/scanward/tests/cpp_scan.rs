@@ -2,7 +2,7 @@
 //! set, with `language` reported per extension (`.c` → c, C++ extensions →
 //! cpp).
 
-use codegrep::{scan, ScanOptions};
+use scanward::{scan, ScanOptions};
 
 const VULN_C: &str = r#"
 #include <stdio.h>

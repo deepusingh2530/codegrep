@@ -1,6 +1,25 @@
 # Changelog
 
 ## Unreleased
+- **Project renamed `codegrep` → `scanward`.** The old name was unownable and
+  crowded: ~15 GitHub repos carried it (two unrelated 18-star grep tools), the
+  bare `github.com/codegrep` namespace is an org registered in 2016, the npm
+  name is a stranger's abandoned 2013 stub, and `codegrep.com` is taken — so
+  users searching for the tool found other people's projects, and `npm
+  codegrep` is exactly the name-squat shape users get burned by. Everything
+  moved together: crate and binary name, workspace member (`crates/scanward`),
+  repository (`github.com/deepusingh2530/scanward`, with the old URL
+  301-redirecting), release artifact names, CLI output, SARIF tool name, docs,
+  and automation. Rule text needed no changes — no rule embeds the product
+  name.
+- **Migration is non-breaking for suppressions**: `.codegrep-suppressions.yml`
+  (and `.yaml`) is still auto-discovered, and the legacy `codegrep-ignore` /
+  `codegrep-ignore-next-line` inline markers still suppress findings, checked
+  after the new names. Existing repositories keep working untouched; a unit
+  test locks the legacy marker in.
+- The `codegrep` crate gets a final `0.13.0` pointer release naming the new
+  crate, so `cargo install codegrep` and older docs land somewhere useful.
+  Versions `0.12.0` and earlier remain MIT, permanently.
 - **Licensing change: MIT → PolyForm Noncommercial 1.0.0** (breaking for
   commercial users, by design). The first release after `0.12.0` is licensed
   under PolyForm Noncommercial: personal, research, educational, charity,

@@ -4,8 +4,8 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "PolyForm-Noncommercial-1.0.0"
-description = "Intermediate representation (IR) for codegrep language parsers"
-repository = "https://github.com/deepusingh2530/codegrep"
+description = "Intermediate representation (IR) for scanward language parsers"
+repository = "https://github.com/deepusingh2530/scanward"
 keywords = ["static-analysis", "security", "parser"]
 categories = ["development-tools"]
 

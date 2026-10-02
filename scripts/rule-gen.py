@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# scripts/rule-gen.py — AI rule synthesizer for codegrep (Ollama-local, validated).
+# scripts/rule-gen.py — AI rule synthesizer for scanward (Ollama-local, validated).
 # License safety: specs describe vulnerability CLASSES (public facts: sink APIs,
 # CWEs). The model writes ORIGINAL patterns; output is mechanically validated
 # (schema + fail/pass fixtures) and never copied from any third-party registry.
 # Usage: python3 scripts/rule-gen.py [--only ID] [--model qwen3:8b]
-# Requires: ollama serving a small instruct model + ./target/debug/codegrep built.
+# Requires: ollama serving a small instruct model + ./target/debug/scanward built.
 
 import argparse, json, os, re, shutil, subprocess, sys, tempfile, urllib.request
 
@@ -15,11 +15,11 @@ except ImportError:
 
 OLLAMA = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CODEGREP = os.path.join(REPO, "target", "debug", "codegrep")
+CODEGREP = os.path.join(REPO, "target", "debug", "scanward")
 EXT = {"python": "py", "javascript": "js", "typescript": "ts", "go": "go",
        "java": "java", "ruby": "rb", "php": "php", "csharp": "cs", "generic": "txt"}
 
-SYSTEM = """You write codegrep SAST rules as YAML ONLY, no prose, no fences.
+SYSTEM = """You write scanward SAST rules as YAML ONLY, no prose, no fences.
 Schema: id, languages, severity, category, message, fix, pattern OR pattern-either, metadata{owasp,cwe,confidence}.
 Pattern mini-language: $VAR = one value, ... = filler, e.g. raw($VAR, ...).
 RULES: bare code shapes, NEVER wrap in f(...). pattern-either items look like `- pattern: subprocess.run($VAR, shell=True)`.

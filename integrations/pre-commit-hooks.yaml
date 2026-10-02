@@ -1,8 +1,8 @@
 repos:
   - repo: local
     hooks:
-      - id: codegrep
-        name: codegrep SAST
-        entry: codegrep scan --diff-only --metrics
+      - id: scanward
+        name: scanward SAST
+        entry: scanward scan --diff-only --metrics
         language: system
         pass_filenames: false

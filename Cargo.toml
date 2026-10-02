@@ -5,7 +5,7 @@ members = [
   "crates/cg-matcher",
   "crates/cg-taint",
   "crates/cg-rules",
-  "crates/codegrep",
+  "crates/scanward",
 ]
 resolver = "2"
 

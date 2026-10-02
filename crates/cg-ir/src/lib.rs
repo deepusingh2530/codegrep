@@ -1,4 +1,4 @@
-//! codegrep IR: own Generic AST (GNode), lowered from Tree-sitter CST.
+//! scanward IR: own Generic AST (GNode), lowered from Tree-sitter CST.
 //! Original design — not copied from any existing scanner. Named nodes only, text truncated.
 
 use serde::{Deserialize, Serialize};

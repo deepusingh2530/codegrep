@@ -1,21 +1,25 @@
 # Licensing
 
-codegrep is original work, but it is **not** open source under a permissive
+scanward is original work, but it is **not** open source under a permissive
 license. This page states exactly what you may do, where the boundary sits in
 time, and how to get a different answer.
 
 ## The short version
 
-| Version | License | Commercial use |
-| --- | --- | --- |
-| `0.12.0` and earlier | MIT ([`LICENSE-MIT`](../LICENSE-MIT)) | allowed, forever |
-| first release after `0.12.0` (and all work on `main` from this change onward) | **PolyForm Noncommercial 1.0.0** ([`LICENSE`](../LICENSE)) | **not permitted** |
+The project was published as `codegrep` up to and including `0.12.0`, then
+renamed to **scanward**. The license boundary sits at the rename.
+
+| Version | Published as | License | Commercial use |
+| --- | --- | --- | --- |
+| `0.12.0` and earlier | `codegrep` on crates.io | MIT ([`LICENSE-MIT`](../LICENSE-MIT)) | allowed, forever |
+| `0.13.0` | `codegrep` — final pointer release | PolyForm Noncommercial | not permitted |
+| `0.13.0` onward | **scanward** | PolyForm Noncommercial ([`LICENSE`](../LICENSE)) | not permitted |
 
 The boundary is one-way and cannot be undone. MIT grants are irrevocable: if
-you obtained 0.12.0 (or any earlier version) from crates.io, a GitHub Release,
-or a clone of a pre-change commit, you keep those rights permanently, and we
-cannot revoke them. If you need a commercially-usable copy and it is too late
-to be one of the early users, ask for a commercial license.
+you obtained `codegrep` `0.12.0` (or any earlier version) from crates.io, a
+GitHub Release, or a clone of a pre-change commit, you keep those rights
+permanently, and we cannot revoke them. If you need a commercially-usable copy
+and it is too late to be one of the early users, ask for a commercial license.
 
 ## What PolyForm Noncommercial allows and forbids
 
@@ -73,8 +77,8 @@ Both remain open, and both carry these terms:
 
 ## Dependencies and sidecars are unaffected
 
-The terms above apply to codegrep's own code, rules, fixtures, documentation,
-and artwork. They do not change the licenses of anything codegrep depends on
+The terms above apply to scanward's own code, rules, fixtures, documentation,
+and artwork. They do not change the licenses of anything scanward depends on
 or shells out to:
 
 | Component | License |
