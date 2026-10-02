@@ -19,9 +19,19 @@
   MIT/Apache-2.0 still enforced by `cargo deny check`, `gitleaks` MIT,
   `osv-scanner`/`trivy` Apache-2.0 as separate processes).
 - Docs: new `docs/licensing.md`; README badge, tagline, comparison table, and
-  License section; crate README; `CONTRIBUTING.md`; `MASTER_PROMPT.md`;
-  `docs/rule-import.md`; `docs/benchmarks.md`; `assets/README.md` — no
-  remaining claim that the project is MIT-licensed.
+  License section; crate README; `CONTRIBUTING.md`; `docs/rule-import.md`;
+  `docs/benchmarks.md`; `assets/README.md` — no remaining claim that the
+  project is MIT-licensed.
+- **Repository hygiene**: removes the AI agent prompt scaffolding
+  (`MASTER_PROMPT.md`, `prompts/rule-generator.md`) — a repo should ship
+  documentation, not prompts. The durable content was rewritten as
+  documentation first: `docs/architecture.md` (scan pipeline, crate
+  responsibilities, invariants, deliberate limitations, new-language
+  checklist), `docs/rule-authoring.md` (engine contract for patterns, schema,
+  fixtures, validation loop, coverage checklist) and `docs/README.md` (index).
+  Adds `CODE_OF_CONDUCT.md`, which `CONTRIBUTING.md` referenced but which did
+  not exist. No behaviour change: `scripts/rule-gen.py` builds its own prompt
+  and never read `prompts/`.
 - **Protected `main`: every change arrives through a pull request.** The
   default branch is now governed by a ruleset — no direct pushes, no force
   pushes, no branch deletion, linear history only, required `test` + `deny`

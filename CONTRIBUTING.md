@@ -59,7 +59,8 @@ first place you find out.
 
 ## Adding a rule (the common contribution)
 
-Rules are authored as JSON specs and generated into YAML plus fixtures:
+Rules are authored as JSON specs and generated into YAML plus fixtures
+(see [`docs/rule-authoring.md`](docs/rule-authoring.md)):
 
 ```sh
 $EDITOR scripts/specs/my-rule.json     # id, languages, severity, message, fix, fixtures

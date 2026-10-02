@@ -73,7 +73,8 @@ Practical differences that decide a toolchain:
   and CI wiring is a stock SARIF upload.
 - **Where codegrep is deliberately behind** — cross-file/cross-function taint,
   IDE/LSP integration, and platform features (dashboards, PR comments) live in
-  other tools today; the roadmap is in [`MASTER_PROMPT.md`](MASTER_PROMPT.md).
+  other tools today; the known limitations are in
+  [`docs/architecture.md`](docs/architecture.md).
 
 <sub>Comparison reflects each tool's public documentation and license files as
 of Sep 2026; codegrep's own numbers are measured locally (see
@@ -291,7 +292,7 @@ Fixtures live in `rules/tests/<rule-id>/` as `fail*` (must trigger) and
 `pass*` (must stay clean) files — CI runs all of them, so a new rule ships
 with its own precision test. New rules can also be synthesized locally with
 `python3 scripts/rule-gen.py` (Ollama-local, validated — see
-[`prompts/rule-generator.md`](prompts/rule-generator.md)).
+[`docs/rule-authoring.md`](docs/rule-authoring.md)).
 
 ## Contributing
 
@@ -312,7 +313,9 @@ only, offline stays offline). Security reports go through
 - [Coverage policy (what we deliberately do not flag)](docs/coverage-policy.md)
 - [Importing rules (portable pattern schema)](docs/rule-import.md)
 - [False-positive management (suppressions)](docs/suppressions.md)
-- [Master prompt (architecture source of truth)](MASTER_PROMPT.md)
+- [Architecture and engine invariants](docs/architecture.md)
+- [Writing rules (engine contract, schema, fixtures)](docs/rule-authoring.md)
+- [Documentation index](docs/README.md)
 
 AI triage/autofix is a separate BYOK side-plane that never blocks `scan`:
 
