@@ -1,6 +1,6 @@
 [package]
 name = "cg-taint"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "PolyForm-Noncommercial-1.0.0"
@@ -11,5 +11,5 @@ categories = ["development-tools"]
 
 [dependencies]
 anyhow = { workspace = true }
-cg-ir = { path = "../cg-ir", version = "0.2.0" }
+cg-ir = { path = "../cg-ir", version = "0.2.1" }
 regex = "1"

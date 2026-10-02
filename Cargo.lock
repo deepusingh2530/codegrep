@@ -89,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "cg-ir"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "cg-parser",
@@ -99,7 +99,7 @@ dependencies = [
 
 [[package]]
 name = "cg-matcher"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cg-ir",
@@ -110,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "cg-parser"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "tree-sitter",
@@ -128,7 +128,7 @@ dependencies = [
 
 [[package]]
 name = "cg-rules"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "aho-corasick",
  "anyhow",
@@ -138,7 +138,7 @@ dependencies = [
 
 [[package]]
 name = "cg-taint"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cg-ir",
