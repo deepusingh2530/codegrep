@@ -12,8 +12,9 @@ this project (original content only, offline by design).
    because it keeps the review trail intact.
 2. **Original content only.** codegrep ships its own engine and its own rules.
    Do not copy third-party scanner code or rule-registry content (those
-   registries are generally not MIT-safe). Concepts from permissively licensed
-   projects (Tree-sitter, Gitleaks, OSV-Scanner, Trivy, Bandit, ESLint) are
+   registries are generally incompatible with this project's terms).
+   Concepts from permissively licensed projects (Tree-sitter, Gitleaks,
+   OSV-Scanner, Trivy, Bandit, ESLint) are
    fine to *learn from*; text is not fine to paste. Every rule must be written
    from scratch, even if it covers a well-known CVE class.
 3. **Offline stays offline.** The scanner must never need the network: no
@@ -120,8 +121,24 @@ Be civil, assume good faith, and review the code rather than the contributor.
 Unsolicited promotional or AI-generated bulk rule dumps that skip the fixture
 gate will be closed.
 
-## License
+## License and your contribution
 
-By contributing you agree your work ships under the [MIT License](LICENSE) —
-the same terms as the rest of the project. Do not contribute code or content
-you cannot license under MIT.
+codegrep is **not** MIT-licensed any more. The first release after `0.12.0`
+is licensed under [PolyForm Noncommercial 1.0.0](LICENSE): free for personal,
+research, educational, charity, public-sector and other noncommercial use;
+**commercial use is not permitted** without a separate license from the
+maintainer. See [`docs/licensing.md`](docs/licensing.md) for the full terms and
+the version boundary (versions `0.12.0` and earlier remain MIT, permanently).
+
+By opening a pull request you agree to these terms for your contribution:
+
+1. You license your contribution to the project (the licensor), and you have
+   the right to do so — no employer-owned code you cannot license, no code you
+   did not write, nothing generated from a license you do not hold.
+2. The project may distribute your contribution under these terms, and the
+   maintainer may relicense the project as a whole, including to a permissive
+   license, at their discretion.
+3. Your contribution is provided "as is", without warranty.
+
+Contributions merged before this change were accepted under MIT and stay MIT
+for their authors. Nothing here revokes a license you already hold.

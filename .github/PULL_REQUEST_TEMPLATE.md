@@ -21,7 +21,7 @@
 ## Checklist
 
 - [ ] Comes from a branch, lands via PR (never a direct push to `main`)
-- [ ] New rules are original, MIT-licensable, and ship `fail` + `pass` fixtures
+- [ ] New rules are original and licensable by the project, and ship `fail` + `pass` fixtures
 - [ ] No new runtime network dependency; `--offline` still refuses everything
 - [ ] `CHANGELOG.md` updated under `## Unreleased` if user-visible
 - [ ] No third-party code, rule text, or registry content copied
