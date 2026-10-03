@@ -42,6 +42,39 @@ Bottom line: engine bet validated (faster, parity on shared rules); depth gap
 is rules + cross-file taint + platform. Scanning pipeline ~70%, detection
 content ~10%, enterprise workflow ~35%.
 
+## Where this fits: category map
+
+The feature matrix above compares engines. This one compares *categories*, so
+the comparison is fair — a hosted platform is not a worse SAST tool, it is a
+different product that happens to include SAST.
+
+| Capability | scanward | Pattern SAST baseline | Compiled-query engines | Hosted platforms |
+|---|---|---|---|---|
+| Runs fully offline | **yes, enforced** (`--offline`) | OSS tier yes | CLI needs a DB build; library packs download | no — the service is the product |
+| Telemetry / account | **none, ever** | none in OSS | none | inherent to the service |
+| Cost at 100 devs | **free (noncommercial)**; commercial license on request | free OSS, paid for premium rules | free for public repos, paid in CI | per-seat subscription |
+| Rule content is auditable | **yes** — small YAML + pass/fail fixture per rule | registry YAML | QL query files | closed rule set |
+| Cross-file dataflow | no | paid tier | **yes**, the core strength | runtime instrumentation |
+| Absence findings (missing authz/IDOR) | no (needs block scoping) | partial | partial | **yes**, at runtime |
+| Dependency / container / IaC scanning | via sidecars | no | no | **yes**, built in |
+| Fix PRs, dashboards, PR comments | no | paid tier | GitHub app | **yes** |
+| Secret scanning | via sidecar | partial | no | built in |
+| Deterministic output you can gate on | **yes**, byte-stable | yes | yes | no (server state) |
+
+**Where this project is genuinely better:** it is the only one of the four that
+is fully offline with zero telemetry, free for noncommercial use, and ships a
+corpus you can read line by line with an accuracy fixture for every rule. For a
+team that cannot send source to a service, cannot add a subscription, or needs a
+result they can reproduce in CI, those three properties are not a consolation
+prize — they are the requirement.
+
+**Where it is genuinely behind, stated plainly:** cross-file taint, absence
+classes (IDOR, missing authz, CSRF), dependency/container/IaC breadth, and
+platform workflow. Closing the first is engine work already scoped in
+[`architecture.md`](architecture.md); the second is why the platform sidecar
+exists; the third is why `--only secrets|sca` shells out to dedicated tools
+instead of pretending.
+
 ## Reproduce
 
 ```sh
