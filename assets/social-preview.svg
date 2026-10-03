@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="scanward — fast, fully-offline SAST scanner">
+  <title>scanward</title>
+  <defs>
+    <linearGradient id="sp-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16203A"/>
+      <stop offset="1" stop-color="#080D16"/>
+    </linearGradient>
+    <linearGradient id="sp-accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF8A3D"/>
+      <stop offset="1" stop-color="#E4572E"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#sp-bg)"/>
+
+  <!-- mark, large -->
+  <g transform="translate(96 150) scale(3.2)">
+    <path d="M32 11.5 L49 17.7 v13.9 c0 11-8.2 18.5-17 22.5 c-8.8-4-17-11.5-17-22.5 V17.7 z"
+          fill="none" stroke="url(#sp-accent)" stroke-width="3.6" stroke-linejoin="round"/>
+    <path d="M25 25.5 L33 32 L25 38.5" fill="none" stroke="#F2F5FA" stroke-width="4.2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- wordmark -->
+  <g font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+     font-weight="700">
+    <text x="330" y="290" font-size="112" letter-spacing="-3" fill="#F2F5FA">scan<tspan fill="#FF8A3D">ward</tspan></text>
+    <text x="336" y="356" font-size="34" fill="#9AA7BD" letter-spacing="0">fast, fully-offline SAST scanner</text>
+  </g>
+
+  <!-- proof points -->
+  <g font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="26" fill="#C8D2E2">
+    <text x="96" y="470">27 languages · no network · no telemetry · SARIF</text>
+    <text x="96" y="516">every rule ships with pass + fail fixtures</text>
+  </g>
+
+  <rect x="96" y="552" width="4" height="34" rx="2" fill="#E4572E"/>
+  <text x="116" y="578" font-family="ui-monospace, Menlo, monospace" font-size="24" fill="#8C99B0">github.com/deepusingh2530/scanward</text>
+</svg>
