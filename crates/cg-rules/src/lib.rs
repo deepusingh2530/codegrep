@@ -136,12 +136,23 @@ pub fn extract_literals(pattern: &str) -> Vec<String> {
             i += ch.len_utf8();
         }
     }
-    for tok in cleaned.split(|c: char| !c.is_alphanumeric() && c != '_' && c != '.') {
-        // keep dotted callees like cursor.execute; split also on '.'
+    for tok in cleaned
+            .split(|c: char| !c.is_alphanumeric() && c != '_' && c != '.' && c != '-')
+        {
+        // Keep dotted callees like cursor.execute, and dashed secrets like
+        // `sk-`. Emit each part *and* the whole token: the whole token is a
+        // strictly more specific literal, while the parts keep every previously
+        // working case working. Both are safe because whitespace splits tokens,
+        // so a literal can never contain a space that the whitespace-insensitive
+        // matcher would have collapsed -- and '-' and '.' are literal in a
+        // pattern, so a match implies the token is present verbatim.
         for part in tok.split('.') {
             if part.len() >= 3 {
                 lits.push(part.to_lowercase());
             }
+        }
+        if tok.len() >= 3 {
+            lits.push(tok.to_lowercase());
         }
     }
     lits
@@ -264,29 +275,42 @@ pub fn load_rules_dir_report(dir: &str) -> Result<(Vec<Rule>, Vec<String>)> {
 }
 
 /// Rule index for speed: literal -> rule ids. Matcher consults per-file lowercase text.
+///
+/// Rules whose patterns yield no indexable literal (`"iv = \""`, `$VAR = "SK$REST"`)
+/// are collected in `always` and returned for **every** file. Without that, the
+/// prefilter would silently disable them: they load, validate, and pass their
+/// own fixtures, yet never fire in a real scan.
 pub struct RuleIndex {
     pub literals: HashSet<String>,
     pub literal_to_rules: HashMap<String, Vec<usize>>,
+    /// Rules with no indexable literal; always candidates.
+    pub always: Vec<usize>,
 }
 
 impl RuleIndex {
     pub fn build(rules: &[Rule]) -> Self {
         let mut literals = HashSet::new();
         let mut literal_to_rules: HashMap<String, Vec<usize>> = HashMap::new();
+        let mut always = Vec::new();
         for (idx, r) in rules.iter().enumerate() {
+            let mut any = false;
             for p in r.positive_patterns() {
                 for lit in extract_literals(&p) {
                     literals.insert(lit.clone());
                     literal_to_rules.entry(lit).or_default().push(idx);
+                    any = true;
                 }
             }
+            if !any {
+                always.push(idx);
+            }
         }
-        Self { literals, literal_to_rules }
+        Self { literals, literal_to_rules, always }
     }
 
     /// Candidate rule indices for a file's text (lowercased once by caller ideally).
     pub fn candidates(&self, file_text_lower: &str) -> Vec<usize> {
-        let mut hits: HashSet<usize> = HashSet::new();
+        let mut hits: HashSet<usize> = self.always.iter().copied().collect();
         for (lit, rules) in &self.literal_to_rules {
             if file_text_lower.contains(lit.as_str()) {
                 for r in rules {
@@ -309,6 +333,43 @@ mod tests {
         let l = extract_literals("cursor.execute($VAR, ...)");
         assert!(l.contains(&"cursor".to_string()));
         assert!(l.contains(&"execute".to_string()));
+    }
+
+    #[test]
+    fn extracts_whole_token_for_secret_patterns() {
+        // Regression: `sk-$REST` / `"SG.$REST"` produced no indexable literal
+        // before, so the prefilter never ran the rule at all.
+        assert!(extract_literals("\"sk-$REST\"").contains(&"sk-".to_string()));
+        assert!(extract_literals("$VAR = \"SG.$REST\"").contains(&"sg.".to_string()));
+        // Short tokens still yield nothing; those rules rely on `always`.
+        assert!(extract_literals("iv = \"").is_empty());
+    }
+
+    #[test]
+    fn rule_without_literals_is_always_a_candidate() {
+        // A valid rule whose pattern yields no literal must still be offered to
+        // the matcher for every file, instead of being silently dropped.
+        let r = Rule {
+            id: "no-lit".into(),
+            languages: vec!["python".into()],
+            severity: "ERROR".into(),
+            category: None,
+            message: "m".into(),
+            fix: None,
+            pattern: Some("$A".into()),
+            pattern_either: None,
+            patterns: None,
+            pattern_not: None,
+            pattern_inside: None,
+            metavariable_regex: None,
+            metavariable_comparison: None,
+            taint: None,
+            metadata: None,
+        };
+        let idx = RuleIndex::build(std::slice::from_ref(&r));
+        assert_eq!(idx.always, vec![0], "rule must be always-candidate");
+        // Even for text containing none of its (non-existent) literals.
+        assert_eq!(idx.candidates("totally unrelated text"), vec![0]);
     }
 
     #[test]

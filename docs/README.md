@@ -26,7 +26,7 @@ Project-level documents live at the repository root: [README](../README.md),
 | `scripts/specs/` | JSON specs rules are generated from |
 | `scripts/mkrules.py` | Spec → YAML + fixtures |
 | `scripts/cve_watch.py` | Generates `cve-coverage.md` from the NVD feed |
-| `crates/` | The engine (see [architecture.md](architecture.md)) |
+| `crates/` | The engine (see [architecture.md](architecture.md)); `cg-deps` parses dependency manifests |
 | `integrations/` | GitHub Action, pre-commit hooks |
 | `ai-triage/` | Optional BYOK side-plane — never in the scan path |
 | `testdata/` | Known-findings corpus with a fixed baseline count |

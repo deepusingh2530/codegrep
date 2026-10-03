@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-order=(cg-parser cg-rules cg-ir cg-taint cg-matcher scanward)
+order=(cg-parser cg-deps cg-rules cg-ir cg-taint cg-matcher scanward)
 
 crate_version() {
   grep -m1 '^version = ' "crates/$1/Cargo.toml" | cut -d'"' -f2
