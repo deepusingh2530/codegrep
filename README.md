@@ -120,7 +120,7 @@ contains the binary **and the rule corpus**, plus a `scanward-corpus` wrapper
 that points the scanner at it:
 
 ```sh
-tar xzf scanward-v0.13.2-macos-arm64.tar.gz
+tar xzf scanward-v0.14.0-macos-arm64.tar.gz
 ./scanward-corpus scan .
 ```
 
@@ -128,8 +128,8 @@ Verify what you downloaded:
 
 ```sh
 cosign verify-blob \
-  --bundle scanward-v0.13.2-macos-arm64.sig.bundle \
-  scanward-v0.13.2-macos-arm64.tar.gz \
+  --bundle scanward-v0.14.0-macos-arm64.sig.bundle \
+  scanward-v0.14.0-macos-arm64.tar.gz \
   --certificate-identity-regexp "https://github.com/deepusingh2530/scanward/.*" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```

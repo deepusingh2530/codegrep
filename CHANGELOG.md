@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.14.0 (2026-10-03)
+
+**Breaking:** `--only platform` is removed and now exits non-zero. Everything
+else is additive. `cg-deps` reaches crates.io for the first time at 0.1.0.
+
 - **Removed: the hosted-platform sidecar (`--only platform`).** The project
   owner does not want that vendor involved, so the integration is gone rather
   than dormant: `run_platform` and its dispatch are deleted, `AIKIDO_API_KEY`

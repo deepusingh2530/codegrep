@@ -108,7 +108,7 @@ dependencies = [
 
 [[package]]
 name = "cg-matcher"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "cg-ir",
@@ -137,7 +137,7 @@ dependencies = [
 
 [[package]]
 name = "cg-rules"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "aho-corasick",
  "anyhow",
@@ -408,7 +408,7 @@ dependencies = [
 
 [[package]]
 name = "scanward"
-version = "0.13.2"
+version = "0.14.0"
 dependencies = [
  "anyhow",
  "cg-deps",
