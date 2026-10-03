@@ -65,9 +65,10 @@ Practical differences that decide a toolchain:
 - **Corpus is auditable** — every rule is a small YAML file in
   [`rules/`](rules) with a fail-fixture and a pass-fixture, so a "finding" is
   always traceable to a reviewable pattern plus two tests.
-- **Secrets/SCA are composable, not fused** — `--only secrets|sca` shells out
-  to Gitleaks (MIT) and OSV-Scanner/Trivy (Apache-2.0) when you want their
-  databases; the core scanner never links or embeds them.
+- **Secrets/SCA are composable, not fused** — `--only secrets|sca|platform`
+  shells out to Gitleaks (MIT), OSV-Scanner/Trivy (Apache-2.0), or a hosted
+  platform's API when you want their databases; the core scanner never links or
+  embeds them, and `--offline` refuses all of them.
 - **Switching costs are low** — rule files written for the common portable
   pattern schema are translated on load ([`docs/rule-import.md`](docs/rule-import.md)),
   and CI wiring is a stock SARIF upload.
@@ -122,6 +123,7 @@ scanward scan . --junit -o results.xml             # JUnit XML for CI test tabs
 scanward scan . --exclude 'vendor/**' --min-severity error --error
 scanward scan . --baseline main --diff-only        # only lines changed vs main
 scanward scan . --only secrets                     # gitleaks sidecar (if installed)
+scanward scan . --only platform                     # hosted platform sidecar (needs a key)
 scanward rule test rules/                          # validate rules + run all fixtures
 scanward scan --help
 ```
@@ -135,7 +137,7 @@ scanward scan --help
 | `--json` / `--sarif` / `--junit` | Machine-readable output: JSON, SARIF 2.1.0, or JUnit XML (`-o` writes to a file) |
 | `--baseline <ref>` + `--diff-only` | Diff-aware scan of changed lines only |
 | `--suppress <file>` | FP suppression file, repeatable (auto-discovers `.scanward-suppressions.yml` at the scan root) |
-| `--only sast\|secrets\|sca\|all` | SAST core or gitleaks/osv-scanner sidecars |
+| `--only sast\|secrets\|sca\|platform\|all` | SAST core, or a sidecar: gitleaks / osv-scanner / a hosted platform API (needs a key) |
 | `--offline` | Strict no-network mode (sidecars refused) |
 | `--metrics`, `--jobs <N>`, `--no-cache`, `--cache-dir` | Observability and performance controls |
 

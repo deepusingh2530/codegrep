@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- **`--only platform` sidecar**: submits a repository to a hosted security
+  platform's API as an opt-in subprocess (never linked, credentials from
+  `AIKIDO_API_KEY`, `AIKIDO_ENDPOINT` overridable). Refused under `--offline`
+  like the other sidecars, absent a key, and it degrades to the offline core
+  when the CLI is missing. No vendor code is vendored — the platform ships under
+  AGPL-3.0 or a commercial license, neither of which is compatible with this
+  project's terms, so nothing of theirs is linked, bundled, or copied.
+- **8 new original rules** (`rules/{python,php,ruby,javascript}/platform-gap.yaml`)
+  for vulnerability classes that hosted platform scanners are known to catch and
+  that were gaps here: still-encoded path traversal (`%2e`, `%252e`,
+  `decodeURIComponent`/`unquote` feeding a path join), SSRF through user-supplied
+  hosts including IDN/punycode forms across Python/PHP/Ruby/JS, SQL built by
+  numeric coercion, and NoSQL operator injection (`req.query` passed straight
+  into a Mongoose filter). One of them closes a real hole in the demo corpus:
+  `requests.get(user_url)` in `testdata/py/vuln.py` was previously undetected.
+
 ## 0.13.0 (2026-10-03)
 
 Published as [`scanward 0.13.0`](https://crates.io/crates/scanward) ·

@@ -95,8 +95,10 @@ actually expect in real code — the benign call a reviewer will type.
 3. On failure, adjust once and re-run; if it still misses, the pattern is
    probably over-constrained — usually a `metavariable-regex` that is too
    strict, or a single-shape pattern that needs a `pattern-either` sibling.
-4. Confirm nothing else moved: run the full `rule test`, the `testdata` scan
-   (26 findings is the baseline), and the self-scan of `crates/`.
+4. Confirm nothing else moved: run the full `rule test`, the `testdata` scan,
+   and the self-scan of `crates/`. A `testdata` count that *rises* is usually a
+   true positive from the new rule (the demo corpus is deliberately vulnerable);
+   any other movement is a regression to investigate before merging.
 
 ## Coverage checklist
 
