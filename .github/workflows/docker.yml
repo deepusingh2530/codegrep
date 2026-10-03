@@ -83,6 +83,16 @@ jobs:
           tags: |
             type=raw,value=${{ steps.ver.outputs.v }}
             type=raw,value=latest
+          # metadata-action regenerates the OCI labels and would otherwise
+          # replace the Dockerfile's with licences=NOASSERTION, which is exactly
+          # the field enterprise image scanners read.
+          labels: |
+            org.opencontainers.image.title=scanward
+            org.opencontainers.image.description=Fast, fully-offline multi-language SAST scanner
+            org.opencontainers.image.licenses=PolyForm-Noncommercial-1.0.0
+            org.opencontainers.image.vendor=scanward contributors
+            org.opencontainers.image.source=https://github.com/deepusingh2530/scanward
+            org.opencontainers.image.documentation=https://github.com/deepusingh2530/scanward#readme
       - name: Build and push (multi-arch, with provenance + SBOM attestations)
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
