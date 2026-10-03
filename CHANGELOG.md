@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.13.0 (2026-10-03)
+
+Published as [`scanward 0.13.0`](https://crates.io/crates/scanward) ·
+[`v0.13.0`](https://github.com/deepusingh2530/scanward/releases/tag/v0.13.0) ·
+[`codegrep 0.13.0`](https://crates.io/crates/codegrep) is the final release under the old name.
+
 - **Project renamed `codegrep` → `scanward`.** The old name was unownable and
   crowded: ~15 GitHub repos carried it (two unrelated 18-star grep tools), the
   bare `github.com/codegrep` namespace is an org registered in 2016, the npm
