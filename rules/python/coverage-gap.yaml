@@ -23,13 +23,13 @@
   fix: "Resolve the host and compare it against an allowlist before requesting"
   pattern-either:
     - pattern: "requests.get($URL)"
-    - pattern: "requests.get($URL, ..."
+    - pattern: "requests.get($URL, ...)"
     - pattern: "requests.post($URL)"
-    - pattern: "requests.post($URL, ..."
+    - pattern: "requests.post($URL, ...)"
     - pattern: "httpx.get($URL)"
     - pattern: "httpx.post($URL)"
     - pattern: "urlopen($URL)"
-    - pattern: "urlopen($URL, ..."
+    - pattern: "urlopen($URL, ...)"
   metavariable-regex:
     "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]eq|[Hh]ost|[Uu]rl"
   metadata:

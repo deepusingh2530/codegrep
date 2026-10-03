@@ -5,6 +5,10 @@
   message: "execFile runs a program whose path may be user-controlled"
   fix: "Use a fixed executable and argument array"
   pattern: "execFile($FILE)"
+  metavariable-regex:
+    # A quoted executable is a fixed program -- the safe form this rule's own
+    # `fix` recommends. Only flag a program path that is not a literal.
+    "FILE": "^[^\"'].*$"
   metadata:
     "owasp": "A03:2021-Injection"
     "cwe": "CWE-78"

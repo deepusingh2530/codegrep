@@ -7,6 +7,9 @@ fix: Avoid exec with user input; use execFile with static args
 pattern-either:
   - pattern: child_process.exec($VAR, ...)
   - pattern: exec($VAR, ...)
+# `exec(x)` also names RegExp.prototype.exec. A regex-literal receiver shares the
+# call shape but is a completely different API, so it is not command injection.
+pattern-not: "/.exec"
 metadata:
   owasp: A03:2021-Injection
   cwe: CWE-78

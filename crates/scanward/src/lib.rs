@@ -467,6 +467,7 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
                                 })
                             });
                         }
+                        let out = dedup_for_suppression(out);
                         let (out, n) = suppress::apply_inline(&text, out);
                         if n > 0 {
                             inline_suppressed.fetch_add(n, std::sync::atomic::Ordering::Relaxed);
@@ -569,6 +570,7 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
                     snippet,
                 });
             }
+            let out = dedup_for_suppression(out);
             let (out, n) = suppress::apply_inline(&text, out);
             if n > 0 {
                 inline_suppressed.fetch_add(n, std::sync::atomic::Ordering::Relaxed);
@@ -864,6 +866,27 @@ pub fn path_allowed(path_s: &str, root: &str, include: &[String], exclude: &[Str
 
 /// Changed lines per file from `git diff -U0 baseline...HEAD`.
 /// Best-effort: empty map on failure means "report everything".
+/// Collapse findings that inline suppression cannot tell apart.
+///
+/// `apply_inline` decides per *(rule, line)*: a same-line `# scanward-ignore`
+/// either matches the rule on that line or it does not. A rule can reach that
+/// point more than once for one line -- several patterns matching, or a taint
+/// rule and a pattern rule both firing -- and those copies carry slightly
+/// different snippets, so the report-level dedup does not always merge them.
+/// Counting every copy made `suppressed` over-report, and an inline ignore looked
+/// like it had suppressed twice as much as it really did.
+fn dedup_for_suppression(findings: Vec<Finding>) -> Vec<Finding> {
+    let mut seen: HashSet<(String, String, usize)> = HashSet::new();
+    let mut out = Vec::with_capacity(findings.len());
+    for f in findings {
+        let key = (f.rule_id.clone(), f.path.clone(), f.line);
+        if seen.insert(key) {
+            out.push(f);
+        }
+    }
+    out
+}
+
 pub fn diff_changed_lines(baseline: &str) -> HashMap<String, HashSet<usize>> {
     let out = std::process::Command::new("git")
         .args(["diff", "-U0", &format!("{baseline}...HEAD"), "--"])

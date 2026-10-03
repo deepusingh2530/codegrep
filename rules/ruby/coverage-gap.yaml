@@ -7,9 +7,9 @@ fix: "Resolve the host and check it against an allowlist before the call"
 pattern-either:
   - pattern: "Net::HTTP.get_response(URI($URL))"
   - pattern: "Net::HTTP.get(URI($URL))"
-  - pattern: "open-uri($URL, ..."
-  - pattern: "URI.open($URL, ..."
-  - pattern: "Faraday.get($URL, ..."
+  - pattern: "open-uri($URL, ...)"
+  - pattern: "URI.open($URL, ...)"
+  - pattern: "Faraday.get($URL, ...)"
 metavariable-regex:
   "URL": "params\\[|request\\.|\\$[a-z_]*host|\\$[a-z_]*url|CGI"
 metadata:

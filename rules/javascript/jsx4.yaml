@@ -244,8 +244,8 @@
   message: "PBKDF2 with fewer than 100000 iterations"
   fix: "Use at least 600000 iterations with SHA-256"
   pattern-either:
-    - pattern: "pbkdf2Sync($PW, $SALT, $ITER, ..."
-    - pattern: "pbkdf2($PW, $SALT, $ITER, ..."
+    - pattern: "pbkdf2Sync($PW, $SALT, $ITER, ...)"
+    - pattern: "pbkdf2($PW, $SALT, $ITER, ...)"
   metavariable-regex:
     "ITER": "^\\d{1,5}$"
   metadata:
