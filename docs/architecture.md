@@ -79,7 +79,7 @@ These are not preferences; breaking one is a bug.
 
 1. **The core scan is offline.** No network, no registry fetch, no telemetry, no
    API key. `--offline` additionally refuses sidecars. If a feature needs the
-   network, it belongs in a side-plane (`ai-triage/`, `--only secrets|sca|platform`),
+   network, it belongs in a side-plane (`ai-triage/`, `--only secrets|sca`),
    never in the scan path.
 2. **Deterministic.** Same input, same output, same order. No clock-, locale-,
    or hash-order-dependent behaviour in findings.

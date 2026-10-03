@@ -1,7 +1,7 @@
 [
   {
     "id": "js-encoded-path-traversal",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "javascript",
       "typescript"
@@ -29,7 +29,7 @@
   },
   {
     "id": "js-ssrf-idn-host",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "javascript",
       "typescript"
@@ -63,7 +63,7 @@
   },
   {
     "id": "js-sql-injection-numeric",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "javascript",
       "typescript"
@@ -93,7 +93,7 @@
   },
   {
     "id": "js-nosql-operator-injection",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "javascript",
       "typescript"
@@ -125,7 +125,7 @@
   },
   {
     "id": "py-encoded-path-traversal",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "python"
     ],
@@ -152,7 +152,7 @@
   },
   {
     "id": "py-ssrf-idn-host",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "python"
     ],
@@ -183,7 +183,7 @@
   },
   {
     "id": "php-ssrf-idn-host",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "php"
     ],
@@ -210,7 +210,7 @@
   },
   {
     "id": "ruby-ssrf-idn-host",
-    "group": "platform-gap",
+    "group": "coverage-gap",
     "languages": [
       "ruby"
     ],

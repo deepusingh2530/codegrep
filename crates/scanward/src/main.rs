@@ -58,7 +58,7 @@ struct ScanArgs {
     /// Worker threads (0 = auto)
     #[arg(long, default_value_t = 0)]
     jobs: usize,
-    /// Limit: sast|secrets|sca|platform|licenses|typosquat (the sidecars call external tools if present)
+    /// Limit: sast|secrets|sca|licenses|typosquat (the sidecars call external tools if present)
     #[arg(long, default_value = "sast")]
     only: String,
     /// Licence policy file (default: <path>/.scanward-licenses.yml)
@@ -165,76 +165,6 @@ fn run_sca(path: &str) -> Result<()> {
         }
     }
     anyhow::bail!("{last_err}")
-}
-
-fn run_platform(path: &str) -> Result<()> {
-    // Hosted security platform as an opt-in sidecar: separate process, never
-    // linked, credentials come from the environment. Refused under --offline.
-    let token = std::env::var("AIKIDO_API_KEY")
-        .ok()
-        .filter(|t| !t.trim().is_empty())
-        .ok_or_else(|| {
-            anyhow::anyhow!(
-                "scanward: AIKIDO_API_KEY is not set. The platform sidecar needs a key; \
-                 unset it and use `--only sast` (no account, no network) instead."
-            )
-        })?;
-    let endpoint = std::env::var("AIKIDO_ENDPOINT")
-        .unwrap_or_else(|_| "https://app.aikido.dev".to_string());
-
-    let payload = serde_json::json!({
-        "repository": { "path": path },
-        "checks": ["sast", "secrets", "dependency_vulnerability", "iac_misconfiguration"],
-    });
-    let url = format!("{}/api/v1/scans", endpoint.trim_end_matches('/'));
-
-    // Minimal HTTPS POST. Kept dependency-free: SAST offline policy means no
-    // HTTP client crate in the binary, and this path is opt-in only.
-    let out = std::process::Command::new("curl")
-        .args([
-            "--silent",
-            "--show-error",
-            "--fail-with-body",
-            "--max-time",
-            "120",
-            "-X",
-            "POST",
-            "-H",
-            &format!("Authorization: Bearer {token}"),
-            "-H",
-            "Content-Type: application/json",
-            "--data-binary",
-            "@-",
-            &url,
-        ])
-        .stdin(std::process::Stdio::piped())
-        .spawn()
-        .and_then(|mut child| {
-            use std::io::Write;
-            if let Some(stdin) = child.stdin.as_mut() {
-                stdin.write_all(payload.to_string().as_bytes())?;
-            }
-            child.wait_with_output()
-        })
-        .map_err(|e| anyhow::anyhow!("scanward: `curl` not found or failed ({e}). Install curl, or use `--only sca` (osv-scanner, Apache-2.0)."))?;
-
-    let body = String::from_utf8_lossy(&out.stdout).to_string();
-    if !out.status.success() {
-        let detail = serde_json::from_str::<serde_json::Value>(&body)
-            .ok()
-            .and_then(|v| {
-                v.get("message")
-                    .or_else(|| v.get("error"))
-                    .and_then(|m| m.as_str().map(|s| s.to_string()))
-            })
-            .unwrap_or_else(|| body.chars().take(300).collect());
-        anyhow::bail!("scanward: platform sidecar failed ({}): {detail}", out.status)
-    }
-    println!("{body}");
-    eprintln!(
-        "scanward platform: results submitted for {path} — poll the dashboard for triage (results are not merged into --json/--sarif output)"
-    );
-    Ok(())
 }
 
 /// Native, fully offline checks that need no sidecar.
@@ -368,7 +298,7 @@ fn run_scan(args: ScanArgs) -> Result<()> {
     // Strict offline policy: SAST core is always offline; external sidecars are refused.
     if args.offline && args.only != "sast" && args.only != "all" {
         anyhow::bail!(
-            "scanward --offline: --only {} refused (sidecars shell out to gitleaks/osv-scanner/the platform API, which need network). Use --only sast offline.",
+            "scanward --offline: --only {} refused (the secrets and sca sidecars shell out to gitleaks and osv-scanner, which need network). Use --only sast offline.",
             args.only
         );
     }
@@ -379,9 +309,8 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         "sast" | "all" => {}
         "secrets" => return run_secrets(&args.path),
         "sca" => return run_sca(&args.path),
-        "platform" => return run_platform(&args.path),
         other => anyhow::bail!(
-            "scanward: unknown --only {other} (expected sast|secrets|sca|platform|all)"
+            "scanward: unknown --only {other} (expected sast|secrets|sca|licenses|typosquat|all)"
         ),
     }
 
