@@ -70,10 +70,11 @@ prize — they are the requirement.
 
 **Where it is genuinely behind, stated plainly:** cross-file taint, absence
 classes (IDOR, missing authz, CSRF), dependency/container/IaC breadth, and
-platform workflow. Closing the first is engine work already scoped in
-[`architecture.md`](architecture.md); the second is why the platform sidecar
-exists; the third is why `--only secrets|sca` shells out to dedicated tools
-instead of pretending.
+product surface (dashboards, PR comments). Closing the first is engine work
+already scoped in [`architecture.md`](architecture.md). The rest is why
+`--only secrets|sca` shells out to dedicated tools, and why `--only
+licenses|typosquat` covers what it can offline and says plainly what it cannot
+— instead of pretending a single binary does everything.
 
 ## Reproduce
 

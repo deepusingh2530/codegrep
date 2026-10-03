@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- **Removed: the hosted-platform sidecar (`--only platform`).** The project
+  owner does not want that vendor involved, so the integration is gone rather
+  than dormant: `run_platform` and its dispatch are deleted, `AIKIDO_API_KEY`
+  and `AIKIDO_ENDPOINT` are no longer read by any code path, and no vendor
+  endpoint or brand appears anywhere in the tree. `--only platform` is now a
+  usage error that names the values that do exist.
+
+  **This is a breaking CLI change.** `--only platform` (shipped in 0.13.0) exits
+  non-zero with `unknown --only platform (expected sast|secrets|sca|licenses|typosquat|all)`.
+  Nothing is silently rerouted, because silently submitting a repository to a
+  third-party service instead of scanning it locally would be the worst possible
+  outcome for a flag someone scripted in CI. There is no replacement path: the
+  equivalent ground is now covered natively and offline by `--only licenses` and
+  `--only typosquat`, and CVE matching stays with `--only sca`.
+
+  Also renamed the eight rules that had been filed as `platform-gap.*` to
+  `coverage-gap.*`. The rules were always original content (encoded path
+  traversal, IDN/punycode SSRF, numeric-coercion SQL injection, NoSQL operator
+  injection) and are unchanged — only the filename and the spec's `group` key,
+  because a "platform gap" file name implies a vendor comparison that this
+  project no longer makes. Rule IDs are untouched, so existing suppressions and
+  fixtures keep working.
+
 - **`cg-deps`: native dependency inventory.** A new crate parses the manifests a
   repository actually contains into one flat, deterministic list of
   dependencies — name, version, ecosystem, declared licence, and *directness*.
@@ -120,9 +143,10 @@
   when the CLI is missing. No vendor code is vendored — the platform ships under
   AGPL-3.0 or a commercial license, neither of which is compatible with this
   project's terms, so nothing of theirs is linked, bundled, or copied.
-- **8 new original rules** (`rules/{python,php,ruby,javascript}/platform-gap.yaml`)
-  for vulnerability classes that hosted platform scanners are known to catch and
-  that were gaps here: still-encoded path traversal (`%2e`, `%252e`,
+  **[Removed after 0.13.0 — see Unreleased.]**
+- **8 new original rules** (`rules/{python,php,ruby,javascript}/coverage-gap.yaml`,
+  renamed from `platform-gap.yaml` after 0.13.0) for vulnerability classes that
+  were gaps here: still-encoded path traversal (`%2e`, `%252e`,
   `decodeURIComponent`/`unquote` feeding a path join), SSRF through user-supplied
   hosts including IDN/punycode forms across Python/PHP/Ruby/JS, SQL built by
   numeric coercion, and NoSQL operator injection (`req.query` passed straight
