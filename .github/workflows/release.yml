@@ -73,12 +73,29 @@ jobs:
           # Ship the rule corpus with the binary: a tarball user should be able
           # to run `scanward-corpus scan .` immediately, not clone a repo first.
           cp -r rules dist/rules
-          cat > dist/scanward-corpus <<'EOF'
+          cat > dist/scanward-corpus <<'CORPUS'
           #!/bin/sh
-          # Run scanward against the bundled rule corpus.
+          # Run scanward against the rule corpus bundled next to this script.
+          #   ./scanward-corpus scan .
+          #   ./scanward-corpus rule test
+          # Pass your own --rules to use a different corpus; clap rejects a repeated
+          # flag, so we do not add ours when one is already present.
           here="$(cd "$(dirname "$0")" && pwd)"
-          exec "$here/scanward" --rules "$here/rules" "$@"
-          EOF
+          case "$1" in
+            ""|-*) exec "$here/scanward" "$@" ;;
+            scan|autofix)
+              sub="$1"; shift
+              for arg in "$@"; do
+                case "$arg" in
+                  --rules|--rules=*) exec "$here/scanward" "$sub" "$@" ;;
+                esac
+              done
+              exec "$here/scanward" "$sub" --rules "$here/rules" "$@"
+              ;;
+            rule) exec "$here/scanward" rule test "$here/rules" ;;
+            *) exec "$here/scanward" "$@" ;;
+          esac
+          CORPUS
           chmod +x dist/scanward-corpus
           tar -czf "scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz" -C dist .
       - name: SBOM (CycloneDX)
