@@ -14,7 +14,7 @@ exposes both the `scanward` command-line tool and a library API for embedding.
 
 ```toml
 [dependencies]
-scanward = "0.13.0"
+scanward = "0.13.1"
 ```
 
 ```rust

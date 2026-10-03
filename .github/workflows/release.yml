@@ -70,6 +70,16 @@ jobs:
           mkdir -p dist
           cp "$BIN" dist/scanward
           cp LICENSE README.md dist/
+          # Ship the rule corpus with the binary: a tarball user should be able
+          # to run `scanward-corpus scan .` immediately, not clone a repo first.
+          cp -r rules dist/rules
+          cat > dist/scanward-corpus <<'EOF'
+          #!/bin/sh
+          # Run scanward against the bundled rule corpus.
+          here="$(cd "$(dirname "$0")" && pwd)"
+          exec "$here/scanward" --rules "$here/rules" "$@"
+          EOF
+          chmod +x dist/scanward-corpus
           tar -czf "scanward-${GITHUB_REF_NAME}-${{ matrix.name }}.tar.gz" -C dist .
       - name: SBOM (CycloneDX)
         uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2

@@ -87,31 +87,73 @@ commercial license for business use.</sub>
 
 ## Installation
 
-### From crates.io (recommended)
+### Container (nothing to install)
+
+The image ships the rule corpus, so a bare run scans a mounted repository:
+
+```sh
+docker run --rm -v "$PWD:/src" ghcr.io/deepusingh2530/scanward
+```
+
+That is the whole command line — no flags, no rules path. It runs as a
+non-root user, is multi-arch (amd64 + arm64), and every tag carries a
+provenance attestation and an SBOM. Pass args to override the defaults:
+
+```sh
+docker run --rm -v "$PWD:/src" ghcr.io/deepusingh2530/scanward \
+  scan /src --rules /rules --min-severity error --error
+```
+
+To build it yourself:
+
+```sh
+docker build -t scanward .
+docker run --rm -v "$PWD:/src" scanward
+```
+
+### Prebuilt binary
+
+Signed binaries and CycloneDX SBOMs are attached to each
+[release](https://github.com/deepusingh2530/scanward/releases). Each archive
+contains the binary **and the rule corpus**, plus a `scanward-corpus` wrapper
+that points the scanner at it:
+
+```sh
+tar xzf scanward-v0.13.1-macos-arm64.tar.gz
+./scanward-corpus scan .
+```
+
+Verify what you downloaded:
+
+```sh
+cosign verify-blob \
+  --bundle scanward-v0.13.1-macos-arm64.sig.bundle \
+  scanward-v0.13.1-macos-arm64.tar.gz \
+  --certificate-identity-regexp "https://github.com/deepusingh2530/scanward/.*" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+### Homebrew
+
+```sh
+brew install deepusingh2530/scanward/scanward   # tap
+brew install scanward                          # once the formula is in core
+scanward-corpus scan .
+```
+
+### From crates.io
 
 ```sh
 cargo install scanward
 ```
 
-### From source (Rust 1.90+)
+Source build (Rust 1.90+):
 
 ```sh
 git clone https://github.com/deepusingh2530/scanward.git
-cd scanward
 cargo install --path crates/scanward
-```
-
-Or directly from GitHub:
-
-```sh
+# or
 cargo install --git https://github.com/deepusingh2530/scanward scanward
-```
-
-### Docker
-
-```sh
-docker build -t scanward .
-docker run --rm -v "$PWD:/src" -w /src scanward scan /src --rules /rules
 ```
 
 ## Usage

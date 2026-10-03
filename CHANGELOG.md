@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- **Install parity: Homebrew tap and a published container image.**
+  `docker.yml` verifies the image on every PR that touches the build (including
+  a non-root assertion and a real scan of `testdata/`), and on a `v*` tag
+  publishes a multi-arch, provenance-attested image to
+  `ghcr.io/deepusingh2530/scanward`. A Homebrew tap (`homebrew-scanward`) installs
+  the prebuilt binary with the corpus, with a `scanward-corpus` wrapper so a
+  fresh install can scan immediately. Not on `homebrew/core`: core requires a
+  DFSG-compatible licence, and this project is PolyForm Noncommercial.
+- **`.dockerignore`**: the build context was multi-GB because `target/` was
+  being sent to the daemon. It is now a few MB, and the Dockerfile caches the
+  dependency layer.
+- **Dockerfile**: corpus baked in at `/rules` so a bare run against a bind mount
+  works with no flags, non-root by default (uid 10001), stripped binary, and
+  OCI labels including the licence, so enterprise image scanners see it.
+- **Release tarballs now ship the rule corpus** (0.13.1). Previously a tarball
+  user got a binary that could not scan anything without cloning the repository
+  first — which also made a Homebrew formula unusable.
+
 - **Category map in `docs/benchmarks.md`**: a capability comparison against
   pattern-based SAST, compiled-query engines, and hosted platforms, with the
   trade stated both ways — fully offline/zero-telemetry/free/readable corpus on

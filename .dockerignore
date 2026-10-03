@@ -1,0 +1,21 @@
+# Keep the build context tiny. Without this, `target/` alone is multi-GB and the
+# daemon receives gigabytes it does not need (the image builds from a clean
+# workspace anyway).
+target/
+.git/
+.github/
+.dockerignore
+Dockerfile
+
+# Not needed to compile or run the scanner.
+docs/
+testdata/
+ai-triage/
+integrations/
+scripts/
+assets/
+*.md
+LICENSE-MIT
+CHANGELOG.md
+
+# Keep rules/ — the corpus ships in the image.
