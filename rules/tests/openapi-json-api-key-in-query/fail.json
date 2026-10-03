@@ -1,0 +1,7 @@
+{
+  "components": {
+    "securitySchemes": {
+      "SessionKey": { "type": "apiKey", "name": "X-Session-Token", "in": "query" }
+    }
+  }
+}

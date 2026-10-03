@@ -54,6 +54,25 @@ call summaries taint consumes, not to gate pattern hits.
 Dependencies flow one way: `cg-parser` → `cg-ir` → `cg-matcher` → `cg-taint` →
 `cg-rules` → `scanward`. No crate depends on `scanward`.
 
+### Supply-chain path
+
+`--only licenses` and `--only typosquat` are a second, native entry point that
+shares the walker but not the rule engine:
+
+```
+scan_licenses(path) / scan_typosquat(path)
+  │
+  ├─ inventory::collect        cg-deps parse of every manifest under path
+  │                            → merged, deduplicated Dependency records
+  ├─ licences::check           allow/deny policy → Verdicts     (--only licenses)
+  └─ typosquat::check          popular-name comparison → Suspects (--only typosquat)
+```
+
+Offline, deterministic, no subprocess — the same three guarantees as the SAST
+core. What differs is the honesty rule: these checks report what a manifest says
+and what a name resembles, and they keep "I cannot know" separate from "the
+answer is fine". See [`supply-chain.md`](supply-chain.md).
+
 ## Invariants
 
 These are not preferences; breaking one is a bug.
@@ -76,6 +95,11 @@ These are not preferences; breaking one is a bug.
    rule text — see [`licensing.md`](licensing.md).
 7. **Parallel by default, and optional.** `--jobs` bounds rayon; `--metrics`
    reports the split.
+8. **A policy check never guesses.** An absent licence is not permissive, an
+   unmappable licence is not allowed, and metadata the format cannot express is
+   reported `unavailable` rather than folded into "unlicensed". The same applies
+   to typosquat output: a resemblance is a review queue, not a verdict, and it
+   says so in the report text.
 
 ## Adding a language
 

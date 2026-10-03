@@ -58,9 +58,12 @@ struct ScanArgs {
     /// Worker threads (0 = auto)
     #[arg(long, default_value_t = 0)]
     jobs: usize,
-    /// Limit: sast|secrets|sca|platform (the sidecars call external tools if present)
+    /// Limit: sast|secrets|sca|platform|licenses|typosquat (the sidecars call external tools if present)
     #[arg(long, default_value = "sast")]
     only: String,
+    /// Licence policy file (default: <path>/.scanward-licenses.yml)
+    #[arg(long)]
+    license_policy: Option<String>,
     /// Rules directory
     #[arg(long, default_value = "rules")]
     rules: String,
@@ -234,7 +237,134 @@ fn run_platform(path: &str) -> Result<()> {
     Ok(())
 }
 
+/// Native, fully offline checks that need no sidecar.
+fn is_native_only(only: &str) -> bool {
+    matches!(only, "licenses" | "licences" | "typosquat")
+}
+
+/// Load the policy for this run: explicit `--license-policy`, else
+/// `.scanward-licences.yml` at the scan root. A missing explicit file is an
+/// error (the user named it); a missing default is fine and means "review
+/// everything".
+fn load_policy(args: &ScanArgs) -> Result<scanward::licences::Policy> {
+    let explicit = args.license_policy.clone();
+    let path = match &explicit {
+        Some(p) => std::path::PathBuf::from(p),
+        None => std::path::Path::new(&args.path).join(".scanward-licences.yml"),
+    };
+    match std::fs::read_to_string(&path) {
+        Ok(text) => Ok(scanward::licences::Policy::parse(&text)),
+        Err(e) if explicit.is_some() => {
+            anyhow::bail!("scanward: cannot read licence policy '{}': {e}", path.display())
+        }
+        Err(_) => Ok(scanward::licences::Policy::default()),
+    }
+}
+
+/// `--only licenses`: judge the dependency inventory against the policy.
+/// Offline and native — no subprocess, no network.
+fn run_licenses(args: &ScanArgs) -> Result<()> {
+    let policy = load_policy(args)?;
+    let deps = scanward::inventory::collect(&args.path);
+    if deps.is_empty() {
+        eprintln!(
+            "scanward: no dependency manifests found under '{}' (looked for Cargo/npm/PyPI/Go/Composer/Gem manifests)",
+            args.path
+        );
+        return Ok(());
+    }
+    let findings = scanward::licences::check(&deps, &policy);
+    let body = if args.json || args.output.is_some() {
+        serde_json::to_string_pretty(&findings)?
+    } else if findings.is_empty() {
+        format!("scanward: {} dependency/dependencies, no licence issues\n", deps.len())
+    } else {
+        let summary = scanward::licences::summarize(&findings);
+        let counts: Vec<String> = summary
+            .iter()
+            .filter(|(_, n)| **n > 0)
+            .map(|(k, n)| format!("{k}={n}"))
+            .collect();
+        let problems = findings.iter().filter(|f| f.verdict.is_problem()).count();
+        let mut s = format!(
+            "scanward: {} dependencies checked — {problems} need a decision ({})\n",
+            deps.len(),
+            counts.join(", ")
+        );
+        for f in &findings {
+            s.push_str(&format!("  [{}] {}\n", f.verdict.as_str(), f));
+        }
+        s
+    };
+    emit(args, &body, findings.iter().filter(|f| f.verdict.is_problem()).count())?;
+    Ok(())
+}
+
+fn emit(args: &ScanArgs, body: &str, problems: usize) -> Result<()> {
+    if let Some(o) = &args.output {
+        std::fs::write(o, body).with_context(|| format!("writing {o}"))?;
+        eprintln!("scanward: wrote {problems} problem(s) to {o}");
+    } else {
+        println!("{body}");
+    }
+    if args.error && problems > 0 {
+        if !args.json && args.output.is_none() {
+            eprintln!("scanward: exiting 1 (--error, {problems} problem(s))");
+        }
+        std::process::exit(1);
+    }
+    Ok(())
+}
+
+/// `--only typosquat`: flag inventory names that look like impersonations of
+/// popular packages. Heuristic and offline; every result is a "suspect".
+fn run_typosquat(args: &ScanArgs) -> Result<()> {
+    let deps = scanward::inventory::collect(&args.path);
+    if deps.is_empty() {
+        eprintln!(
+            "scanward: no dependency manifests found under '{}' (looked for Cargo/npm/PyPI/Go/Composer/Gem manifests)",
+            args.path
+        );
+        return Ok(());
+    }
+    let suspects = scanward::typosquat::check(&deps);
+    let body = if args.json || args.output.is_some() {
+        serde_json::to_string_pretty(&suspects)?
+    } else if suspects.is_empty() {
+        format!(
+            "scanward: {} dependency/dependencies checked, no names resembling popular packages\n",
+            deps.len()
+        )
+    } else {
+        let mut s = format!(
+            "scanward: {} of {} dependencies have names resembling popular packages (review, not proof)\n",
+            suspects.len(),
+            deps.len()
+        );
+        let grouped = scanward::typosquat::by_ecosystem(&suspects);
+        for (eco, list) in grouped {
+            s.push_str(&format!("  {eco}:\n"));
+            for sus in list {
+                s.push_str(&format!("    - {}\n", sus.describe()));
+            }
+        }
+        s
+    };
+    emit(args, &body, suspects.len())?;
+    Ok(())
+}
+
+fn run_supply_chain(args: &ScanArgs) -> Result<()> {
+    match args.only.as_str() {
+        "typosquat" => run_typosquat(args),
+        _ => run_licenses(args),
+    }
+}
+
 fn run_scan(args: ScanArgs) -> Result<()> {
+    if is_native_only(&args.only) {
+        return run_supply_chain(&args);
+    }
     // Strict offline policy: SAST core is always offline; external sidecars are refused.
     if args.offline && args.only != "sast" && args.only != "all" {
         anyhow::bail!(
@@ -300,7 +430,13 @@ fn run_scan(args: ScanArgs) -> Result<()> {
         );
     }
 
-    // `--only all`: SAST above plus best-effort sidecars (warn, don't fail).
+    // `--only all`: SAST above plus the native supply-chain checks (offline, so
+    // always safe), then best-effort sidecars (warn, don't fail).
+    if args.only == "all" {
+        if let Err(e) = run_licenses(&args) {
+            eprintln!("scanward: licence check skipped: {e}");
+        }
+    }
     if args.only == "all" && !args.offline {
         if let Err(e) = run_secrets(&scan_path) {
             eprintln!("scanward: secrets sidecar skipped: {e}");

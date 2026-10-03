@@ -165,6 +165,8 @@ scanward scan . --junit -o results.xml             # JUnit XML for CI test tabs
 scanward scan . --exclude 'vendor/**' --min-severity error --error
 scanward scan . --baseline main --diff-only        # only lines changed vs main
 scanward scan . --only secrets                     # gitleaks sidecar (if installed)
+scanward scan . --only licenses                     # dependency licence policy (offline)
+scanward scan . --only typosquat                    # dependency names that look impersonated
 scanward scan . --only platform                     # hosted platform sidecar (needs a key)
 scanward rule test rules/                          # validate rules + run all fixtures
 scanward scan --help
@@ -179,7 +181,8 @@ scanward scan --help
 | `--json` / `--sarif` / `--junit` | Machine-readable output: JSON, SARIF 2.1.0, or JUnit XML (`-o` writes to a file) |
 | `--baseline <ref>` + `--diff-only` | Diff-aware scan of changed lines only |
 | `--suppress <file>` | FP suppression file, repeatable (auto-discovers `.scanward-suppressions.yml` at the scan root) |
-| `--only sast\|secrets\|sca\|platform\|all` | SAST core, or a sidecar: gitleaks / osv-scanner / a hosted platform API (needs a key) |
+| `--only sast\|secrets\|sca\|platform\|licenses\|typosquat\|all` | SAST core, a native supply-chain check (`licenses`, `typosquat` — offline, no subprocess), or a sidecar: gitleaks / osv-scanner / a hosted platform API (needs a key) |
+| `--license-policy <file>` | Licence allow/deny policy for `--only licenses` (default: `<path>/.scanward-licences.yml`) |
 | `--offline` | Strict no-network mode (sidecars refused) |
 | `--metrics`, `--jobs <N>`, `--no-cache`, `--cache-dir` | Observability and performance controls |
 
@@ -315,6 +318,47 @@ Already have rule files written for another scanner's pattern schema? Point
 on load (strictly: unsupported constructs are skipped with a reported reason,
 never silently weakened). See [`docs/rule-import.md`](docs/rule-import.md).
 
+## Supply-chain checks (offline, native)
+
+`--only licenses` and `--only typosquat` read your dependency manifests directly
+— no subprocess, no network, no registry account. They build on the
+[`cg-deps`](crates/cg-deps) inventory (`Cargo.toml`/`Cargo.lock`,
+`package-lock.json`, `requirements.txt`, `pyproject.toml`, `poetry.lock`,
+`go.mod`, `composer.lock`, `Gemfile.lock`).
+
+**Licence policy** — allow/deny lists in `.scanward-licences.yml`:
+
+```yaml
+allow: ["MIT", "Apache-2.0", "BSD-3-Clause"]
+deny: ["GPL-3.0", "AGPL-3.0"]
+unlicensed: warn        # warn | ignore | error
+scope: direct           # direct | all
+```
+
+Two rules the checker will not bend: **an absent licence is never treated as
+free**, and **a licence we cannot map is reported as `unknown`, not accepted**.
+It also distinguishes *undeclared* from *unknowable*: `Cargo.lock`, `go.mod`,
+`Gemfile.lock` and `requirements.txt` carry no licence field at all, so those
+entries come back as `unavailable` and never fail a gate. Reporting a Rust
+crate as "unlicensed" when we simply never read its metadata would be a lie.
+
+**Typosquatting** — flags inventory names one edit away from a widely used
+package (Damerau-Levenshtein, so transpositions like `lodahs` count as one), plus
+homoglyph swaps (`serd3`) and impersonating suffixes (`requests-secure`). Every
+hit is a *suspect*, not a verdict: without registry access we cannot know whether
+the name is taken, so the report names the package it resembles and the signal
+that fired, and stays at `warning`.
+
+**API security** — OpenAPI/Swagger specs are scanned as source: plaintext server
+URLs, credentials embedded in a URL, API keys in query strings, HTTP Basic auth,
+deprecated OAuth2 flows, remote `$ref` over http, external `$ref` dependencies,
+debug surfaces, and Swagger 2.0.
+
+**What stays a sidecar:** CVE matching (osv-scanner), secret scanning
+(gitleaks), registry/registry-adjacent lookups, and container image OS
+packages. Those need network or an external database; scanward refuses to
+pretend otherwise. See `--only secrets|sca`.
+
 ## Architecture
 
 | Crate | Role |
@@ -325,6 +369,7 @@ never silently weakened). See [`docs/rule-import.md`](docs/rule-import.md).
 | [`crates/cg-parser`](crates/cg-parser) | Language detection + tree-sitter parsing |
 | [`crates/cg-taint`](crates/cg-taint) | Intra-procedural taint with function summaries |
 | [`crates/cg-ir`](crates/cg-ir) | Shared intermediate representation |
+| [`crates/cg-deps`](crates/cg-deps) | Dependency manifest inventory: version, ecosystem, licence, directness |
 
 ## Rule development
 

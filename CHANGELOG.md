@@ -14,6 +14,49 @@
   naming: a version range is preserved verbatim (`>=2.0`, `^1.2`) rather than
   normalized, and `license: None` means "not declared here", never "free" — a
   policy decision must not be made on a guess.
+- **Supply-chain checks, natively and offline: `--only licenses` and
+  `--only typosquat`.** Both read manifests directly — no subprocess, no
+  network, no registry account.
+  - *Licence policy* (`--only licenses`, `--license-policy`) judges the
+    inventory against allow/deny lists in `.scanward-licences.yml`, with
+    `unlicensed: warn|ignore|error` and `scope: direct|all`. It will not make a
+    decision on a guess: an absent licence is never treated as free, an
+    unrecognised one is reported `unknown` rather than allowed, and `OR`
+    expressions are judged side by side. It also separates *undeclared* from
+    *unknowable* — `Cargo.lock`, `go.mod`, `Gemfile.lock` and `requirements.txt`
+    carry no licence field at all, so those come back `unavailable` and never
+    fail a gate. Reporting a Rust crate as unlicensed when we never read its
+    metadata would be a lie, and `--error` would then fail every Rust project.
+  - *Typosquatting* (`--only typosquat`) flags inventory names one edit from a
+    widely used package, using Damerau-Levenshtein so transpositions
+    (`lodahs`) count as the single keystroke they are, plus homoglyph swaps
+    (`serd3`) and impersonating suffixes (`requests-secure`). Every result is a
+    *suspect*: with no registry access we cannot know whether a name is taken,
+    so the report names the package it resembles and the signal that fired, and
+    stays at `warning`. Scanned against this repository's own 80 dependencies:
+    no false positives.
+- **API security: an OpenAPI/Swagger rule pack.** Thirteen rules over specs as
+  source: plaintext server URLs, credentials embedded in a server URL, API keys
+  in query strings, HTTP Basic auth, deprecated OAuth2 password/implicit flows,
+  remote `$ref` over http, external `$ref` dependencies, published debug
+  surfaces, and Swagger 2.0. Every rule has fail *and* pass fixtures, and the
+  two plaintext-URL rules are anchored to `servers:` so an OpenAPI spec does not
+  get reported under the existing Ansible rule's (wrong) message.
+- **Engine: `\$` escapes a literal dollar in a pattern.** A `$` immediately
+  before a word was always parsed as a metavariable with no way to escape it,
+  which made correct `$ref`/`$schema` rules impossible to write. It failed
+  silently: the first draft of the `$ref` rule compiled to "any key, then
+  `http://`" and fired on an Ansible playbook. `\$ref` now means a literal
+  `$ref`, the literal extractor keeps the token so the prefilter still works,
+  and the pass fixtures prove the near-miss shape does not match.
+- **`cg-deps` distinguishes an absent licence from an unknowable one.** New
+  `LicenceAvailability` (`declared` / `absent` / `not-in-format`) on every
+  record, so callers cannot mistake "this format has no licence field" for
+  "this package is unlicensed". Also: `==2.31.0` pins in `requirements.txt` now
+  yield the version `2.31.0` instead of `==2.31.0`, `poetry.lock` licence data
+  is read (it was ignored), and the `direct` field's doc comment no longer says
+  the opposite of what it does.
+
 - **Fixed: the literal prefilter silently disabled rules.** A rule whose
   patterns yielded no indexable literal was dropped from every scan: it loaded,
   validated, and passed its own fixtures (the fixture harness bypasses the

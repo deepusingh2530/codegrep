@@ -30,7 +30,10 @@ pub use cg_matcher;
 pub use cg_parser;
 pub use cg_rules::{self, Rule};
 pub use cg_taint;
+pub mod inventory;
+pub mod licences;
 pub mod suppress;
+pub mod typosquat;
 pub use suppress::Suppression;
 
 /// A single scan finding.

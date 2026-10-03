@@ -112,6 +112,13 @@ pub fn extract_literals(pattern: &str) -> Vec<String> {
     let bytes = pattern.as_bytes();
     let mut i = 0;
     while i < bytes.len() {
+        if bytes[i] == b'\\' && i + 1 < bytes.len() && bytes[i + 1] == b'$' {
+            // `\$name` is a literal `$` followed by plain text. Skip both
+            // characters: skipping only the backslash would leave `$name` to be
+            // eaten as a metavariable, losing the literal entirely.
+            i += 2;
+            continue;
+        }
         if bytes[i] == b'$' {
             let mut j = i + 1;
             while j < bytes.len() && bytes[j] != b')' && bytes[j] != b'('
@@ -343,6 +350,21 @@ mod tests {
         assert!(extract_literals("$VAR = \"SG.$REST\"").contains(&"sg.".to_string()));
         // Short tokens still yield nothing; those rules rely on `always`.
         assert!(extract_literals("iv = \"").is_empty());
+    }
+
+    #[test]
+    fn escaped_dollar_yields_a_literal_token() {
+        // The prefilter must still get "ref"/"schema" out of an escaped dollar,
+        // otherwise the rule silently degrades to an always-candidate.
+        let lits = extract_literals("\\$ref: http://$URL");
+        assert!(
+            lits.contains(&"http".to_string()),
+            "url literal still indexed: {lits:?}"
+        );
+        assert!(
+            extract_literals("\\$schema: $URL").contains(&"schema".to_string()),
+            "escaped dollar does not swallow the word after it"
+        );
     }
 
     #[test]

@@ -1,0 +1,2 @@
+servers:
+  - url: https://svc_billing:hunter2@api.example.com/v1

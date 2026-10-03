@@ -1,0 +1,6 @@
+paths:
+  /debug/config:
+    get:
+      responses:
+        '200':
+          description: ok

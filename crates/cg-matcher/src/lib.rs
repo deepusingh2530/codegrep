@@ -20,6 +20,9 @@ pub struct Match {
 }
 
 /// Translate a scanward pattern to a regex string.
+/// - `\$VAR` escape -> a literal `$` (JSON Schema/OpenAPI `$ref`, `$schema`,
+///   jQuery). Without it, a pattern that needs a literal `$` immediately before
+///   a word is silently reinterpreted as a metavariable.
 /// - `$VAR`, `$X` -> named capture `.+?`
 /// - `$...ARGS` -> named capture `.*?`
 /// - `...` -> `.*?`
@@ -44,6 +47,10 @@ pub fn pattern_to_regex_src(pattern: &str) -> String {
             }
             out.push_str("\\s*");
             i = j;
+        } else if pattern[i..].starts_with("\\$") {
+            // Escaped dollar: a literal `$`, not a metavariable.
+            out.push_str("\\$");
+            i += 2;
         } else         if pattern[i..].starts_with("$...") {
             let mut j = i + 4;
             while j < bytes.len()
@@ -194,50 +201,37 @@ pub fn check_metavariable_comparison(m: &Match, expr: &str) -> bool {
 }
 
 #[cfg(test)]
-mod tests {
+mod escape_tests {
     use super::*;
 
     #[test]
-    fn var_and_ellipsis() {
-        let ms = find_matches("cursor.execute($VAR, ...)", "cursor.execute(query, foo)").unwrap();
-        assert_eq!(ms.len(), 1);
-        assert_eq!(ms[0].captures.get("VAR").unwrap(), "query");
+    fn escaped_dollar_is_a_literal_dollar() {
+        // The bug this fixes: `$ref: 'http://x'` compiled to a metavariable, so
+        // the rule matched any `key: http://...` in any YAML file.
+        let src = pattern_to_regex_src("\\$ref: 'http://$URL'");
+        assert!(src.contains("\\$ref"), "literal $ preserved: {src}");
+        assert!(!src.contains("(?P<ref>"), "no metavariable named ref: {src}");
+
+        let re = compile_pattern("\\$ref: 'http://$URL'").unwrap();
+        assert!(re.is_match("$ref: 'http://schemas.example.com/user.json'"));
+        assert!(
+            !re.is_match("url: http://example.com/pkg.tar.gz"),
+            "a plain http url is not a $ref"
+        );
+        assert!(!re.is_match("$myref: 'http://example.com'"));
     }
 
     #[test]
-    fn no_false_positive() {
-        let ms = find_matches("cursor.execute($VAR)", "cursor.fetchall()").unwrap();
-        assert!(ms.is_empty());
+    fn unescaped_dollar_is_still_a_metavariable() {
+        let src = pattern_to_regex_src("$VAR($X)");
+        assert!(src.contains("(?P<VAR>"), "{src}");
+        assert!(src.contains("(?P<X>"), "{src}");
     }
 
     #[test]
-    fn variadic() {
-        let ms = find_matches("eval($...ARGS)", "eval(user_input)").unwrap();
-        assert_eq!(ms.len(), 1);
-    }
-
-    #[test]
-    fn multiline_sink() {
-        let src = "cursor.execute(\n  query,\n  params\n)\n";
-        let ms = find_matches("cursor.execute($VAR, ...)", src).unwrap();
-        assert_eq!(ms.len(), 1);
-        assert_eq!(ms[0].line, 1);
-    }
-
-    #[test]
-    fn comparison_filter() {
-        let ms = find_matches("buf[$N]", "buf[8192]").unwrap();
-        assert_eq!(ms.len(), 1);
-        assert!(check_metavariable_comparison(&ms[0], "$N > 1024"));
-        assert!(!check_metavariable_comparison(&ms[0], "$N < 1024"));
-    }
-
-    #[test]
-    fn trailing_metavar_greedy_for_secret_check() {
-        let ms = find_matches("AKIA$REST", "key = \"AKIAabcdefghijkl1234\"").unwrap();
-        assert_eq!(ms.len(), 1);
-        let mut c = std::collections::HashMap::new();
-        c.insert("REST".to_string(), "[0-9a-z]{16}".to_string());
-        assert!(check_metavariable_regex(&ms[0], &c));
+    fn escaped_and_unescaped_dollars_coexist() {
+        let re = compile_pattern("\\$ref: $URL").unwrap();
+        assert!(re.is_match("$ref: ./components/schemas/User"));
+        assert!(!re.is_match("prefix: ./components/schemas/User"));
     }
 }

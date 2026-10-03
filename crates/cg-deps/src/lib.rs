@@ -24,7 +24,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
 /// Package ecosystem, inferred from the manifest filename.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Ecosystem {
     Cargo,
     Npm,
@@ -48,7 +49,37 @@ impl Ecosystem {
 }
 
 /// One resolved (or declared) dependency.
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// Whether licence metadata is knowable from what we read.
+///
+/// This exists because "we cannot see it" and "it is not there" are different
+/// facts, and reporting them the same way is a lie. `Cargo.lock` has no licence
+/// field at all, so every transitive crate in a Rust project would otherwise be
+/// reported as unlicensed — when in fact the crate is usually MIT.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum LicenceAvailability {
+    /// The format records licences and this entry had one.
+    Declared,
+    /// The format records licences and this entry had none.
+    Absent,
+    /// The format carries no licence metadata whatsoever (Cargo.lock, go.mod,
+    /// Gemfile.lock, requirements.txt, npm v1 lockfiles).
+    NotInFormat,
+}
+
+impl LicenceAvailability {
+    /// Best of two observations: a real declaration always wins, then an
+    /// observed absence, then "this format cannot say".
+    pub fn best(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Declared, _) | (_, Self::Declared) => Self::Declared,
+            (Self::Absent, _) | (_, Self::Absent) => Self::Absent,
+            _ => Self::NotInFormat,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct Dependency {
     pub name: String,
     /// Version exactly as written in the file. Requirements-style ranges are
@@ -58,6 +89,8 @@ pub struct Dependency {
     /// Declared license, when the manifest carries one. Lockfiles usually do
     /// not; manifests often do. `None` means "not declared here" — not "free".
     pub license: Option<String>,
+    /// Whether `license` could have been present in the file this came from.
+    pub licence_availability: LicenceAvailability,
     /// Manifest the record came from, relative to the scan root when possible.
     pub manifest: String,
     /// True when the project asked for this dependency directly.
@@ -170,6 +203,7 @@ fn cargo_lock(text: &str, manifest: &str) -> Vec<Dependency> {
             version,
             ecosystem: Ecosystem::Cargo,
             license: None,
+            licence_availability: LicenceAvailability::NotInFormat,
             manifest: manifest.to_string(),
             direct: direct.contains(name),
             resolved: true,
@@ -201,11 +235,17 @@ fn cargo_toml(text: &str, manifest: &str) -> Vec<Dependency> {
             if name.starts_with('.') {
                 continue; // [workspace.dependencies] is not a package
             }
+                let licence_availability = if license.is_some() {
+                    LicenceAvailability::Declared
+                } else {
+                    LicenceAvailability::Absent
+                };
             out.push(Dependency {
                 name: name.clone(),
                 version,
                 ecosystem: Ecosystem::Cargo,
                 license,
+                licence_availability,
                 manifest: manifest.to_string(),
                 direct: true,
                 resolved: false,
@@ -279,11 +319,17 @@ fn npm_lock(text: &str, manifest: &str) -> Vec<Dependency> {
             // (…/node_modules/a/node_modules/b) never is.
             let direct = path.matches("node_modules/").count() == 1
                 && root_deps.contains(name);
+                let licence_availability = if license.is_some() {
+                    LicenceAvailability::Declared
+                } else {
+                    LicenceAvailability::Absent
+                };
             out.push(Dependency {
                 name: name.to_string(),
                 version,
                 ecosystem: Ecosystem::Npm,
                 license,
+                licence_availability,
                 manifest: manifest.to_string(),
                 direct,
                 resolved: true,
@@ -308,11 +354,17 @@ fn npm_lock(text: &str, manifest: &str) -> Vec<Dependency> {
                     .unwrap_or("")
                     .to_string();
                 let license = meta.get("license").and_then(|v| v.as_str()).map(String::from);
+                    let licence_availability = if license.is_some() {
+                        LicenceAvailability::Declared
+                    } else {
+                        LicenceAvailability::Absent
+                    };
                 out.push(Dependency {
                     name: name.clone(),
                     version,
                     ecosystem: eco,
                     license,
+                    licence_availability,
                     manifest: manifest.to_string(),
                     direct,
                     resolved: true,
@@ -356,6 +408,7 @@ fn requirements_txt(text: &str, manifest: &str) -> Vec<Dependency> {
             version,
             ecosystem: Ecosystem::PyPi,
             license: None,
+            licence_availability: LicenceAvailability::NotInFormat,
             manifest: manifest.to_string(),
             direct: true,
             resolved: false,
@@ -379,7 +432,15 @@ fn split_requirement(line: &str) -> Option<(String, String)> {
             let name = line[..i].trim();
             // Drop extras: `requests[security]`
             let name = name.split('[').next().unwrap_or(name).trim();
-            let version = line[i..].trim().to_string();
+            let raw_version = line[i..].trim();
+            // `==2.31.0` is a pin: the operator is not part of the version.
+            // Anything else (`>=2.0`, `~=1.4`) keeps its operator verbatim, since
+            // rewriting a range would misreport what the manifest asked for.
+            let version = raw_version
+                .strip_prefix("==")
+                .unwrap_or(raw_version)
+                .trim()
+                .to_string();
             if name.is_empty() {
                 None
             } else {
@@ -418,6 +479,7 @@ fn pyproject_toml(text: &str, manifest: &str) -> Vec<Dependency> {
                         version,
                         ecosystem: Ecosystem::PyPi,
                         license: None,
+                        licence_availability: LicenceAvailability::NotInFormat,
                         manifest: manifest.to_string(),
                         direct: true,
                         resolved: false,
@@ -448,11 +510,17 @@ fn pyproject_toml(text: &str, manifest: &str) -> Vec<Dependency> {
                 ),
                 _ => (String::new(), None),
             };
+                let licence_availability = if license.is_some() {
+                    LicenceAvailability::Declared
+                } else {
+                    LicenceAvailability::Absent
+                };
             out.push(Dependency {
                 name: name.clone(),
                 version,
                 ecosystem: Ecosystem::PyPi,
                 license,
+                licence_availability,
                 manifest: manifest.to_string(),
                 direct: true,
                 resolved: false,
@@ -485,11 +553,18 @@ fn poetry_lock(text: &str, manifest: &str) -> Vec<Dependency> {
             .and_then(|c| c.as_str())
             .map(|c| c.eq_ignore_ascii_case("dev"))
             .unwrap_or(false);
+        let license = pkg.get("license").and_then(|v| v.as_str()).map(String::from);
+        let licence_availability = if license.is_some() {
+            LicenceAvailability::Declared
+        } else {
+            LicenceAvailability::Absent
+        };
         out.push(Dependency {
             name: name.to_string(),
             version,
             ecosystem: Ecosystem::PyPi,
-            license: None,
+            license,
+            licence_availability,
             manifest: manifest.to_string(),
             direct: !dev,
             resolved: true,
@@ -543,6 +618,7 @@ fn go_dep(name: &str, version: &str, indirect: bool, manifest: &str) -> Dependen
         version: version.to_string(),
         ecosystem: Ecosystem::Go,
         license: None,
+        licence_availability: LicenceAvailability::NotInFormat,
         manifest: manifest.to_string(),
         direct: !indirect,
         resolved: false,
@@ -585,11 +661,17 @@ fn composer_lock(text: &str, manifest: &str) -> Vec<Dependency> {
                     .map(String::from),
                 _ => None,
             });
+                let licence_availability = if license.is_some() {
+                    LicenceAvailability::Declared
+                } else {
+                    LicenceAvailability::Absent
+                };
             out.push(Dependency {
                 name: name.to_string(),
                 version,
                 ecosystem: Ecosystem::Composer,
                 license,
+                licence_availability,
                 manifest: manifest.to_string(),
                 direct,
                 resolved: true,
@@ -645,6 +727,7 @@ fn gemfile_lock(text: &str, manifest: &str) -> Vec<Dependency> {
             version,
             ecosystem: Ecosystem::Ruby,
             license: None,
+            licence_availability: LicenceAvailability::NotInFormat,
             manifest: manifest.to_string(),
             resolved: true,
         })
@@ -730,6 +813,10 @@ pub fn merge(mut all: Vec<Dependency>) -> Vec<Dependency> {
                 if existing.license.is_none() {
                     existing.license = dep.license;
                 }
+                // A lockfile may not know the licence while the manifest does,
+                // or vice versa; keep whichever observation is strongest.
+                existing.licence_availability =
+                    existing.licence_availability.best(dep.licence_availability);
                 existing.direct = existing.direct || dep.direct;
             }
             None => {
@@ -847,6 +934,16 @@ nix = "0.27"
             names,
             vec!["requests", "urllib3", "flask", "django", "numpy"],
             "URL/options/includes must be skipped, markers dropped"
+        );
+        // Pins lose the `==`; ranges keep their operator.
+        assert_eq!(
+            deps.iter().find(|d| d.name == "requests").unwrap().version,
+            "2.31.0",
+            "an exact pin is a version, not a version plus an operator"
+        );
+        assert_eq!(
+            deps.iter().find(|d| d.name == "numpy").unwrap().version,
+            "1.26.4"
         );
         let urllib = deps.iter().find(|d| d.name == "urllib3").unwrap();
         assert_eq!(urllib.version, ">=2.0");
@@ -977,6 +1074,57 @@ category = "dev"
     }
 
     #[test]
+    fn licence_availability_distinguishes_unknown_from_absent() {
+        // Cargo.lock has no licence field: we cannot know, which is not the
+        // same as "not licensed".
+        let lock = parse(
+            "Cargo.lock",
+            "[[package]]\nname = \"serde\"\nversion = \"1.0.210\"\nsource = \"registry+https://x\"",
+        );
+        assert_eq!(lock[0].license, None);
+        assert_eq!(
+            lock[0].licence_availability,
+            LicenceAvailability::NotInFormat,
+            "claiming a Cargo.lock entry is unlicensed would be a lie"
+        );
+
+        // A manifest with no `license` key is a real observation of absence.
+        let manifest = parse("Cargo.toml", "[package]\nname='x'\n\n[dependencies]\nfoo = '1'\n");
+        assert_eq!(
+            manifest[0].licence_availability,
+            LicenceAvailability::Absent
+        );
+
+        let declared = parse(
+            "Cargo.toml",
+            "[package]\nname='x'\n\n[dependencies]\nserde = { version = '1', license = 'MIT' }\n",
+        );
+        assert_eq!(declared[0].licence_availability, LicenceAvailability::Declared);
+
+        // npm v3 lockfiles do record it.
+        let npm = parse(
+            "package-lock.json",
+            r#"{"packages":{"node_modules/x":{"version":"1.0.0","license":"MIT"}}}"#,
+        );
+        assert_eq!(npm[0].licence_availability, LicenceAvailability::Declared);
+
+        // poetry.lock records it too, and the parser now reads it.
+        let poetry = parse(
+            "poetry.lock",
+            "[[package]]\nname = \"requests\"\nversion = \"2.31.0\"\nlicense = \"Apache-2.0\"\n",
+        );
+        assert_eq!(poetry[0].license.as_deref(), Some("Apache-2.0"));
+        assert_eq!(poetry[0].licence_availability, LicenceAvailability::Declared);
+    }
+
+    #[test]
+    fn merge_keeps_the_strongest_licence_observation() {
+        assert_eq!(LicenceAvailability::Declared.best(LicenceAvailability::NotInFormat), LicenceAvailability::Declared);
+        assert_eq!(LicenceAvailability::Absent.best(LicenceAvailability::NotInFormat), LicenceAvailability::Absent);
+        assert_eq!(LicenceAvailability::NotInFormat.best(LicenceAvailability::NotInFormat), LicenceAvailability::NotInFormat);
+    }
+
+    #[test]
     fn merge_prefers_resolved_and_license() {
         let all = vec![
             Dependency {
@@ -984,6 +1132,7 @@ category = "dev"
                 version: "1".into(),
                 ecosystem: Ecosystem::Cargo,
                 license: None,
+                licence_availability: LicenceAvailability::Absent,
                 manifest: "Cargo.toml".into(),
                 direct: true,
                 resolved: false,
@@ -993,6 +1142,7 @@ category = "dev"
                 version: "1.0.210".into(),
                 ecosystem: Ecosystem::Cargo,
                 license: Some("MIT OR Apache-2.0".into()),
+                licence_availability: LicenceAvailability::Declared,
                 manifest: "Cargo.lock".into(),
                 direct: false,
                 resolved: true,

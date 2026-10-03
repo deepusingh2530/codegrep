@@ -1,0 +1,4 @@
+components:
+  schemas:
+    User:
+      $ref: 'http://schemas.example.com/user.json'
