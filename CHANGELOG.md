@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Category map in `docs/benchmarks.md`**: a capability comparison against
+  pattern-based SAST, compiled-query engines, and hosted platforms, with the
+  trade stated both ways — fully offline/zero-telemetry/free/readable corpus on
+  one side, cross-file taint/absence classes/supply-chain breadth/platform
+  workflow on the other. Better is now a checkable claim rather than an adjective.
+- Refreshed `docs/cve-coverage.md`: 114 CRITICAL/HIGH CVEs in the window, 44
+  distinct CWEs, 30 covered, 14 gap candidates (down from 17).
+
 - **`--only platform` sidecar**: submits a repository to a hosted security
   platform's API as an opt-in subprocess (never linked, credentials from
   `AIKIDO_API_KEY`, `AIKIDO_ENDPOINT` overridable). Refused under `--offline`
