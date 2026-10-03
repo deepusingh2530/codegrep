@@ -1,0 +1,9 @@
+components:
+  securitySchemes:
+    OAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          tokenUrl: https://auth.example.com/token
+          authorizationUrl: https://auth.example.com/authorize
+          scopes: {}

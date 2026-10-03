@@ -1,0 +1,48 @@
+- id: "openapi-json-server-plaintext-url"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "API server URL uses plaintext http, so credentials and tokens travel in the clear"
+  fix: "Use an https:// server URL"
+  pattern: "\"servers\": [ ... \"url\": \"http://$HOST\""
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-json-api-key-in-query"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "API key is passed in the query string, where it lands in logs, proxies and browser history"
+  fix: "Move the key to a header (in: header) or use an OAuth2 bearer scheme"
+  pattern: "\"type\": \"apiKey\" ... \"in\": \"query\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-598"
+    "confidence": "MEDIUM"
+    "surface": "api"
+- id: "openapi-json-http-basic-auth"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "HTTP Basic auth sends base64 (reversible) credentials on every request"
+  fix: "Use an OAuth2/OIDC bearer scheme, ideally with PKCE"
+  pattern: "\"scheme\": \"basic\""
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-json-remote-ref-plaintext"
+  languages: ["json"]
+  severity: "WARNING"
+  category: "security:supply-chain"
+  message: "Schema $ref points at a remote http URL: fetched unverified and unencrypted, so a third party can rewrite your contract"
+  fix: "Vendor the schema locally, or reference it over https with a checksum in CI"
+  pattern: "\"\\$ref\": \"http://$URL\""
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-829"
+    "confidence": "HIGH"
+    "surface": "api"

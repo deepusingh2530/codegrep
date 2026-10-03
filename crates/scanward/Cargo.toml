@@ -30,3 +30,4 @@ cg-parser = { path = "../cg-parser", version = "0.3.0" }
 cg-matcher = { path = "../cg-matcher", version = "0.2.0" }
 cg-taint = { path = "../cg-taint", version = "0.2.0" }
 cg-rules = { path = "../cg-rules", version = "0.3.0" }
+cg-deps = { path = "../cg-deps", version = "0.1.0" }

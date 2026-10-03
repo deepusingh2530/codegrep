@@ -1,0 +1,6 @@
+paths:
+  /v1/orders:
+    get:
+      responses:
+        '200':
+          description: ok

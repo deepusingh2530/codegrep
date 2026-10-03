@@ -91,6 +91,7 @@ dependencies = [
 name = "cg-deps"
 version = "0.1.0"
 dependencies = [
+ "serde",
  "serde_json",
  "toml",
 ]
@@ -410,6 +411,7 @@ name = "scanward"
 version = "0.13.2"
 dependencies = [
  "anyhow",
+ "cg-deps",
  "cg-matcher",
  "cg-parser",
  "cg-rules",

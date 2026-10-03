@@ -1,0 +1,123 @@
+- id: "openapi-server-plaintext-url"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "API server URL uses plaintext http, so credentials and tokens travel in the clear"
+  fix: "Use an https:// server URL"
+  pattern: "servers: ... url: http://$HOST"
+  metadata:
+    "owasp": "A02:2021-Crypto-Failures"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-server-url-embedded-credentials"
+  languages: ["yaml"]
+  severity: "ERROR"
+  category: "security:secrets"
+  message: "Credentials are embedded in the API server URL (leaks via spec, logs and referrers)"
+  fix: "Remove the userinfo part and pass a token in the Authorization header"
+  pattern: "url: https://$CRED@$HOST"
+  metavariable-regex:
+    "CRED": "[^@\\s'\"]+:[^@\\s'\"]+"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-798"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-api-key-in-query"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "API key is passed in the query string, where it lands in logs, proxies and browser history"
+  fix: "Move the key to a header (in: header) or use an OAuth2 bearer scheme"
+  pattern: "type: apiKey ... in: query"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-598"
+    "confidence": "MEDIUM"
+    "surface": "api"
+- id: "openapi-http-basic-auth"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:weak-crypto"
+  message: "HTTP Basic auth sends base64 (reversible) credentials on every request"
+  fix: "Use an OAuth2/OIDC bearer scheme, ideally with PKCE"
+  pattern: "scheme: basic"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-319"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-oauth2-deprecated-flow"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:misconfig"
+  message: "OAuth2 resource-owner-password or implicit flow (deprecated in OAuth 2.1; no proof of possession)"
+  fix: "Use the authorization code flow with PKCE, or device code for input-constrained clients"
+  pattern-either:
+    - pattern: "password: ... tokenUrl: $URL"
+    - pattern: "implicit: ... authorizationUrl: $URL"
+  metadata:
+    "owasp": "A07:2021-Identification-Auth"
+    "cwe": "CWE-287"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-remote-ref-plaintext"
+  languages: ["yaml"]
+  severity: "WARNING"
+  category: "security:supply-chain"
+  message: "Schema $ref points at a remote http URL: fetched unverified and unencrypted, so a third party can rewrite your contract"
+  fix: "Vendor the schema locally, or reference it over https with a checksum in CI"
+  pattern-either:
+    - pattern: "\\$ref: 'http://$URL'"
+    - pattern: "\\$ref: \"http://$URL\""
+    - pattern: "\\$ref: http://$URL"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-829"
+    "confidence": "HIGH"
+    "surface": "api"
+- id: "openapi-external-ref-dependency"
+  languages: ["yaml"]
+  severity: "INFO"
+  category: "security:supply-chain"
+  message: "Schema $ref resolves to another host, so the API contract depends on something you do not build"
+  fix: "Vendor the document, or pin it and verify it in CI"
+  pattern: "\\$ref: https://$HOST/$REST"
+  metadata:
+    "owasp": "A08:2021-Integrity-Failure"
+    "cwe": "CWE-829"
+    "confidence": "MEDIUM"
+    "surface": "api"
+- id: "openapi-debug-surface-exposed"
+  languages: ["yaml"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Debug or internal management surface is published in the API contract"
+  fix: "Remove the path from the published spec, or gate it behind auth and a separate host"
+  pattern-either:
+    - pattern: "/debug"
+    - pattern: "/actuator"
+    - pattern: "/_internal"
+    - pattern: "/phpinfo"
+    - pattern: "/_profiler"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-215"
+    "confidence": "LOW"
+    "surface": "api"
+- id: "openapi-superseded-swagger-2"
+  languages: ["yaml"]
+  severity: "INFO"
+  category: "security:misconfig"
+  message: "Swagger 2.0 spec: superseded, and it cannot express the security features current tooling expects"
+  fix: "Convert to OpenAPI 3.1 (openapi: 3.1.0)"
+  pattern-either:
+    - pattern: "swagger: \"2.0\""
+    - pattern: "swagger: '2.0'"
+    - pattern: "swagger: 2.0"
+  metadata:
+    "owasp": "A05:2021-Misconfiguration"
+    "cwe": "CWE-1104"
+    "confidence": "HIGH"
+    "surface": "api"

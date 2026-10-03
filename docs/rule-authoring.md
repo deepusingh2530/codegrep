@@ -25,12 +25,18 @@ file text, whitespace-insensitive and multi-line.
 | `$VAR` | one code unit. Lazy (`.+?`) mid-pattern, greedy (`.+`) only when trailing |
 | `$...ARGS` | variadic filler; prefer `...` for plain argument lists |
 | `...` | any text filler |
+| `\$name` | a **literal** `$` followed by text (OpenAPI/JSON Schema `$ref`, `$schema`) |
 | everything else | literal — the matcher regex-escapes it |
 
 Consequences worth knowing before you write a pattern:
 
 - **No character classes, no alternation, no anchors** in the pattern itself.
   Put that logic in `metavariable-regex`.
+- **A bare `$` before a word is always a metavariable.** `\$ref: http://$URL`
+  compiles to "any key, then `http://`" — it matches `url: http://…` in an
+  Ansible playbook. Escape it: `\$ref`. There is no other escape, and getting
+  this wrong fails silently, so the fixture pass case should include the shape
+  you are *not* matching.
 - **Keep the dangerous API literal in the pattern.** It feeds the Aho-Corasick
   pre-filter; a pattern with no extractable literal disables the fast path for
   every file.

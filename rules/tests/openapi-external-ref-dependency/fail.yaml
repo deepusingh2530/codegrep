@@ -1,0 +1,4 @@
+components:
+  schemas:
+    Money:
+      $ref: https://schemas.example.com/money.json

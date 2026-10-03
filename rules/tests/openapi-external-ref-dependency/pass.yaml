@@ -1,0 +1,5 @@
+components:
+  schemas:
+    Money:
+      $ref: '#/components/schemas/MoneyBase'
+      description: see http://example.com/money for details

@@ -1,0 +1,8 @@
+components:
+  schemas:
+    User:
+      $ref: '#/components/schemas/UserBase'
+  parameters:
+    - name: docs
+      in: query
+      example: http://example.com/help

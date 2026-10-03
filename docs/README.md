@@ -12,6 +12,7 @@
 | [suppressions.md](suppressions.md) | False-positive management: suppression files and inline ignores |
 | [rule-import.md](rule-import.md) | Using rules written in the portable pattern schema, and what is refused |
 | [licensing.md](licensing.md) | Noncommercial terms, the MIT boundary for 0.12.0 and earlier, commercial licensing |
+| [supply-chain.md](supply-chain.md) | Dependency inventory, licence policy and typosquat analysis: what is checked offline, and what needs a sidecar |
 
 Project-level documents live at the repository root: [README](../README.md),
 [CONTRIBUTING](../CONTRIBUTING.md), [SECURITY](../SECURITY.md),
