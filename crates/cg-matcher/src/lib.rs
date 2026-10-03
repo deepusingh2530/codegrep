@@ -19,6 +19,23 @@ pub struct Match {
     pub captures: HashMap<String, String>,
 }
 
+/// Byte offset of the first non-whitespace character at or after `from`.
+fn skip_ws(pattern: &str, from: usize) -> usize {
+    let bytes = pattern.as_bytes();
+    let mut j = from;
+    while j < bytes.len() && (bytes[j] as char).is_whitespace() {
+        j += 1;
+    }
+    j
+}
+
+/// True when an ellipsis follows `from`, ignoring whitespace. Lets `f($X, ...)`,
+/// `f($X,... )` and `f($X,  ...)` all compile the same way.
+fn ellipsis_follows(pattern: &str, from: usize) -> bool {
+    let j = skip_ws(pattern, from);
+    pattern[j..].starts_with("...")
+}
+
 /// Translate a scanward pattern to a regex string.
 /// - `\$VAR` escape -> a literal `$` (JSON Schema/OpenAPI `$ref`, `$schema`,
 ///   jQuery). Without it, a pattern that needs a literal `$` immediately before
@@ -26,6 +43,7 @@ pub struct Match {
 /// - `$VAR`, `$X` -> named capture `.+?`
 /// - `$...ARGS` -> named capture `.*?`
 /// - `...` -> `.*?`
+/// - `f($X, ...)` -> $X plus **zero or more** further arguments
 /// - whitespace runs -> `\s*` (patterns are whitespace/newline-insensitive,
 ///   so single-line patterns match multi-line call sites)
 /// - rest is regex-escaped.
@@ -90,6 +108,18 @@ pub fn pattern_to_regex_src(pattern: &str) -> String {
                 out.push_str(&format!("(?P<{name}>.+?)"));
             }
             i = j;
+        } else if ch == ',' && ellipsis_follows(pattern, i + 1) {
+            // `f($X, ...)` means "$X, then any number of further arguments --
+            // including none". Compiling the comma as a literal made the trailing
+            // arguments MANDATORY, so every single-argument call was missed:
+            // `exec(req.query.cmd)` never matched `exec($VAR, ...)`.
+            //
+            // Because matching is DOTALL, that same mandatory comma was satisfied
+            // by any comma appearing later in the file, so the finding was
+            // attributed to the wrong line. That is why the rule appeared to fire
+            // only when unrelated code happened to contain a comma.
+            out.push_str("(?:,\\s*.*?)?");
+            i = skip_ws(pattern, i + 1) + 3;
         } else if pattern[i..].starts_with("...") {
             out.push_str(".*?");
             i += 3;
@@ -233,5 +263,96 @@ mod escape_tests {
         let re = compile_pattern("\\$ref: $URL").unwrap();
         assert!(re.is_match("$ref: ./components/schemas/User"));
         assert!(!re.is_match("prefix: ./components/schemas/User"));
+    }
+}
+
+#[cfg(test)]
+mod trailing_ellipsis_tests {
+    use super::*;
+
+    /// Regression: `exec($VAR, ...)` compiled the comma as a literal, so the
+    /// trailing arguments were MANDATORY. Every single-argument call was missed,
+    /// which is the overwhelmingly common shape for a command-injection sink.
+    /// Because matching is DOTALL, the same mandatory comma was then satisfied by
+    /// any comma appearing later in the file, so the rule only fired when the file
+    /// happened to contain an unrelated comma -- and reported the wrong line.
+    #[test]
+    fn single_argument_call_matches() {
+        let re = compile_pattern("exec($VAR, ...)").unwrap();
+        assert!(
+            re.is_match("return exec(req.query.cmd);"),
+            "a one-argument call is the common sink and must match"
+        );
+    }
+
+    #[test]
+    fn multi_argument_call_still_matches() {
+        let re = compile_pattern("exec($VAR, ...)").unwrap();
+        assert!(re.is_match("return exec(req.query.cmd, { shell: true });"));
+    }
+
+    #[test]
+    fn unrelated_later_comma_does_not_change_the_match() {
+        // Before the fix this returned true only because the regex could span
+        // lines to reach the comma in `db, id`.
+        let re = compile_pattern("exec($VAR, ...)").unwrap();
+        let src = "function run(req) { return exec(req.query.cmd); }\n\
+                   function q(db, id) { return db.query(1); }";
+        let caps = re.captures(src).expect("the sink still matches");
+        let var = caps.name("VAR").unwrap().as_str();
+        assert_eq!(var, "req.query.cmd", "capture must not run past the call");
+    }
+
+    #[test]
+    fn spacing_variants_behave_identically() {
+        for pattern in ["exec($VAR, ...)", "exec($VAR,...)", "exec($VAR,  ...)"] {
+            let re = compile_pattern(pattern).unwrap();
+            assert!(
+                re.is_match("exec(a)"),
+                "{pattern} should match a one-argument call"
+            );
+        }
+    }
+
+    #[test]
+    fn ellipsis_after_a_comma_is_optional_but_a_bare_comma_is_not() {
+        // `f($A, $B, ...)` still requires both named arguments.
+        let re = compile_pattern("f($A, $B, ...)").unwrap();
+        assert!(!re.is_match("f(1)"), "one argument is not enough");
+        assert!(re.is_match("f(1, 2)"));
+    }
+
+    /// Regression for the rule-authoring half of the fix: a pattern that stops at
+    /// `...` without a closing paren can end mid-token, truncating the final
+    /// capture so a `metavariable-regex` post-filter inspects a shorter value.
+    /// Terminating the pattern is what makes the capture stable.
+    #[test]
+    fn unterminated_pattern_can_truncate_the_last_capture() {
+        let terminated = compile_pattern("pbkdf2($PW, $ITER, ...)").unwrap();
+        let caps = terminated
+            .captures("pbkdf2(password, 600000, 32, \"sha256\")")
+            .unwrap();
+        assert_eq!(caps.name("ITER").unwrap().as_str(), "600000");
+    }
+}
+
+#[cfg(test)]
+mod regex_receiver_tests {
+    use super::*;
+
+    /// `pattern-not` on the command-injection rule relies on this shape: a
+    /// regex-literal receiver (`/[a-z]+/.exec(line)`) must be recognisable so it
+    /// can be excluded from `exec($VAR, ...)`.
+    #[test]
+    fn regex_literal_receiver_is_recognisable() {
+        let neg = compile_pattern("/$RE/.exec(...)").unwrap();
+        assert!(
+            neg.is_match("const m = /[a-z]+/.exec(line);"),
+            "a regex-literal .exec() call must match the negative pattern"
+        );
+        assert!(
+            !neg.is_match("const cp = require('child_process');"),
+            "ordinary code must not match the negative pattern"
+        );
     }
 }

@@ -4,9 +4,15 @@ severity: ERROR
 category: security:owasp-a1-injection
 message: Possible command injection via child_process.spawn with shell option
 fix: Avoid shell:true with user input; use argument arrays
+# Only a shell makes spawn() injectable. The default (no shell) already runs the
+# program directly with an argument vector, so `spawn("git", ["log", branch])`
+# and `spawn("git", ["log", branch], { shell: false })` are both safe and must
+# not be reported as command injection.
 pattern-either:
-  - pattern: spawn($VAR)
-  - pattern: spawn($VAR, ...)
+  - pattern: "spawn($CMD, { shell: true })"
+  - pattern: "spawn($CMD, $ARGS, { shell: true })"
+  - pattern: "spawn($CMD, $ARGS, $OPTS, { shell: true })"
+  - pattern: "spawn($CMD, $ARGS, $OPTS, $MORE, { shell: true })"
 metadata:
   owasp: A03:2021-Injection
   cwe: CWE-78

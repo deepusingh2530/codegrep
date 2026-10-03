@@ -46,9 +46,9 @@
   fix: "Parameterize the query and coerce/validate the value as a number first"
   pattern-either:
     - pattern: "query($Q)"
-    - pattern: "query($Q, ..."
+    - pattern: "query($Q, ...)"
     - pattern: "execute($Q)"
-    - pattern: "execute($Q, ..."
+    - pattern: "execute($Q, ...)"
     - pattern: "raw($Q)"
     - pattern: "pool.query($Q)"
   metavariable-regex:
@@ -65,13 +65,13 @@
   fix: "Coerce and allowlist the field values before building the filter"
   pattern-either:
     - pattern: "find($Q, ...)"
-    - pattern: "findOne($Q, ..."
-    - pattern: "findOneAndUpdate($Q, ..."
-    - pattern: "deleteOne($Q, ..."
-    - pattern: "deleteMany($Q, ..."
-    - pattern: "updateOne($Q, ..."
-    - pattern: "updateMany($Q, ..."
-    - pattern: "countDocuments($Q, ..."
+    - pattern: "findOne($Q, ...)"
+    - pattern: "findOneAndUpdate($Q, ...)"
+    - pattern: "deleteOne($Q, ...)"
+    - pattern: "deleteMany($Q, ...)"
+    - pattern: "updateOne($Q, ...)"
+    - pattern: "updateMany($Q, ...)"
+    - pattern: "countDocuments($Q, ...)"
   metavariable-regex:
     "Q": "req\\.|request\\.|body|query|params|payload"
   metadata:

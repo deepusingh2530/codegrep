@@ -108,7 +108,7 @@
   fix: "Use a bcrypt cost of at least 10"
   pattern-either:
     - pattern: "bcrypt.hashSync($P, $C)"
-    - pattern: "bcrypt.hash($P, $C, ..."
+    - pattern: "bcrypt.hash($P, $C, ...)"
     - pattern: "bcrypt.genSaltSync($C)"
   metavariable-regex:
     "C": "^[1-8]$"
@@ -191,8 +191,8 @@
   message: "fs.open with a dynamic path (path traversal)"
   fix: "Resolve paths against a fixed base and verify containment"
   pattern-either:
-    - pattern: "fs.open($P, ..."
-    - pattern: "fs.openSync($P, ..."
+    - pattern: "fs.open($P, ...)"
+    - pattern: "fs.openSync($P, ...)"
   metadata:
     "owasp": "A01:2021-Broken-Access-Control"
     "cwe": "CWE-22"
@@ -254,8 +254,8 @@
   message: "PBKDF2 called with an empty salt"
   fix: "Use a unique random salt per password (crypto.randomBytes)"
   pattern-either:
-    - pattern: "pbkdf2Sync($P, \"\", $I, ..."
-    - pattern: "pbkdf2($P, \"\", $I, ..."
+    - pattern: "pbkdf2Sync($P, \"\", $I, ...)"
+    - pattern: "pbkdf2($P, \"\", $I, ...)"
   metadata:
     "owasp": "A02:2021-Crypto-Failures"
     "cwe": "CWE-760"
