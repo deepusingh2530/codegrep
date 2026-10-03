@@ -1,6 +1,6 @@
 [package]
 name = "scanward"
-version = "0.13.1"
+version = "0.13.2"
 edition = "2021"
 authors = ["Deepu Singh <dksingh1130@gmail.com>"]
 license = "PolyForm-Noncommercial-1.0.0"

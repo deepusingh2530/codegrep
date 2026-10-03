@@ -16,9 +16,16 @@
 - **Dockerfile**: corpus baked in at `/rules` so a bare run against a bind mount
   works with no flags, non-root by default (uid 10001), stripped binary, and
   OCI labels including the licence, so enterprise image scanners see it.
-- **Release tarballs now ship the rule corpus** (0.13.1). Previously a tarball
-  user got a binary that could not scan anything without cloning the repository
-  first — which also made a Homebrew formula unusable.
+- **Release tarballs ship `rules/` and a working `scanward-corpus` wrapper**
+  (0.13.1, corrected in 0.13.2). Previously a tarball user got a binary that
+  could not scan anything without cloning the repository first — which also
+  made a Homebrew formula unusable. The first wrapper was itself broken twice,
+  and both were caught by running the published artifact rather than reading
+  the YAML: it placed `--rules` *before* the subcommand (usage error), and
+  `rule test` takes the corpus as a *positional* path and rejects `--rules`
+  outright. It now dispatches per subcommand, passes global flags straight
+  through, and skips adding its own `--rules` when the caller supplied one,
+  because clap rejects a repeated flag.
 
 - **Category map in `docs/benchmarks.md`**: a capability comparison against
   pattern-based SAST, compiled-query engines, and hosted platforms, with the
