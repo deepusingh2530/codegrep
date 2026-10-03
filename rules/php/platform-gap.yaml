@@ -1,0 +1,17 @@
+id: "php-ssrf-idn-host"
+languages: ["php"]
+severity: "ERROR"
+category: "security:owasp-a10-ssrf"
+message: "Outbound HTTP call to a host taken from request data (SSRF)"
+fix: "Resolve the host and check it against an allowlist before the call"
+pattern-either:
+  - pattern: "curl_setopt($CH, CURLOPT_URL, $URL)"
+  - pattern: "curl_setopt($CH, CURLOPT_URL, $URL, ...)"
+  - pattern: "file_get_contents($URL, ...)"
+  - pattern: "fopen($URL, ..."
+metavariable-regex:
+  "URL": "\\$_GET|\\$_POST|\\$_REQUEST|\\$_(GET|POST|REQUEST)|urldecode|\\$[a-z_]*host|\\$[a-z_]*url"
+metadata:
+  "owasp": "A10:2021-Server-Side-Request-Forgery"
+  "cwe": "CWE-918"
+  "confidence": "MEDIUM"

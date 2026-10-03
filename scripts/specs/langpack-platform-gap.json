@@ -1,0 +1,239 @@
+[
+  {
+    "id": "js-encoded-path-traversal",
+    "group": "platform-gap",
+    "languages": [
+      "javascript",
+      "typescript"
+    ],
+    "severity": "ERROR",
+    "category": "security:path-traversal",
+    "message": "Traversal payload reaches a filesystem path after URL decoding",
+    "fix": "Decode once, normalize the path, then verify it stays inside the intended root",
+    "either": [
+      "fs.$ANY($PATH, ...)",
+      "fs.$ANY($PATH, $OPTS)",
+      "path.join($BASE, decodeURIComponent($IN))",
+      "path.resolve($BASE, decodeURIComponent($IN))"
+    ],
+    "mvr": {
+      "PATH": "%2e|\\.\\./|%252e|%c0%ae|decodeURI|decodeURIComponent"
+    },
+    "metadata": {
+      "owasp": "A01:2021-Broken-Access-Control",
+      "cwe": "CWE-22",
+      "confidence": "MEDIUM"
+    },
+    "fail": "fs.readFile(path.join(baseDir, decodeURIComponent(userPath)), cb);",
+    "pass": "fs.readFile(path.join(baseDir, config.name), cb);"
+  },
+  {
+    "id": "js-ssrf-idn-host",
+    "group": "platform-gap",
+    "languages": [
+      "javascript",
+      "typescript"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a10-ssrf",
+    "message": "Outbound request to a host built from user input (SSRF, incl. IDN/punycode)",
+    "fix": "Resolve the host, then compare against an allowlist of permitted hosts",
+    "either": [
+      "fetch($URL)",
+      "fetch($URL, ...)",
+      "axios.get($URL)",
+      "axios.get($URL, ...)",
+      "http.get($URL)",
+      "http.get($URL, ...)",
+      "https.get($URL)",
+      "https.get($URL, ...)",
+      "needle.get($URL)",
+      "needle.get($URL, ...)"
+    ],
+    "mvr": {
+      "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]eq|[Hh]ost|[Oo]rigin|[Uu]rl"
+    },
+    "metadata": {
+      "owasp": "A10:2021-Server-Side-Request-Forgery",
+      "cwe": "CWE-918",
+      "confidence": "MEDIUM"
+    },
+    "fail": "const res = await fetch(`https://${userHost}/api/v1/profile`, { headers });",
+    "pass": "const res = await fetch('https://api.internal.example/v1/profile', { cache: 'no-store' });"
+  },
+  {
+    "id": "js-sql-injection-numeric",
+    "group": "platform-gap",
+    "languages": [
+      "javascript",
+      "typescript"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a1-injection",
+    "message": "SQL built from a numeric or otherwise non-string value (injection via coercion)",
+    "fix": "Parameterize the query and coerce/validate the value as a number first",
+    "either": [
+      "query($Q)",
+      "query($Q, ...",
+      "execute($Q)",
+      "execute($Q, ...",
+      "raw($Q)",
+      "pool.query($Q)"
+    ],
+    "mvr": {
+      "Q": "\\+\\s*\\(|\\$\\{|`[^`]*\\$\\{|\\+\\s*[a-zA-Z_$]"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-89",
+      "confidence": "MEDIUM"
+    },
+    "fail": "db.query('SELECT * FROM orders WHERE id = ' + orderId);",
+    "pass": "db.query('SELECT * FROM orders WHERE id = ?', [orderId]);"
+  },
+  {
+    "id": "js-nosql-operator-injection",
+    "group": "platform-gap",
+    "languages": [
+      "javascript",
+      "typescript"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a1-injection",
+    "message": "Request data passed straight into a NoSQL query filter (operator injection)",
+    "fix": "Coerce and allowlist the field values before building the filter",
+    "either": [
+      "find($Q, ...)",
+      "findOne($Q, ...",
+      "findOneAndUpdate($Q, ...",
+      "deleteOne($Q, ...",
+      "deleteMany($Q, ...",
+      "updateOne($Q, ...",
+      "updateMany($Q, ...",
+      "countDocuments($Q, ..."
+    ],
+    "mvr": {
+      "Q": "req\\.|request\\.|body|query|params|payload"
+    },
+    "metadata": {
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-943",
+      "confidence": "MEDIUM"
+    },
+    "fail": "User.find(req.query, (err, users) => { res.json(users); });",
+    "pass": "User.find({ email: String(email) }, (err, users) => { res.json(users); });"
+  },
+  {
+    "id": "py-encoded-path-traversal",
+    "group": "platform-gap",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:path-traversal",
+    "message": "Filesystem path built from a still-encoded traversal payload",
+    "fix": "urllib.parse.unquote once, then os.path.realpath and check the prefix",
+    "either": [
+      "os.path.join($BASE, unquote($IN))",
+      "os.path.join($BASE, urllib.parse.unquote($IN))",
+      "open(unquote($IN))",
+      "send_file(unquote($IN))"
+    ],
+    "mvr": {
+      "IN": "request|argv|param|input|query|args|GET|POST|body|filename|\\$_(GET|POST|REQUEST)"
+    },
+    "metadata": {
+      "owasp": "A01:2021-Broken-Access-Control",
+      "cwe": "CWE-22",
+      "confidence": "MEDIUM"
+    },
+    "fail": "path = os.path.join(UPLOAD_DIR, urllib.parse.unquote(request.args[\"file\"]))\nreturn send_file(path)",
+    "pass": "path = os.path.join(UPLOAD_DIR, os.path.basename(filename))\nreturn send_file(path)"
+  },
+  {
+    "id": "py-ssrf-idn-host",
+    "group": "platform-gap",
+    "languages": [
+      "python"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a10-ssrf",
+    "message": "Outbound HTTP request to a host taken from request data (SSRF)",
+    "fix": "Resolve the host and compare it against an allowlist before requesting",
+    "either": [
+      "requests.get($URL)",
+      "requests.get($URL, ...",
+      "requests.post($URL)",
+      "requests.post($URL, ...",
+      "httpx.get($URL)",
+      "httpx.post($URL)",
+      "urlopen($URL)",
+      "urlopen($URL, ..."
+    ],
+    "mvr": {
+      "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]eq|[Hh]ost|[Uu]rl"
+    },
+    "metadata": {
+      "owasp": "A10:2021-Server-Side-Request-Forgery",
+      "cwe": "CWE-918",
+      "confidence": "MEDIUM"
+    },
+    "fail": "r = requests.get(f\"https://{request.args['host']}/health\")",
+    "pass": "r = requests.get(\"https://api.internal.example/health\", timeout=5)"
+  },
+  {
+    "id": "php-ssrf-idn-host",
+    "group": "platform-gap",
+    "languages": [
+      "php"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a10-ssrf",
+    "message": "Outbound HTTP call to a host taken from request data (SSRF)",
+    "fix": "Resolve the host and check it against an allowlist before the call",
+    "either": [
+      "curl_setopt($CH, CURLOPT_URL, $URL)",
+      "curl_setopt($CH, CURLOPT_URL, $URL, ...)",
+      "file_get_contents($URL, ...)",
+      "fopen($URL, ..."
+    ],
+    "mvr": {
+      "URL": "\\$_GET|\\$_POST|\\$_REQUEST|\\$_(GET|POST|REQUEST)|urldecode|\\$[a-z_]*host|\\$[a-z_]*url"
+    },
+    "metadata": {
+      "owasp": "A10:2021-Server-Side-Request-Forgery",
+      "cwe": "CWE-918",
+      "confidence": "MEDIUM"
+    },
+    "fail": "curl_setopt($ch, CURLOPT_URL, 'https://' . $_GET['host'] . '/ping');",
+    "pass": "curl_setopt($ch, CURLOPT_URL, 'https://api.internal.example/ping');"
+  },
+  {
+    "id": "ruby-ssrf-idn-host",
+    "group": "platform-gap",
+    "languages": [
+      "ruby"
+    ],
+    "severity": "ERROR",
+    "category": "security:owasp-a10-ssrf",
+    "message": "Outbound HTTP call to a host taken from request data (SSRF)",
+    "fix": "Resolve the host and check it against an allowlist before the call",
+    "either": [
+      "Net::HTTP.get_response(URI($URL))",
+      "Net::HTTP.get(URI($URL))",
+      "open-uri($URL, ...",
+      "URI.open($URL, ...",
+      "Faraday.get($URL, ..."
+    ],
+    "mvr": {
+      "URL": "params\\[|request\\.|\\$[a-z_]*host|\\$[a-z_]*url|CGI"
+    },
+    "metadata": {
+      "owasp": "A10:2021-Server-Side-Request-Forgery",
+      "cwe": "CWE-918",
+      "confidence": "MEDIUM"
+    },
+    "fail": "Net::HTTP.get_response(URI(\"https://#{params[:host]}/status\"))",
+    "pass": "Net::HTTP.get_response(URI(\"https://api.internal.example/status\"))"
+  }
+]

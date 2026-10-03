@@ -1,0 +1,80 @@
+- id: "js-encoded-path-traversal"
+  languages: ["javascript", "typescript"]
+  severity: "ERROR"
+  category: "security:path-traversal"
+  message: "Traversal payload reaches a filesystem path after URL decoding"
+  fix: "Decode once, normalize the path, then verify it stays inside the intended root"
+  pattern-either:
+    - pattern: "fs.$ANY($PATH, ...)"
+    - pattern: "fs.$ANY($PATH, $OPTS)"
+    - pattern: "path.join($BASE, decodeURIComponent($IN))"
+    - pattern: "path.resolve($BASE, decodeURIComponent($IN))"
+  metavariable-regex:
+    "PATH": "%2e|\\.\\./|%252e|%c0%ae|decodeURI|decodeURIComponent"
+  metadata:
+    "owasp": "A01:2021-Broken-Access-Control"
+    "cwe": "CWE-22"
+    "confidence": "MEDIUM"
+- id: "js-ssrf-idn-host"
+  languages: ["javascript", "typescript"]
+  severity: "ERROR"
+  category: "security:owasp-a10-ssrf"
+  message: "Outbound request to a host built from user input (SSRF, incl. IDN/punycode)"
+  fix: "Resolve the host, then compare against an allowlist of permitted hosts"
+  pattern-either:
+    - pattern: "fetch($URL)"
+    - pattern: "fetch($URL, ...)"
+    - pattern: "axios.get($URL)"
+    - pattern: "axios.get($URL, ...)"
+    - pattern: "http.get($URL)"
+    - pattern: "http.get($URL, ...)"
+    - pattern: "https.get($URL)"
+    - pattern: "https.get($URL, ...)"
+    - pattern: "needle.get($URL)"
+    - pattern: "needle.get($URL, ...)"
+  metavariable-regex:
+    "URL": "[Uu]ser|[Ii]nput|[Qq]uery|[Pp]aram|[Rr]eq|[Hh]ost|[Oo]rigin|[Uu]rl"
+  metadata:
+    "owasp": "A10:2021-Server-Side-Request-Forgery"
+    "cwe": "CWE-918"
+    "confidence": "MEDIUM"
+- id: "js-sql-injection-numeric"
+  languages: ["javascript", "typescript"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "SQL built from a numeric or otherwise non-string value (injection via coercion)"
+  fix: "Parameterize the query and coerce/validate the value as a number first"
+  pattern-either:
+    - pattern: "query($Q)"
+    - pattern: "query($Q, ..."
+    - pattern: "execute($Q)"
+    - pattern: "execute($Q, ..."
+    - pattern: "raw($Q)"
+    - pattern: "pool.query($Q)"
+  metavariable-regex:
+    "Q": "\\+\\s*\\(|\\$\\{|`[^`]*\\$\\{|\\+\\s*[a-zA-Z_$]"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-89"
+    "confidence": "MEDIUM"
+- id: "js-nosql-operator-injection"
+  languages: ["javascript", "typescript"]
+  severity: "ERROR"
+  category: "security:owasp-a1-injection"
+  message: "Request data passed straight into a NoSQL query filter (operator injection)"
+  fix: "Coerce and allowlist the field values before building the filter"
+  pattern-either:
+    - pattern: "find($Q, ...)"
+    - pattern: "findOne($Q, ..."
+    - pattern: "findOneAndUpdate($Q, ..."
+    - pattern: "deleteOne($Q, ..."
+    - pattern: "deleteMany($Q, ..."
+    - pattern: "updateOne($Q, ..."
+    - pattern: "updateMany($Q, ..."
+    - pattern: "countDocuments($Q, ..."
+  metavariable-regex:
+    "Q": "req\\.|request\\.|body|query|params|payload"
+  metadata:
+    "owasp": "A03:2021-Injection"
+    "cwe": "CWE-943"
+    "confidence": "MEDIUM"
