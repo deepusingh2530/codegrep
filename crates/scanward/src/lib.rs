@@ -22,7 +22,7 @@ use anyhow::{Context, Result};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 // Re-exports so embedders only need the `scanward` crate.
@@ -320,12 +320,40 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
     if let Some(ms) = opts.min_severity.as_deref() {
         parse_min_severity(ms)?;
     }
-    if opts.jobs > 0 {
-        rayon::ThreadPoolBuilder::new()
-            .num_threads(opts.jobs)
-            .build_global()
-            .ok();
+    // Fail loudly on a path that does not exist. Scanning a typo'd directory
+    // used to report "no findings" and exit 0, which means a CI gate with
+    // `--error` silently passes when the path is wrong — the worst possible
+    // outcome for a security tool.
+    let root_path = Path::new(&opts.path);
+    if !root_path.exists() {
+        anyhow::bail!("scanward: path does not exist: {}", opts.path);
     }
+    // Per-call thread pool. Building the *global* pool only ever succeeds once
+    // per process, so a second scan() in the same process (the normal case for
+    // an embedding application) silently kept the first call's thread count —
+    // `--jobs` was ignored. A local pool is scoped to this scan and cannot leak.
+    let pool = {
+        let mut b = rayon::ThreadPoolBuilder::new();
+        if opts.jobs > 0 {
+            // rayon aborts the process if a pool cannot spawn this many
+            // threads, so refuse clearly instead.
+            let cap = std::thread::available_parallelism()
+                .map(|n| n.get())
+                .unwrap_or(8)
+                .saturating_mul(8)
+                .max(64);
+            if opts.jobs > cap {
+                anyhow::bail!(
+                    "scanward: --jobs {} is not usable (this machine allows up to {}); \
+                     omit --jobs to use the available parallelism",
+                    opts.jobs,
+                    cap
+                );
+            }
+            b = b.num_threads(opts.jobs);
+        }
+        b.build().context("creating the scan thread pool")?
+    };
     let (rules, mut warnings) = load_rule_set_report(&opts.rules, &opts.config)?;
     let index = cg_rules::RuleIndex::build(&rules);
 
@@ -401,7 +429,9 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
     let scanned = files.len();
 
     // Per-file result carries (path, content_hash, findings, was_cached) for cache write-back.
-    let per_file: Vec<(String, u64, Vec<Finding>, bool)> = files
+    // Runs inside the per-call pool so --jobs applies to this scan specifically.
+    let per_file: Vec<(String, u64, Vec<Finding>, bool)> = pool.install(|| {
+    files
         .par_iter()
         .filter_map(|path| {
             let path_s = path.to_string_lossy().to_string();
@@ -546,7 +576,8 @@ pub fn scan(opts: &ScanOptions) -> Result<ScanReport> {
                 Some((path_s, chash, out, false))
             }
         })
-        .collect();
+        .collect()
+    });
 
     // Cache write-back (skip diff-only runs: cached full findings stay authoritative).
     if !opts.no_cache && !diff_active {

@@ -1,0 +1,17 @@
+[package]
+name = "cg-deps"
+version = "0.1.0"
+edition = "2021"
+authors = ["Deepu Singh <dksingh1130@gmail.com>"]
+license = "PolyForm-Noncommercial-1.0.0"
+description = "Dependency manifest inventory for scanward (Cargo, npm, PyPI, Go, Composer, Ruby)"
+repository = "https://github.com/deepusingh2530/scanward"
+keywords = ["sast", "sbom", "dependencies", "supply-chain", "license"]
+categories = ["development-tools"]
+readme = "README.md"
+
+[dependencies]
+serde_json = { workspace = true }
+toml = "0.9"
+
+[dev-dependencies]

@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+- **`cg-deps`: native dependency inventory.** A new crate parses the manifests a
+  repository actually contains into one flat, deterministic list of
+  dependencies — name, version, ecosystem, declared licence, and *directness*.
+  Formats: `Cargo.lock`, `Cargo.toml`, `package-lock.json` (v1 tree and v2/v3
+  `packages`), `requirements.txt`, `pyproject.toml` (PEP 621 + Poetry),
+  `poetry.lock`, `go.mod`, `composer.lock`, `Gemfile.lock`. Maven and MSBuild
+  are declared gaps rather than approximated.
+  This is the shared spine for supply-chain inventory/SBOM, licence policy, and
+  typosquat analysis, which all need the same parsed data. Two guarantees worth
+  naming: a version range is preserved verbatim (`>=2.0`, `^1.2`) rather than
+  normalized, and `license: None` means "not declared here", never "free" — a
+  policy decision must not be made on a guess.
+- **Fixed: the literal prefilter silently disabled rules.** A rule whose
+  patterns yielded no indexable literal was dropped from every scan: it loaded,
+  validated, and passed its own fixtures (the fixture harness bypasses the
+  index), so nothing noticed it could never fire. **Ten shipped
+  hardcoded-secret rules were in that state** — OpenAI keys, SendGrid, Twilio
+  SIDs, IVs and salts across Go/JS/PHP/Python/Ruby — and a repository containing
+  a real-looking SendGrid key produced *zero* findings. `RuleIndex` now keeps
+  zero-literal rules as always-candidates so a valid rule can never be
+  disabled by an optimization, and the extractor emits whole tokens (so `sk-`
+  and `SG.` become usable literals) and keeps dashes inside tokens.
+  Regression tests cover the engine guarantee and one of the real rules.
+- **Fixed: scanning a non-existent path reported success.** `scanward scan
+  /typo/path` printed "no findings" and exited 0, so a CI gate with `--error`
+  passed on a mistyped path. It now fails with a clear error and exit 1.
+- **Fixed: `--jobs <huge>` aborted the process.** An absurd thread count made
+  rayon abort mid-run. `--jobs` is now validated against the machine's
+  available parallelism with an actionable message.
+- **Fixed: `--jobs` was global process state.** The thread pool was built with
+  `build_global()`, which succeeds only once per process, so a second `scan()`
+  in the same process — the normal case for an embedding application —
+  silently kept the first call's thread count. Scans now run in a per-call
+  pool, so `--jobs` applies to the scan it was given to.
+
 - **Install parity: Homebrew tap and a published container image.**
   `docker.yml` verifies the image on every PR that touches the build (including
   a non-root assertion and a real scan of `testdata/`), and on a `v*` tag

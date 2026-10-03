@@ -49,6 +49,7 @@ call summaries taint consumes, not to gate pattern hits.
 | [`cg-matcher`](../crates/cg-matcher) | Pattern → regex compilation and capture semantics, metavariable-regex/-comparison |
 | [`cg-taint`](../crates/cg-taint) | Intra-procedural taint with function summaries |
 | [`cg-rules`](../crates/cg-rules) | Rule loading/validation, literal extraction, portable-schema importer |
+| [`cg-deps`](../crates/cg-deps) | Dependency manifest inventory (cargo, npm, PyPI, Go, Composer, RubyGems) |
 
 Dependencies flow one way: `cg-parser` → `cg-ir` → `cg-matcher` → `cg-taint` →
 `cg-rules` → `scanward`. No crate depends on `scanward`.
